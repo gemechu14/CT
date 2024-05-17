@@ -15,7 +15,8 @@ const initializeData  = async (req,res,next) => {
     }
   } catch (error) {
     console.error('Error initializing roles:', error);
-    return next(createError.createError("Error initializing roles"))
+    return res.status(500).json("Internal server error")
+    // return next(createError.createError("Error initializing roles"))
   }
 };
 
