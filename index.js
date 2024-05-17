@@ -53,14 +53,14 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, swaggerOptions)
 );
-// initializeData()
-//   .then(() => {
-//     console.log("Roles initialized successfully");
-//   })
-//   .catch((error) => {
-//     console.error("Error initializing roles:", error);
-//     process.exit(1); // Exit the process with a non-zero status code
-//   });
+initializeData()
+  .then(() => {
+    console.log("Roles initialized successfully");
+  })
+  .catch((error) => {
+    console.error("Error initializing roles:", error);
+    process.exit(1); // Exit the process with a non-zero status code
+  });
 
 app.use((req, res, next) => {
   const error = new Error("There is no such URL");
