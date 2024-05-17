@@ -4,11 +4,11 @@
 require("dotenv").config();
 const { Sequelize } = require("sequelize");
 const sequelize = new Sequelize({
-  host: process.env.DB_HOST || "localhost",
-  port: process.env.DB_PORT || "5432",
-  database: process.env.DB_NAME || "cedarstreet",
-  username: process.env.DB_USER  ||"postgres",
-  password: process.env.DB_PASSWORD || "pass",
+  host: "localhost",
+  port: "5432",
+  database: "cedarstreet",
+  username: "postgres",
+  password: "pass",
   dialect: "postgres",
 });
 // Test the database connection
@@ -22,12 +22,12 @@ async function testConnection() {
     console.error("Error connecting");
   }
 }
-sequelize.sync({ force: true }) // Use force: true carefully, as it drops existing tables
+sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables
   .then(() => {
     console.log('Database synchronized successfully.');
   })
   .catch((error) => {
-    console.error('Erro r synchronizing database:', error);
+    console.error('Error synchronizing database:', error);
   });
   
 testConnection();
