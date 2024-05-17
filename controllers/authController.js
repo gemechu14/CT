@@ -6,6 +6,9 @@ const createError=require("../utils/errorResponse.js");
 const Role = require("../models/role.js");
 const Permission = require("../models/permission.js");
 const Tenant = require("../models/tenant.js");
+const sequelize = require('../database/db');
+const UserRole = require("../models/userRole.js");
+const UserTenant = require("../models/userTenant.js");
 
 
 const signToken = (id, email,permissions,tenant,defaultTenant,currentTenant) => {
@@ -122,5 +125,55 @@ const tenantIds = user.Tenants.map(tenant => tenant.id);
   console.log(error)
       return next(createError.createError(500, "Internal server error"));
   
+    }
+  };
+
+  exports.signup= async (req, res,next) => {
+    const transaction = await sequelize.transaction();
+    try {
+      const { fullName, email, password, phoneNumber,roleId } = req.body;
+  
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return next(createError.createError(500,"User already exists"))
+      }
+  
+
+      const tenant =await Tenant.create({
+        tenantName: "superTenant",
+        tenantStatus:"created",
+        isSuperTenant:true
+      },{transaction})
+      const defaultRole = await Role.findOne({ where: { name: "admin" } });
+  
+     
+      defaultRole.update({TenantId:tenant.id},{transaction})
+      const newUser = await User.create({
+        fullName,
+        email,
+        password,
+        phoneNumber,
+        isSuperTenant:true,
+        defaultTenant: tenant.id
+      }, {transaction});
+  
+     
+      await UserRole.create({
+        UserId: newUser.id,
+        RoleId: defaultRole.id,
+      },{transaction});
+     
+    await UserTenant.create({
+      UserId: newUser.id,
+      TenantId: tenant.id,
+    },{transaction})
+      await transaction.commit();
+      res.status(201).json({ message: "User1 registered successfully", user: newUser });
+  
+   
+    } catch (error) {
+      console.error("Error registering user:", error);
+      await transaction.rollback();
+      return next(createError.createError(500,"Internal server error"))
     }
   };

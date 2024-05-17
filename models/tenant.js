@@ -14,6 +14,10 @@ const Tenant = sequelize.define("Tenant", {
   isSuperTenant:{
     type: DataTypes.BOOLEAN,
    defaultValue: false
+  },
+  isActive:{
+    type: DataTypes.BOOLEAN,
+    defaultValue:true
   }
 
 });

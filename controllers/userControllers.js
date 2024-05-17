@@ -40,12 +40,13 @@ exports.getAllUser = async (req, res,next) => {
 };
 
 
-
-
 // CREATE USER
 exports.createUser= async (req, res,next) => {
+  
   const transaction = await sequelize.transaction();
   try {
+
+    // return res.json(req.user)
     const { fullName, email, password, phoneNumber,roleId } = req.body;
 
     const existingUser = await User.findOne({ where: { email } });
@@ -54,43 +55,43 @@ exports.createUser= async (req, res,next) => {
     }
 
 
-    //CHECK FIRST ENTRY
-  const user= await User.findAll();
+  //   //CHECK FIRST ENTRY
+  // const user= await User.findAll();
 
-  if(user.length ===0){
-    const tenant =await Tenant.create({
-      tenantName: "superTenant",
-      tenantStatus:"created",
-      isSuperTenant:true
-    },{transaction})
-    const defaultRole = await Role.findOne({ where: { name: "admin" } });
-
-   
-    defaultRole.update({TenantId:tenant.id},{transaction})
-    const newUser = await User.create({
-      fullName,
-      email,
-      password,
-      phoneNumber,
-      isSuperTenant:true,
-      defaultTenant: tenant.id
-    }, {transaction});
+  // if(user.length ===0){
+  //   const tenant =await Tenant.create({
+  //     tenantName: "superTenant",
+  //     tenantStatus:"created",
+  //     isSuperTenant:true
+  //   },{transaction})
+  //   const defaultRole = await Role.findOne({ where: { name: "admin" } });
 
    
-    await UserRole.create({
-      UserId: newUser.id,
-      RoleId: defaultRole.id,
-    },{transaction});
-   
-  await UserTenant.create({
-    UserId: newUser.id,
-    TenantId: tenant.id,
-  },{transaction})
-    await transaction.commit();
-    res.status(201).json({ message: "User1 registered successfully", user: newUser });
+  //   defaultRole.update({TenantId:tenant.id},{transaction})
+  //   const newUser = await User.create({
+  //     fullName,
+  //     email,
+  //     password,
+  //     phoneNumber,
+  //     isSuperTenant:true,
+  //     defaultTenant: tenant.id
+  //   }, {transaction});
 
-  }
-  else{
+   
+  //   await UserRole.create({
+  //     UserId: newUser.id,
+  //     RoleId: defaultRole.id,
+  //   },{transaction});
+   
+  // await UserTenant.create({
+  //   UserId: newUser.id,
+  //   TenantId: tenant.id,
+  // },{transaction})
+  //   await transaction.commit();
+  //   res.status(201).json({ message: "User1 registered successfully", user: newUser });
+
+  // }
+  // else{
 
   
     const defaultRole = await Role.findOne({ where: { name: "user" } });
@@ -104,17 +105,23 @@ exports.createUser= async (req, res,next) => {
       email,
       password,
       phoneNumber,
+      defaultTenant: req.user?.currentTenant
     }, {transaction});
-
 
     
     await UserRole.create({
       UserId: newUser.id,
-      RoleId: defaultRole.id,
+      RoleId: roleId  ??  defaultRole.id,
     },{transaction});
+
+     await UserTenant.create({
+    UserId: newUser.id,
+    TenantId: req.user?.currentTenant,
+  },{transaction})
+
     await transaction.commit();
     res.status(201).json({ message: "User registered successfully", user: newUser });
-  }
+  
   } catch (error) {
     console.error("Error registering user:", error);
     await transaction.rollback();
