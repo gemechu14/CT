@@ -18,8 +18,6 @@ const Permission = sequelize.define("Permission", {
 
 });
 
-Permission.belongsTo(Tenant);
-Tenant.hasMany(Permission);
 
 
 module.exports = Permission;
