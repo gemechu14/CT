@@ -8,4 +8,12 @@ router.post("/",
 middleware.protect,
 permissionControllers.createpermission);
 
+
+router.put("/:id", 
+middleware.protect,
+permissionControllers.updatePermission);
+
+router.delete("/:id", 
+middleware.protect,
+permissionControllers.deletePermission);
 module.exports = router;

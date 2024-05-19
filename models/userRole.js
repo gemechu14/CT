@@ -19,3 +19,4 @@ Role.belongsToMany(User, {
 });
 
 module.exports = UserRole
+  
