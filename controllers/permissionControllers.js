@@ -29,17 +29,18 @@ exports.getAllPermissions = async (req, res,next) => {
 exports.createpermission = async (req, res,next) => {
 
     try {
-     const {name,description} =req.body;
+     const {name,description,isSuperTenantPermission} =req.body;
 
      const existingPermission = await Permission.findOne({ where: { name } });
      if (existingPermission) {
-       return next(createError.createError(500,"Permission already defined "))
+       return next(createError.createError(400,"Permission already defined "))
      }
  
  
      const newUPermission = await Permission.create({
        name,
-       description
+       description,
+       isSuperTenantPermission
    
      });
  
@@ -57,7 +58,7 @@ exports.createpermission = async (req, res,next) => {
 exports.updatePermission = async (req, res, next) => {
     try {
       //insert required field
-      const { name, description } = req.body;
+      const { name, description ,isSuperTenantPermission} = req.body;
       const updates = {};
       const { id } = req.params;
   
@@ -65,7 +66,7 @@ exports.updatePermission = async (req, res, next) => {
         where: { id: id },
       });
       if (!permission) {
-        return next(createError.createError(404, "Role not found"));
+        return next(createError.createError(404, "Permission not found"));
       }
       if (name) {
         updates.name = name;
@@ -74,6 +75,9 @@ exports.updatePermission = async (req, res, next) => {
         updates.description = description;
       }
      
+      if(isSuperTenantPermission){
+        updates.isSuperTenantPermission=isSuperTenantPermission
+      }
   
       const result = await permission.update(updates);
   
@@ -92,9 +96,9 @@ exports.updatePermission = async (req, res, next) => {
       const { id } = req.params;
       const permission = await Permission.findOne({ where: { id: id } });
       if (!permission) {
-        return next(createError.createError(404, "Role not found"));
+        return next(createError.createError(404, "Permission not found"));
       }
-      await role.destroy({ where: { id } });
+      await permission.destroy({ where: { id } });
       res.status(200).json({ message: "Deleted successfully" });
     } catch (error) {
       console.log(error);

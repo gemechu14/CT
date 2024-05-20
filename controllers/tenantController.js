@@ -7,6 +7,8 @@ const { create } = require("domain");
 const User = require("../models/Users.js");
 const UserRole = require("../models/userRole.js");
 const Tenant = require("../models/tenant.js");
+const { isCancel } = require("axios");
+const e = require("cors");
 
 // GET ALL USER
 exports.getAllTenants = async (req, res, next) => {
@@ -26,8 +28,10 @@ exports.getAllTenants = async (req, res, next) => {
 exports.createTenant = async (req, res, next) => {
   try {
     const { tenantName, tenantStatus,isSuperTenant } = req.body;
-
-
+    const existingTenant = await Tenant.findOne({ where: { tenantName} });
+    if (existingTenant) {
+      return next(createError.createError(400, "Tenant already defined "));
+    }
 
     const tenant = await Tenant.create({
         tenantName,
@@ -95,6 +99,62 @@ exports.assignPermissionToRole = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return next(createError.createError(500, "Internal server Error"));
+  }
+};
+
+
+
+
+exports.updateTenant = async (req, res, next) => {
+  try {
+    //insert required field
+    const { tenantName, tenantStatus,isSuperTenant } = req.body;
+    const updates = {};
+    const { id } = req.params;
+
+    const tenants = await Tenant.findOne({
+      where: { id: id },
+    });
+    if (!tenants) {
+      return next(createError.createError(404, "Tenant not found"));
+    }
+    if (tenantName) {
+      updates.tenantName = tenantName;
+    }
+    if (tenantStatus) {
+      updates.tenantStatus = tenantStatus;
+    }
+   
+    if(isSuperTenant){
+      updates.isSuperTenant=isSuperTenant
+    }
+
+    const result = await tenants.update(updates);
+
+    res.status(200).json({
+      message: "updated successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(createError.createError(500, "Internal server Error"));
+  }
+};
+
+exports.deleteTenant = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const tenants = await Tenant.findOne({ where: { id: id } });
+    if (!tenants) {
+      return next(createError.createError(404, "Tenant not found"));
+    }
+    await tenants.update({ isActive:false, where: { id } });
+
+
+    res.status(200).json({ message: "Deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    return next(createError.createError(500, "Internal server error"));
   }
 };
 
