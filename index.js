@@ -66,7 +66,8 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  res.removeHeader("Cross-Origin-Embedder-Policy");
+  res.setHeader('Access-Control-Allow-Origin','*')
+  // res.removeHeader("Cross-Origin-Embedder-Policy");
   const errorStatus = err.status || 500;
   const errorMessage = err.message || "Something went Wrong";
   console.log();
