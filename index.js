@@ -31,17 +31,7 @@ app.use("/api/v1/tenants",tenantRoutes);
 
 
 app.use(express.json());
-app.use(
-  cors({
-    origin: [
-      "*",
-  
-     
-    ],
-    // credentials: true,
-  })
-);
-
+app.use(cors()); 
 
 const swaggerOptions = {
   swaggerOptions: {
