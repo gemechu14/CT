@@ -16,9 +16,9 @@ exports.getAllTenants = async (req, res, next) => {
     const tenants = await Tenant.findAll({
     });
 
-    return res.status(200).json({
-      data: tenants,
-    });
+    return res.status(200).json(
+       tenants,
+);
   } catch (error) {
     return next(createError.createError(500, "Internal server Error"));
   }

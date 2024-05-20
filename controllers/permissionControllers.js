@@ -13,8 +13,8 @@ exports.getAllPermissions = async (req, res,next) => {
             }
         );
     
-          return res.status(200).json({
-            data:permissions});
+          return res.status(200).json(
+            permissions);
         
     } catch (error) {
         console.log(error)
@@ -33,7 +33,7 @@ exports.createpermission = async (req, res,next) => {
 
      const existingPermission = await Permission.findOne({ where: { name } });
      if (existingPermission) {
-       return next(createError.createError(400,"Permission already defined "))
+       return next(createError.createError(500,"Permission already defined "))
      }
  
  

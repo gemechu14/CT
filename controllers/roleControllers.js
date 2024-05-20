@@ -20,9 +20,9 @@ exports.getAllRoles = async (req, res, next) => {
       }
     });
 
-    return res.status(200).json({
-      data: roles,
-    });
+    return res.status(200).json(
+       roles)
+  
   } catch (error) {
     return next(createError.createError(500, "Internal server Error"));
   }

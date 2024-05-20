@@ -26,9 +26,9 @@ exports.getAllUser = async (req, res, next) => {
       isSuperTenant: user.isSuperTenant,
       role: user.Roles.length ? user.Roles[0].name : null,
     }));
-    return res.status(200).json({
-      data: users,
-    });
+    return res.status(200).json(
+     users,
+  );
   } catch (error) {
     console.log(error);
     return next(createError.createError(500, "Internal server Error"));
