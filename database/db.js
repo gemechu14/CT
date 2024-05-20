@@ -14,7 +14,10 @@ const sequelize = new Sequelize({
 });
 // Test the database connection
 async function testConnection() {
+
   try {
+
+    
     await sequelize.authenticate();
     console.log("Database connection has been established successfully.");
   } catch (error) {
@@ -23,6 +26,7 @@ async function testConnection() {
     console.error("Error connecting");
   }
 }
+
 // sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables
 //   .then(() => {
 //     console.log('Database synchronized successfully.');

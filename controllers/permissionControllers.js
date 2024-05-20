@@ -97,6 +97,7 @@ exports.updatePermission = async (req, res, next) => {
       await role.destroy({ where: { id } });
       res.status(200).json({ message: "Deleted successfully" });
     } catch (error) {
+      console.log(error);
       return next(createError.createError(500, "Internal server error"));
     }
   };

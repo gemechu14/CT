@@ -6,12 +6,18 @@ const createError = require("../utils/errorResponse.js");
 const { create } = require("domain");
 const User = require("../models/Users.js");
 const UserRole = require("../models/userRole.js");
+const sequelize = require('../database/db');
+const { use } = require("../routes/userRoutes.js");
 
 // GET ALL USER
 exports.getAllRoles = async (req, res, next) => {
   try {
     const roles = await Role.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
+      include:{model: Permission,
+
+        through:{attributes:[]}
+      }
     });
 
     return res.status(200).json({
@@ -103,36 +109,169 @@ exports.assignPermissionToRole = async (req, res, next) => {
   }
 };
 
+// exports.updateRole = async (req, res, next) => {
+//   const transaction = await sequelize.transaction();
+//   try {
+//     const { name, description, permissionIds } = req.body;
+//     const { id } = req.params;
+
+//     const role = await Role.findOne({
+//       where: { id: id },
+//       include: {
+//         model: Permission,
+//         through: { attributes: [] }
+//       }
+//     });
+
+//     if (!role) {
+//       await transaction.rollback();
+//       return next(createError(404, "Role not found"));
+//     }
+
+//     const updates = {};
+//     if (name) {
+//       updates.name = name;
+//     }
+//     if (description) {
+//       updates.description = description;
+//     }
+
+//     await role.update(updates, { transaction });
+
+//     if (permissionIds) {
+//       const newPermissionIds = permissionIds.map(Number);
+
+//       const permissions = await Permission.findAll({
+//         where: { id: newPermissionIds }
+//       });
+
+//       if (permissions.length !== newPermissionIds.length) {
+//         await transaction.rollback();
+//         return next(createError.createError(404, "One or more Permission not found"));
+//       }
+
+//       const currentPermissionIds = role.Permissions.map(p => p.id);
+
+//       const permissionsToAdd = newPermissionIds.filter(id => !currentPermissionIds.includes(id));
+//       const permissionsToRemove = currentPermissionIds.filter(id => !newPermissionIds.includes(id));
+
+//       if (permissionsToRemove.length > 0) {
+//         await RolePermission.destroy({
+//           where: {
+//             RoleId: id,
+//             PermissionId: permissionsToRemove
+//           },
+//           transaction
+//         });
+//       }
+
+//       if (permissionsToAdd.length > 0) {
+//         const newRolePermissions = permissionsToAdd.map(permissionId => ({
+//           RoleId: id,
+//           PermissionId: permissionId
+//         }));
+
+//         await RolePermission.bulkCreate(newRolePermissions, { transaction });
+//       }
+//     }
+
+//     await transaction.commit();
+
+//     res.status(200).json({
+//       message: "Role updated successfully",
+//     });
+//   } catch (error) {
+//     await transaction.rollback();
+//     console.error(error);
+//     return next(createError.createError(500, "Internal server error"));
+//   }
+// };
+
+
 exports.updateRole = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
   try {
-    //insert required field
-    const { name, description } = req.body;
-    const updates = {};
+    const { name, description, permissionIds } = req.body;
     const { id } = req.params;
 
     const role = await Role.findOne({
       where: { id: id },
+      include: {
+        model: Permission,
+        through: { attributes: [] }
+      }
     });
+
     if (!role) {
-      return next(createError.createError(404, "Role not found"));
+      await transaction.rollback();
+      return next(createError(404, "Role not found"));
     }
+
+    const updates = {};
     if (name) {
       updates.name = name;
     }
     if (description) {
       updates.description = description;
     }
-   
 
-    const result = await role.update(updates);
+    await role.update(updates, { transaction });
+
+    if (permissionIds) {
+      const newPermissionIds = permissionIds.map(Number);
+
+      const permissions = await Permission.findAll({
+        where: { id: newPermissionIds }
+      });
+
+      if (permissions.length !== newPermissionIds.length) {
+        await transaction.rollback();
+        return next(createError(404, "One or more Permission not found"));
+      }
+
+      const currentPermissionIds = role.Permissions.map(p => p.id);
+
+      const permissionsToAdd = newPermissionIds.filter(id => !currentPermissionIds.includes(id));
+      const permissionsToRemove = currentPermissionIds.filter(id => !newPermissionIds.includes(id));
+
+      if (permissionsToRemove.length > 0) {
+        await RolePermission.destroy({
+          where: {
+            RoleId: id,
+            PermissionId: permissionsToRemove
+          },
+          transaction
+        });
+      }
+
+      if (permissionsToAdd.length > 0) {
+        const newRolePermissions = permissionsToAdd.map(permissionId => ({
+          RoleId: id,
+          PermissionId: permissionId
+        }));
+
+        await RolePermission.bulkCreate(newRolePermissions, { transaction });
+      }
+    }
+
+    await transaction.commit();
+
+    const updatedRole = await Role.findOne({
+      where: { id: id },
+      include: {
+        model: Permission,
+        through: { attributes: [] }
+      }
+    });
 
     res.status(200).json({
-      message: "updated successfully",
-      data: result,
+      message: "Role updated successfully",
+      data: updatedRole
     });
   } catch (error) {
-    console.log(error);
-    return next(createError.createError(500, "Internal server Error"));
+    await transaction.rollback();
+    console.error(error);
+    return next(createError(500, "Internal server error"));
   }
 };
 
