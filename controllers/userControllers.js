@@ -99,7 +99,6 @@ exports.createUser = async (req, res, next) => {
         dateOfBirth,
         password,
         phoneNumber,
-
         defaultTenant: req.user?.currentTenant,
       },
       { transaction }

@@ -6,14 +6,13 @@ const sequelize = require("./database/db");
 const app = express();
 const bodyParser = require("body-parser");
 require("dotenv").config();
-const initializeData =require("./utils/initializeData .js")
 app.use(cors()); 
+const initializeData =require("./utils/initializeData .js");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.json());
 app.use("/uploads", express.static("./uploads/"));
-
 const userRoutes=require("./routes/userRoutes.js");
 const roleRoutes=require("./routes/roleRoutes.js");
 const permissionRoutes=require("./routes/permissionRoutes.js");
