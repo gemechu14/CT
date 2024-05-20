@@ -54,6 +54,61 @@ exports.createRole = async (req, res, next) => {
   }
 };
 
+
+
+exports.createRole1 = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const { name, description, permissionIds } = req.body;
+    const existingRole = await Role.findOne({ where: { name ,TenantId: req.user.currentTenant} });
+    if (existingRole) {
+      return next(createError.createError(500, "Role already defined "));
+    }
+
+
+    const role = await Role.create({ name, description,TenantId:req.user.currentTenant }, { transaction });
+
+    if (permissionIds && permissionIds.length > 0) {
+      const newPermissionIds = permissionIds.map(Number);
+
+      const permissions = await Permission.findAll({
+        where: { id: newPermissionIds }
+      });
+
+      if (permissions.length !== newPermissionIds.length) {
+        await transaction.rollback();
+        return next(createError.createError(404, "One or more Permission not found"));
+      }
+
+      const rolePermissions = permissions.map(permission => ({
+        RoleId: role.id,
+        PermissionId: permission.id
+      }));
+
+      await RolePermission.bulkCreate(rolePermissions, { transaction });
+    }
+
+    await transaction.commit();
+
+    const createdRole = await Role.findOne({
+      where: { id: role.id },
+      include: {
+        model: Permission,
+        through: { attributes: [] }
+      }
+    });
+
+    res.status(201).json({
+      message: "Role created successfully",
+      data: createdRole
+    });
+  } catch (error) {
+    await transaction.rollback();
+    console.error(error);
+    return next(createError.createError(500, "Internal server error"));
+  }
+};
+
 //ASSIGN PERMISSION TO ROLE
 exports.assignPermissionToRole = async (req, res, next) => {
   try {

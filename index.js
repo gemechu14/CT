@@ -33,11 +33,16 @@ app.use("/api/v1/tenants",tenantRoutes);
 app.use(express.json());
 app.use(
   cors({
-    origin: ["*"],
+    origin: [
+      "*",
+      "http://localhost:3000",
+      "http://localhost:3001",
+       ["*"],
+     
+    ],
     credentials: true,
   })
 );
-
 
 
 const swaggerOptions = {
