@@ -44,7 +44,7 @@ exports.createpermission = async (req, res,next) => {
    
      });
  
-     res.status(201).json({ message: "Permission registered successfully", Permission: newUPermission });
+     res.status(201).json(newUPermission );
      
     
         

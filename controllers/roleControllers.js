@@ -98,10 +98,8 @@ exports.createRole1 = async (req, res, next) => {
       }
     });
 
-    res.status(201).json({
-      message: "Role created successfully",
-      data: createdRole
-    });
+    res.status(201).json(createdRole
+    );
   } catch (error) {
     await transaction.rollback();
     console.error(error);

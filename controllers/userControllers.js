@@ -124,7 +124,7 @@ exports.createUser = async (req, res, next) => {
     await transaction.commit();
     res
       .status(201)
-      .json({ message: "User registered successfully", user: newUser });
+      .json(newUser );
   } catch (error) {
     console.error("Error registering user:", error);
     await transaction.rollback();
