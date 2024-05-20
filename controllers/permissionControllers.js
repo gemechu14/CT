@@ -55,6 +55,7 @@ exports.createpermission = async (req, res,next) => {
 
 };
 
+//UPDATE PERMISSION
 exports.updatePermission = async (req, res, next) => {
     try {
       //insert required field
@@ -90,7 +91,7 @@ exports.updatePermission = async (req, res, next) => {
       return next(createError.createError(500, "Internal server Error"));
     }
   };
-  
+//DELETE PERMISSION
   exports.deletePermission = async (req, res, next) => {
     try {
       const { id } = req.params;

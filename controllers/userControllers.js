@@ -40,7 +40,10 @@ exports.createUser = async (req, res, next) => {
   const transaction = await sequelize.transaction();
   try {
     // return res.json(req.user)
-    const { fullName, email, password, phoneNumber, roleId } = req.body;
+    const { firstName,lastName,dateOfBirth, email, password, phoneNumber, roleId } = req.body;
+
+
+    
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
@@ -90,10 +93,13 @@ exports.createUser = async (req, res, next) => {
 
     const newUser = await User.create(
       {
-        fullName,
+        firstName,
+        lastName,
         email,
+        dateOfBirth,
         password,
         phoneNumber,
+
         defaultTenant: req.user?.currentTenant,
       },
       { transaction }

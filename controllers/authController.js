@@ -100,7 +100,7 @@ const signToken = (id, email,permissions,tenant,defaultTenant,currentTenant) => 
         return acc;
       }, []);
       // Extract all tenantIds from user.Tenants
-const tenantIds = user.Tenants.map(tenant => tenant.id);
+        const tenantIds = user.Tenants.map(tenant => tenant.id);
       // Construct the desired output object
       const userData = {
         id: user.id,
@@ -131,7 +131,7 @@ const tenantIds = user.Tenants.map(tenant => tenant.id);
   exports.signup= async (req, res,next) => {
     const transaction = await sequelize.transaction();
     try {
-      const { fullName, email, password, phoneNumber,roleId } = req.body;
+      const { firstName,lastName,dateOfBirth, email, password, phoneNumber,roleId } = req.body;
   
       const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
@@ -149,7 +149,9 @@ const tenantIds = user.Tenants.map(tenant => tenant.id);
      
       defaultRole.update({TenantId:tenant.id},{transaction})
       const newUser = await User.create({
-        fullName,
+        firstName,
+        lastName,
+        dateOfBirth,
         email,
         password,
         phoneNumber,

@@ -35,6 +35,8 @@ async function testConnection() {
 //     console.error('Error synchronizing database:', error);
 //   });
   
+
+
 testConnection();
 module.exports = sequelize;
 

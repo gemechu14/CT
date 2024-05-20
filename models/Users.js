@@ -3,7 +3,11 @@ const sequelize = require("../database/db.js");
 const bcrypt = require("bcrypt");
 
 const User = sequelize.define("User", {
-  fullName: {
+  firstName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  lastName: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -19,7 +23,10 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-
+  dateOfBirth:{
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
 
   isSuperTenant:{
     type:DataTypes.BOOLEAN,

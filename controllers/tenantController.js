@@ -9,6 +9,9 @@ const UserRole = require("../models/userRole.js");
 const Tenant = require("../models/tenant.js");
 const { isCancel } = require("axios");
 const e = require("cors");
+const UserTenant = require("../models/userTenant.js");
+const sequelize = require('../database/db');
+const { where } = require("sequelize");
 
 // GET ALL USER
 exports.getAllTenants = async (req, res, next) => {
@@ -104,7 +107,7 @@ exports.assignPermissionToRole = async (req, res, next) => {
 
 
 
-
+//UPDATE TENANT INFO
 exports.updateTenant = async (req, res, next) => {
   try {
     //insert required field
@@ -140,7 +143,7 @@ exports.updateTenant = async (req, res, next) => {
     return next(createError.createError(500, "Internal server Error"));
   }
 };
-
+//DELETE TENANT
 exports.deleteTenant = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -158,3 +161,85 @@ exports.deleteTenant = async (req, res, next) => {
   }
 };
 
+//UNASSIGN USER FROM TENANT
+
+exports.unassingUserFromTenant= async(req,res,next)=>{
+  const transaction = await sequelize.transaction();
+  try {
+
+    const {userId,tenantId}= req.body;
+
+
+    if(!userId || !tenantId){
+      return next(createError.createError(400, "Missing required fields: Please ensure all mandatory fields are provided"));
+
+    }
+
+    const existingUserTenant = await UserTenant.findOne({
+      where: { UserId: Number(userId), TenantId: Number(tenantId) }
+    });
+    
+    if (!existingUserTenant) {
+      return next(createError.createError(404, "User is not assigned to the specified tenant"));
+    }
+    
+
+    await existingUserTenant.destroy({UserId:userId, TenantId:tenantId},{transaction});
+    await User.update({defaulTenant: null,currentTenant:null, where:{id:userId}},{transaction})
+
+    await transaction.commit();
+    return res.status(200).json({
+      message:"Unassigned successfully"
+    
+    });
+    
+  } catch (error) {
+    console.log(error);
+    await transaction.rollback();
+    return next(createError.createError(500,"Internal server Error"))
+    
+  }
+}
+
+
+//ASSIGN USER TO TENANT
+exports.assingToTenant= async(req,res,next)=>{
+  const transaction = await sequelize.transaction();
+  try {
+
+    const {userId,tenantId}= req.body;
+
+
+    if(!userId || !tenantId){
+      return next(createError.createError(400, "Missing required fields: Please ensure all mandatory fields are provided"));
+
+    }
+
+    const existingUserTenant = await UserTenant.findOne({
+      where: { UserId: Number(userId), TenantId: Number(tenantId) }
+    });
+    if (existingUserTenant) {
+      return next(createError.createError(404, "User is already assigned to the specified tenant"));
+    }
+
+
+    await UserTenant.create({ UserId: userId, TenantId: tenantId }, { transaction });
+
+    await User.update(
+      { defaulTenant: tenantId },
+      { where: { id: userId }, transaction }
+    );
+
+    await transaction.commit();
+    return res.status(200).json({
+      message:"User assigned successfully"
+    
+    });
+    
+  } catch (error) {
+    console.log(error);
+    await transaction.rollback();
+    return next(createError.createError(500,"Internal server Error"))
+    
+  }
+}
