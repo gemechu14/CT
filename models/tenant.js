@@ -1,6 +1,7 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../database/db.js");
 const bcrypt = require("bcrypt");
+const Address = require("./address.js");
 
 const Tenant = sequelize.define("Tenant", {
   tenantName: {
@@ -26,3 +27,6 @@ const Tenant = sequelize.define("Tenant", {
 
 
 module.exports = Tenant;
+
+Tenant.hasOne(Address);
+Address.belongsTo(Tenant);

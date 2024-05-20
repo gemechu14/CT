@@ -6,7 +6,26 @@ const sequelize = require("./database/db");
 const app = express();
 const bodyParser = require("body-parser");
 require("dotenv").config();
+
+
+
 app.use(cors()); 
+
+app.use((err, req, res, next) => {
+  // res.setHeader('Access-Control-Allow-Origin','*')
+  res.removeHeader("Cross-Origin-Embedder-Policy");
+  const errorStatus = err.status || 500;
+  const errorMessage = err.message || "Something went Wrong";
+  console.log();
+  return res.status(errorStatus).json({
+    success: false,
+    status: errorStatus,
+    message: err.message || "Something went",
+    timestamp: new Date().toISOString(),
+    // stack: err.stack,
+  });
+});
+
 const initializeData =require("./utils/initializeData .js");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -64,20 +83,7 @@ app.use((req, res, next) => {
   next(error);
 });
 
-app.use((err, req, res, next) => {
-  // res.setHeader('Access-Control-Allow-Origin','*')
-  res.removeHeader("Cross-Origin-Embedder-Policy");
-  const errorStatus = err.status || 500;
-  const errorMessage = err.message || "Something went Wrong";
-  console.log();
-  return res.status(errorStatus).json({
-    success: false,
-    status: errorStatus,
-    message: err.message || "Something went",
-    timestamp: new Date().toISOString(),
-    // stack: err.stack,
-  });
-});
+
 let isRunning = false;
 app.listen(process.env.PORT || 4400, () => {
   console.log(`Server is running on port: ${process.env.PORT}`);

@@ -6,16 +6,21 @@ const UserRole = require("../models/userRole.js");
 const Permission = require("../models/permission.js");
 const Tenant = require("../models/tenant.js");
 const UserTenant = require("../models/userTenant.js");
+const Address=require("../models/address.js");
 
 // GET ALL USER
 exports.getAllUser = async (req, res, next) => {
   try {
     const users = await User.findAll({
       attributes: { exclude: ["password"] },
-      include: {
+      include: [{
         model: Role,
-        include: { model: Permission },
+        include: { model: Permission,          
+         },
+       
       },
+    {  model: Address}
+    ]
     });
 
     const formattedUsers = users.map((user) => ({
@@ -26,9 +31,7 @@ exports.getAllUser = async (req, res, next) => {
       isSuperTenant: user.isSuperTenant,
       role: user.Roles.length ? user.Roles[0].name : null,
     }));
-    return res.status(200).json(
-     users,
-  );
+    return res.status(200).json(users);
   } catch (error) {
     console.log(error);
     return next(createError.createError(500, "Internal server Error"));
@@ -40,10 +43,22 @@ exports.createUser = async (req, res, next) => {
   const transaction = await sequelize.transaction();
   try {
     // return res.json(req.user)
-    const { firstName,lastName,dateOfBirth, email, password, phoneNumber, roleId } = req.body;
-
-
-    
+    const {
+      firstName,
+      lastName,
+      dateOfBirth,
+      email,
+      password,
+      phoneNumber,
+      roleId,
+      streetNumber,
+      streetName,
+      streetType,
+      city,
+      state,
+      country,
+      postalCode,
+    } = req.body;
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
@@ -99,11 +114,32 @@ exports.createUser = async (req, res, next) => {
         dateOfBirth,
         password,
         phoneNumber,
+        // streetNumber,
+        // streetName,
+        // streetType,
+        // city,
+        // state,
+        // country,
+        // postalCode,
         defaultTenant: req.user?.currentTenant,
       },
       { transaction }
     );
 
+    // const address = await Address.create(
+    //   {
+    //     streetNumber,
+    //     streetName,
+    //     streetType,
+    //     city,
+    //     state,
+    //     country,
+    //     postalCode,
+    //   },
+    //   { transaction }
+    // );
+
+    // await address.update({ UserId: newUser.id }, { transaction });
     await UserRole.create(
       {
         UserId: newUser.id,
@@ -121,9 +157,7 @@ exports.createUser = async (req, res, next) => {
     );
 
     await transaction.commit();
-    res
-      .status(201)
-      .json(newUser );
+    res.status(201).json(newUser);
   } catch (error) {
     console.error("Error registering user:", error);
     await transaction.rollback();

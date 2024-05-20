@@ -31,3 +31,5 @@ const Address = sequelize.define("Address", {
 });
 
 module.exports = Address;
+
+

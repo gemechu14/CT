@@ -39,7 +39,8 @@ exports.createTenant = async (req, res, next) => {
     const tenant = await Tenant.create({
         tenantName,
         tenantStatus,
-        isSuperTenant
+        isSuperTenant,
+        
     });
 
     res

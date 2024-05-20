@@ -11,6 +11,7 @@ const sequelize = new Sequelize({
   password: "8VpbSsXEE1AwVYvKhhZ7tOueUcx_i7SF",
   dialect: "postgres",
 
+
 });
 // Test the database connection
 async function testConnection() {
@@ -27,14 +28,13 @@ async function testConnection() {
   }
 }
 
-// sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables
+// sequelize.sync({ force: true }) // Use force: true carefully, as it drops existing tables
 //   .then(() => {
 //     console.log('Database synchronized successfully.');
 //   })
 //   .catch((error) => {
 //     console.error('Error synchronizing database:', error);
-//   });
-  
+//   }); 
 
 
 testConnection();
