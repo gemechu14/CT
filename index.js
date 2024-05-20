@@ -7,7 +7,7 @@ const app = express();
 const bodyParser = require("body-parser");
 require("dotenv").config();
 const initializeData =require("./utils/initializeData .js")
-
+app.use(cors()); 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
@@ -33,7 +33,7 @@ app.use("/api/v1/tenants",tenantRoutes);
 app.use(express.json());
 
 
-app.use(cors()); 
+
 
 
 
@@ -66,8 +66,8 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin','*')
-  // res.removeHeader("Cross-Origin-Embedder-Policy");
+  // res.setHeader('Access-Control-Allow-Origin','*')
+  res.removeHeader("Cross-Origin-Embedder-Policy");
   const errorStatus = err.status || 500;
   const errorMessage = err.message || "Something went Wrong";
   console.log();
