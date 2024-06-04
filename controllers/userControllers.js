@@ -51,13 +51,13 @@ exports.createUser = async (req, res, next) => {
       password,
       phoneNumber,
       roleId,
-      streetNumber,
-      streetName,
-      streetType,
-      city,
-      state,
-      country,
-      postalCode,
+      // streetNumber,
+      // streetName,
+      // streetType,
+      // city,
+      // state,
+      // country,
+      // postalCode,
     } = req.body;
 
     const existingUser = await User.findOne({ where: { email } });
