@@ -69,21 +69,21 @@ exports.getWorkspaces= async(req,res,next)=>{
     try {
      
 
-        // const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
-        // const params = new URLSearchParams();
-        // params.append('grant_type', 'client_credentials');
-        // params.append('client_id', process.env.CLIENT_ID);
-        // params.append('client_secret', process.env.CLIENT_SECRET);
-        // params.append('scope', process.env.SCOPE);
+        const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+        const params = new URLSearchParams();
+        params.append('grant_type', 'client_credentials');
+        params.append('client_id', process.env.CLIENT_ID);
+        params.append('client_secret', process.env.CLIENT_SECRET);
+        params.append('scope', process.env.SCOPE);
     
        
-        //     const response = await axios.post(tokenUrl, params.toString(), {
-        //         headers: {
-        //             'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
-        //         }
-        //     });
-            // const token = response?.data?.access_token;
-            const token = req.query.token;
+            const response = await axios.post(tokenUrl, params.toString(), {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+                }
+            });
+            const token = response?.data?.access_token;
+            // const token = req.query.token;
             // return res.status(200).json(token)
          
         const url = 'https://api.powerbi.com/v1.0/myorg/groups';
@@ -109,7 +109,23 @@ exports.getDATASETS = async (req, res, next) => {
 
     try {
        const groupId = req.query.groupId;
-       const token= req.query.token;
+
+       
+       const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+       const params = new URLSearchParams();
+       params.append('grant_type', 'client_credentials');
+       params.append('client_id', process.env.CLIENT_ID);
+       params.append('client_secret', process.env.CLIENT_SECRET);
+       params.append('scope', process.env.SCOPE);
+   
+      
+           const response1 = await axios.post(tokenUrl, params.toString(), {
+               headers: {
+                   'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+               }
+           });
+           const token = response1?.data?.access_token;
+    //    const token= req.query.token;
 
        const url = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/datasets`;
         const response = await axios.get(url, {
@@ -130,9 +146,50 @@ exports.getReports = async (req, res, next) => {
 
     try {
        const groupId = req.query.groupId;
-       const token= req.query.token;
+
+
+       
+       const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+       const params = new URLSearchParams();
+       params.append('grant_type', 'client_credentials');
+       params.append('client_id', process.env.CLIENT_ID);
+       params.append('client_secret', process.env.CLIENT_SECRET);
+       params.append('scope', process.env.SCOPE);
+   
+      
+           const response1 = await axios.post(tokenUrl, params.toString(), {
+               headers: {
+                   'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+               }
+           });
+           const token = response1?.data?.access_token;
+    //    const token= req.query.token;
 
        const url = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/reports`;
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return   res.status(200).json(response.data.value);
+
+    } catch (error) {
+        console.error('Error getting datasets:', error);
+    }
+};
+
+
+//GET REPORTS
+exports.getsampleReports = async (req, res, next) => {
+
+
+    try {
+       const groupId = req.query.groupId;
+       const token= req.query.token;
+       const reportId=req.query.reportId
+
+       const url = `https://api.powerbi.com/v1.0/myorg/reports/${reportId}`;
+    //    return res.json(url)
         const response = await axios.get(url, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -157,7 +214,23 @@ exports.getReports = async (req, res, next) => {
 
     try {
        const groupId = req.query.groupId;
-       const token= req.query.token;
+
+       
+       const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+       const params = new URLSearchParams();
+       params.append('grant_type', 'client_credentials');
+       params.append('client_id', process.env.CLIENT_ID);
+       params.append('client_secret', process.env.CLIENT_SECRET);
+       params.append('scope', process.env.SCOPE);
+   
+      
+           const response1 = await axios.post(tokenUrl, params.toString(), {
+               headers: {
+                   'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+               }
+           });
+           const token = response1?.data?.access_token;
+    //    const token= req.query.token;
        const reportId=req.query.reportId;
 
        const response = await axios.get(`https://api.powerbi.com/v1.0/myorg/groups/${groupId}/reports/${reportId}`, {
@@ -209,7 +282,22 @@ exports.fetchEmbedToken = async (req, res, next) => {
 exports.getDashboards = async (req, res, next) => {
     try {
        const groupId = req.query.groupId;
-       const token= req.query.token;
+       
+       const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+       const params = new URLSearchParams();
+       params.append('grant_type', 'client_credentials');
+       params.append('client_id', process.env.CLIENT_ID);
+       params.append('client_secret', process.env.CLIENT_SECRET);
+       params.append('scope', process.env.SCOPE);
+   
+      
+           const response1 = await axios.post(tokenUrl, params.toString(), {
+               headers: {
+                   'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+               }
+           });
+           const token = response1?.data?.access_token;
+    //    const token= req.query.token;
 
        const url = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/dashboards`;
         const response = await axios.get(url, {
