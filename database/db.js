@@ -18,7 +18,7 @@ async function testConnection() {
 
   try {
 
-    
+       
     await sequelize.authenticate();
     console.log("Database connection has been established successfully.");
   } catch (error) {
@@ -28,7 +28,7 @@ async function testConnection() {
   }
 }
 
-// sequelize.sync({ force: true }) // Use force: true carefully, as it drops existing tables
+// sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables
 //   .then(() => {
 //     console.log('Database synchronized successfully.');
 //   })
@@ -37,11 +37,64 @@ async function testConnection() {
 //   }); 
 
 
+
+
 testConnection();
 module.exports = sequelize;
 
 
 
+
+
+
+
+
+
+// //Local Database 
+// require("dotenv").config();
+// const { Sequelize } = require("sequelize");
+// const sequelize = new Sequelize({
+//   host: "localhost",
+//   port: "5432",
+//   database: process.env.DB_NAME,
+//   username: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   dialect: "postgres",
+
+
+// });
+// // Test the database connection
+// async function testConnection() {
+
+//   try {
+
+    
+//     await sequelize.authenticate();
+//     console.log("Database connection has been established successfully.");
+//   } catch (error) {
+//     console.log(error)
+//     // console.log(process.env.DB_HOST)
+//     console.error("Error connecting");
+//   }
+// }
+
+// sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables
+//   .then(() => {
+//     console.log('Database synchronized successfully.');
+//   })
+//   .catch((error) => {
+//     console.error('Error synchronizing database:', error);
+//   }); 
+
+
+
+// testConnection();
+// module.exports = sequelize;
+
+
+
+
+// RENDER
 
 // Create a new Sequelize instance with database connection details
 // const { Sequelize } = require("sequelize");

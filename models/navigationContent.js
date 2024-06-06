@@ -3,55 +3,54 @@ const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../database/db.js");
 
 const NavigationContent = sequelize.define("NavigationContent", {
-  createdBy: {
+  CreatedBy: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  navigationSetupId: {
+  NavigationSetupId: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  organisationId: {
+  OrganisationId: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  type: {
+  Type: {
     type: DataTypes.STRING,
     allowNull: false,
   },
 
-  isRls: {
+  IsRls: {
     type: DataTypes.STRING,
   },
-  pageType: {
+  PageType: {
     type: DataTypes.STRING,
   },
-  reportType: {
+  ReportType: {
     type: DataTypes.STRING,
   },
   
-  reportDatasetId: {
+  ReportDatasetId: {
     type: DataTypes.STRING,
   },
-  toggler: {
+  Toggler: {
     type: DataTypes.STRING,
   },
 
-  icon: {
+  Icon: {
     type: DataTypes.STRING,
     allowNull: false,
   },
  
- description: {
+ Description: {
     type: DataTypes.STRING,
   },
   
-
-  powerBiWorkspace: {
+  PowerBiWorkspace: {
     type: DataTypes.STRING,
   },
   //BOOLEAN
-  displayUseDynamicBinding: {
+  DisplayUseDynamicBinding: {
     type: DataTypes.BOOLEAN,
     defaultValue:false
   },
@@ -59,42 +58,49 @@ const NavigationContent = sequelize.define("NavigationContent", {
 
   ///
 
-  dynamicDataSetid: {
+  DynamicDataSetid: {
     type: DataTypes.STRING,
   },
-  reportPages: {
+  ReportPages: {
     type: DataTypes.STRING,
   },
-  showFilter: {
+  ShowFilter: {
     type: DataTypes.BOOLEAN,
     defaultValue:false
   },
 
-  showContentPane: {
+  ShowContentPane: {
     type: DataTypes.BOOLEAN,
     defaultValue:false
   },
-  hideTitleAnddescription: {
+  HideTitleAnddescription: {
     type: DataTypes.BOOLEAN,
     defaultValue:false
   },
 
-  hideTitleSection: {
+  HideTitleSection: {
     type: DataTypes.BOOLEAN,
     defaultValue:false
   },
-  showSharingButton: {
+  ShowSharingButton: {
     type: DataTypes.BOOLEAN,
     defaultValue:false
   },
-  showExportButton: {
+  ShowExportButton: {
     type: DataTypes.BOOLEAN,
     defaultValue:false
   },
   
-  NavSecurity: [{
-    type: DataTypes.STRING,
-  }],
+//   navSecurity: [
+//     {
+//         "Id": { type: DataTypes.BOOLEAN,},
+//         // "GroupId": 10,
+//         // "CanEdit": false,
+//         // "RolesValidation": ""
+//     }
+// ],
+
+  
   SortOrder: {
     type: DataTypes.STRING,
   },
@@ -102,6 +108,9 @@ const NavigationContent = sequelize.define("NavigationContent", {
   __RequestVerificationToken: {
     type: DataTypes.STRING,
   },
+  embedUrl:{
+    type: DataTypes.STRING
+  }
 });
 
 module.exports = NavigationContent;
