@@ -129,7 +129,7 @@ const NavigationContent = sequelize.define("NavigationContent", {
   __RequestVerificationToken: {
     type: DataTypes.STRING,
   },
-  embedUrl:{
+  EmbedUrl:{
     type: DataTypes.STRING
   },
   NavSecurity: {
