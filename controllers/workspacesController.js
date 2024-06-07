@@ -252,9 +252,27 @@ exports.getsampleReports = async (req, res, next) => {
 
 exports.fetchEmbedToken = async (req, res, next) => {
     try {
-        const groupId = req.query.groupId;
-        const reportId = req.query.reportId;
-        const token = req.query.token;
+        const groupId = req?.query?.groupId;
+        const reportId = req?.query?.reportId;
+  
+        const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+        const params = new URLSearchParams();
+        params.append('grant_type', 'client_credentials');
+        params.append('client_id', process.env.CLIENT_ID);
+        params.append('client_secret', process.env.CLIENT_SECRET);
+        params.append('scope', process.env.SCOPE);
+    
+       
+            const response1 = await axios.post(tokenUrl, params.toString(), {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+                }
+            });
+            const token = response1?.data?.access_token;
+
+
+
+        // const token = req.query.token;
         const body = JSON.stringify({
             accessLevel: "View",
             allowSaveAs: false
