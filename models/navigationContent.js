@@ -50,10 +50,15 @@ const NavigationContent = sequelize.define("NavigationContent", {
     type: DataTypes.STRING,
     // allowNull: false,
 
-    
+
   },
 
+  PagePath: {
+    type: DataTypes.STRING,
+    allowNull: false,
 
+    
+  },
 
 
   
