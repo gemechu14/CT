@@ -27,11 +27,13 @@ exports.getAllNavigation = async (req, res, next) => {
 exports.createNavigation = async (req, res, next) => {
   try {
      const {
-      CreatedBy,
+      // CreatedBy,
       NavigationSetupId,
       OrganisationId,
       Type,
       IsRls,
+      Title,
+      Parent,
       PageType,
       ReportType,
       ReportDatasetId,
@@ -51,7 +53,15 @@ exports.createNavigation = async (req, res, next) => {
       SortOrder,
       __RequestVerificationToken,
       EmbedUrl,
+      NavSecurity
     } = req.body;
+
+
+
+    const existingTitle = await NavigationContent.findOne({ where: { Title } });
+    if (existingTitle) {
+      return next(createError.createError(400, "Navigation Title already defined"));
+    }
 
 
  
@@ -59,6 +69,8 @@ exports.createNavigation = async (req, res, next) => {
       CreatedBy:req.user.id,
       NavigationSetupId,
       OrganisationId,
+      Title,
+      Parent,
       Type,
       IsRls,
       PageType,
@@ -80,6 +92,7 @@ exports.createNavigation = async (req, res, next) => {
       SortOrder,
       __RequestVerificationToken,
       EmbedUrl,
+      NavSecurity
     });
 
     res

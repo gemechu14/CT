@@ -39,6 +39,7 @@ async function testConnection() {
 
 
 
+
 testConnection();
 module.exports = sequelize;
 
@@ -85,8 +86,6 @@ module.exports = sequelize;
 //   .catch((error) => {
 //     console.error('Error synchronizing database:', error);
 //   }); 
-
-
 
 // testConnection();
 // module.exports = sequelize;

@@ -15,6 +15,11 @@ const NavigationContent = sequelize.define("NavigationContent", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  Parent: {
+    type: DataTypes.STRING,
+    // allowNull: false,
+  },
+
   Type: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -41,6 +46,17 @@ const NavigationContent = sequelize.define("NavigationContent", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  Title: {
+    type: DataTypes.STRING,
+    // allowNull: false,
+
+    
+  },
+
+
+
+
+  
  
  Description: {
     type: DataTypes.STRING,
@@ -110,7 +126,17 @@ const NavigationContent = sequelize.define("NavigationContent", {
   },
   embedUrl:{
     type: DataTypes.STRING
+  },
+  NavSecurity: {
+    type: DataTypes.JSON, // Use JSON or JSONB
+    allowNull: false,
+    defaultValue: [],
+    get() {
+      const rawValue = this.getDataValue('NavSecurity');
+      return typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+    }
   }
+
 });
 
 module.exports = NavigationContent;
