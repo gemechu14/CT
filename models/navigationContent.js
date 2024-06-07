@@ -129,8 +129,8 @@ const NavigationContent = sequelize.define("NavigationContent", {
   __RequestVerificationToken: {
     type: DataTypes.STRING,
   },
-  EmbedUrl:{
-    type: DataTypes.STRING
+  EmbedUrl: {
+    type: DataTypes.TEXT // Change STRING to TEXT
   },
   NavSecurity: {
     type: DataTypes.JSON, // Use JSON or JSONB
