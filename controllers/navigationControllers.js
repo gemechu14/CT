@@ -23,6 +23,24 @@ exports.getAllNavigation = async (req, res, next) => {
 };
 
 
+// GET NAVIGATION BY ID
+exports.getNavigationById = async (req, res, next) => {
+  try {
+
+    const id = req?.params?.id;
+   if(!id){
+    return next(createError.createError(404,"Id not found"))
+   }
+    const navigationContent = await NavigationContent.findByPk(1);
+
+
+    return res.status(200).json(navigationContent);
+  } catch (error) {
+    console.log(error);
+    return next(createError.createError(500, "Internal server Error"));
+  }
+};
+
 // CREATE NAVIGATION
 exports.createNavigation = async (req, res, next) => {
   try {
