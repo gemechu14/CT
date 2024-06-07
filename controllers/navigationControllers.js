@@ -31,7 +31,8 @@ exports.getNavigationById = async (req, res, next) => {
    if(!id){
     return next(createError.createError(404,"Id not found"))
    }
-    const navigationContent = await NavigationContent.findByPk(1);
+
+    const navigationContent = await NavigationContent.findOne({where:{id:id}});
 
 
     return res.status(200).json(navigationContent);
