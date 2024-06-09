@@ -7,5 +7,6 @@ const router = express.Router();
 router.get("/",  categoryController.getAllCategory);
 router.post("/", middleware.protect, categoryController.createCategory);
 router.delete("/:id", middleware.protect, categoryController.deleteCategory);
+router.put("/bulkupdate",categoryController.bulkUpdateCategory)
 
 module.exports = router;

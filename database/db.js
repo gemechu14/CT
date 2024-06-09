@@ -17,7 +17,6 @@ const sequelize = new Sequelize({
 async function testConnection() {
 
   try {
-
        
     await sequelize.authenticate();
     console.log("Database connection has been established successfully.");
@@ -26,6 +25,7 @@ async function testConnection() {
     // console.log(process.env.DB_HOST)
     console.error("Error connecting");
   }
+
 }
 
 // sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables

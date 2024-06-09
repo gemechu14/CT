@@ -10,6 +10,10 @@ router.get("/reports",workspacesControllers.getReports)
 router.get("/reports/details",workspacesControllers.fetchReportDetails)
 router.get("/dashboards",workspacesControllers.getDashboards)
 router.get("/datasets",workspacesControllers.getDATASETS)
+router.get("/capabilities",workspacesControllers.getListOfOfCapability);
+router.get("/capabilities/start",workspacesControllers.startCapability);
+router.get("/capabilities/pause",workspacesControllers.pauseCapability);
 
 
 module.exports = router;
+

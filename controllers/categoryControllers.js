@@ -57,7 +57,7 @@ exports.createCategory = async (req, res, next) => {
 
 
 
-
+//DETETE CATEGORY
 
 exports.deleteCategory = async (req, res, next) => {
   try {
@@ -73,4 +73,40 @@ exports.deleteCategory = async (req, res, next) => {
   }
 };
 
+//BULK UPDATE
 
+exports.bulkUpdateCategory = async (req, res, next) => {
+  try {
+    const sortOrderUpdates = req.body; // Assumes array of objects in request body
+    // Validate input
+    if (!sortOrderUpdates || !Array.isArray(sortOrderUpdates)) {
+      return next(createError.createError(400, "Invalid input format"));
+    }
+
+    // Extract category IDs
+    const categoryIds = sortOrderUpdates.map(update => update.id);
+
+    // Fetch categories
+    const categories = await Category.findAll({ where: { id: categoryIds } });
+
+    // Validate categories
+    if (!categories || categories.length === 0) {
+      return next(createError.createError(404, "Categories not found"));
+    }
+
+    // Perform bulk update
+    const updatePromises = sortOrderUpdates.map(async update => {
+      const category = categories.find(cat => cat.id === update.id);
+      if (category) {
+        return category.update({ SortOrder: update.sortOrder });
+      }
+    });
+
+    await Promise.all(updatePromises);
+
+    res.status(200).json({ message: "Bulk update successful" });
+  } catch (error) {
+    console.error(error);
+    return next(createError(500, "Internal server error"));
+  }
+};

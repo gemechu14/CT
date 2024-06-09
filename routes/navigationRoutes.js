@@ -13,4 +13,6 @@ router.delete("/:id",
     middleware.protect,
     navigationController.deleteNavigation);
 
+router.put("/bulkupdate",navigationController.bulkUpdateNavigation)
+
 module.exports = router;

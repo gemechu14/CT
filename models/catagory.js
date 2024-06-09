@@ -9,6 +9,9 @@ const Category = sequelize.define("Category", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  SortOrder: {
+    type: DataTypes.STRING,
+  },
 
 });
 
