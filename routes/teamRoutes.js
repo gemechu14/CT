@@ -12,7 +12,7 @@ teamControllers.createTeams);
 
 
 router.put("/assign-to-user",teamControllers.assignTeamToUser);
-router.put("/assign-to-report",teamControllers.assignNavigationToTeam);
+router.put("/assign-report",teamControllers.assignNavigationToTeam);
 router.put("/:id", middleware.protect, teamControllers.updateTeam);
 router.delete("/:id", middleware.protect,teamControllers.deleteTeam);
 module.exports = router;

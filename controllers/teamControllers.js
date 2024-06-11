@@ -113,7 +113,7 @@ exports.assignNavigationToTeam = async (req, res, next) => {
       const existingNavigationTeam = await ReportTeam.findAll({
         where: {
           TeamId: teamId,
-          navigationId: navigationId,
+          NavigationContentId: navigationId,
         },
       });
   

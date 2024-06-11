@@ -61,7 +61,6 @@ app.use(express.json());
 
 
 
-
 const swaggerOptions = {
   swaggerOptions: {
     url: "http://localhost:4400/api-docs/swagger.json", // Update the URL to match your setup
