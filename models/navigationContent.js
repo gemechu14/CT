@@ -1,6 +1,7 @@
 
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../database/db.js");
+const Tenant= require("../models/tenant.js")
 
 const NavigationContent = sequelize.define("NavigationContent", {
   CreatedBy: {
@@ -55,7 +56,7 @@ const NavigationContent = sequelize.define("NavigationContent", {
 
   PagePath: {
     type: DataTypes.STRING,
-    allowNull: false,
+    // allowNull: false,
 
     
   },
@@ -132,6 +133,13 @@ const NavigationContent = sequelize.define("NavigationContent", {
   EmbedUrl: {
     type: DataTypes.TEXT // Change STRING to TEXT
   },
+  
+  type: {
+    type: DataTypes.ENUM("category", "contentPage"),
+    // allowNull: false,
+  },
+
+
   NavSecurity: {
     type: DataTypes.JSON, // Use JSON or JSONB
     allowNull: false,
@@ -148,4 +156,7 @@ module.exports = NavigationContent;
 
 
 
+
+NavigationContent.belongsTo(Tenant);
+Tenant.hasMany(NavigationContent);
 

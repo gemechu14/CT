@@ -51,7 +51,7 @@ module.exports = sequelize;
 
 
 
-// //Local Database 
+// // //Local Database 
 // require("dotenv").config();
 // const { Sequelize } = require("sequelize");
 // const sequelize = new Sequelize({
@@ -79,13 +79,13 @@ module.exports = sequelize;
 //   }
 // }
 
-// sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables
-//   .then(() => {
-//     console.log('Database synchronized successfully.');
-//   })
-//   .catch((error) => {
-//     console.error('Error synchronizing database:', error);
-//   }); 
+// // sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables
+// //   .then(() => {
+// //     console.log('Database synchronized successfully.');
+// //   })
+// //   .catch((error) => {
+// //     console.error('Error synchronizing database:', error);
+// //   }); 
 
 // testConnection();
 // module.exports = sequelize;

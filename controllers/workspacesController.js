@@ -6,6 +6,7 @@ const app = express();
 app.use(bodyParser.json());
 const { URLSearchParams } = require("url");
 const msal = require("@azure/msal-node");
+const { suspendCapacity } = require('../utils/capacity.js');
 
 exports.getAccessToken = async (req, res, next) => {
   const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
@@ -335,9 +336,10 @@ exports.getListOfOfCapability = async (req, res, next) => {
 //START CAPABILITY
 exports.startCapability = async (req, res, next) => {
     try {
-      const capacityId = "56EBDC11-917C-4672-AA61-2377D1EA903F";
-      
-    //   const capacityId = "CBE03601-5252-488A-88E1-8C14F5E02AD5";
+    //   const capacityId = "56EBDC11-917C-4672-AA61-2377D1EA903F";
+      const capacityId= 'CBE03601-5252-488A-88E1-8C14F5E02AD5';
+  
+      // Retrieve the access token
       const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
       const params = new URLSearchParams();
       params.append("grant_type", "client_credentials");
@@ -350,59 +352,156 @@ exports.startCapability = async (req, res, next) => {
           "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
         },
       });
+  
       const token = response1?.data?.access_token;
   
-      const url = `https://api.powerbi.com/v1.0/myorg/capacities/${capacityId}/resume`;
+      // Call the suspendCapacity function
+    const data=  await suspendCapacity(capacityId, token);
   
-      const response = await axios.get(url,  {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    });
-      return res.status(200).json(response.data.value);
+      return res.status(200).json({ message: 'Capacity suspended successfully.',
+
+        data
+       });
     } catch (error) {
-      console.error("Error getting datasets:", error);
+      console.error("Error suspending capacity:", error);
       return next(createError.createError(500, error));
     }
   };
 
 
   //PAUSE CAPABILITY
+// exports.pauseCapability = async (req, res, next) => {
+//     try {
+//       const capacityId = `56EBDC11-917C-4672-AA61-2377D1EA903F`;
+  
+//       const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+//       const params = new URLSearchParams();
+//       params.append("grant_type", "client_credentials");
+//       params.append("client_id", process.env.CLIENT_ID);
+//       params.append("client_secret", process.env.CLIENT_SECRET);
+//       params.append("scope", process.env.SCOPE);
+  
+    
+//       const response1 = await axios.post(tokenUrl, params.toString(), {
+//         headers: {
+//           "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+//         },
+//       });
+//       const token = response1?.data?.access_token;
+      
+//       const url = `https://api.powerbi.com/v1.0/myorg/capacities/${capacityId}`;
+//       const body = {
+//         state: 'Suspended'
+//       };
+//       const response = await axios.patch(url,body, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "application/json",
+//         },
+      
+//       });
+//       return res.status(200).json(response.data.value);
+//     } catch (error) {
+//       console.error("Error getting datasets:", error);
+//       return next(createError.createError(500, error));
+//     }
+//   };
+
+
 exports.pauseCapability = async (req, res, next) => {
     try {
-      const capacityId = "56EBDC11-917C-4672-AA61-2377D1EA903F";
-  
-      const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
-      const params = new URLSearchParams();
-      params.append("grant_type", "client_credentials");
-      params.append("client_id", process.env.CLIENT_ID);
-      params.append("client_secret", process.env.CLIENT_SECRET);
-      params.append("scope", process.env.SCOPE);
-  
-      const response1 = await axios.post(tokenUrl, params.toString(), {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-        },
-      });
-      const token = response1?.data?.access_token;
-  
-    //   const url = `https://api.powerbi.com/v1.0/myorg/capacities/${capacityId}/resume`;
-      const url = `https://api.powerbi.com/v1.0/myorg/capacities/${capacityId}/suspend`
-  
-      const response = await axios.post(url, null, {
+        const capacityId = "56EBDC11-917C-4672-AA61-2377D1EA903F";
+
+        const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+        const tokenParams = new URLSearchParams({
+            "grant_type": "client_credentials",
+            "client_id": process.env.CLIENT_ID,
+            "client_secret": process.env.CLIENT_SECRET,
+            "scope": process.env.SCOPE
+        });
+
+        const response1 = await axios.post(tokenUrl, tokenParams.toString(), {
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            },
+        });
+        const token = response1?.data?.access_token;
+        const url = `https://api.powerbi.com/v1.0/myorg/capacities/${capacityId}`;
+
+    //     const response = await axios.patch(url, {
+    //         state: 'Suspended'
+    //     }, 
+    //     {
+    //         headers: {
+    //             "Authorization": Bearer ${token},
+    //             "Content-Type": "application/json",
+    //         }
+    //     }
+    // );
+    const  body=JSON.stringify({
+        state: 'Suspended'
+    });
+
+          const response = await axios.patch(url,
+           
+            {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        body
+      
       });
-      return res.status(200).json(response.data.value);
+        return res.status(200).json(response.data.value);
     } catch (error) {
-      console.error("Error getting datasets:", error);
-      return next(createError.createError(500, error));
+        console.error("Error pausing capacity:", error);
+        return next(createError.createError(500, error));
     }
-  };
+};
 
+
+  
+
+/// USE SUBSCRIPTION
+exports.pauseSubscribtionCapability = async (req, res, next) => {
+    try {
+        const subscriptionId= 'f9307519-6302-426c-922c-2c3990670c5a';
+        const resourceGroupName= 'CedarstreetResourcegroup';
+        const dedicatedCapacityName='cedarplatformfabriccapacity';
+        const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+        const tokenParams = new URLSearchParams({
+            "grant_type": "client_credentials",
+            "client_id": process.env.CLIENT_ID,
+            "client_secret": process.env.CLIENT_SECRET,
+            "scope": process.env.SCOPE
+        });
+
+        const response1 = await axios.post(tokenUrl, tokenParams.toString(), {
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            },
+        });
+        const token = response1?.data?.access_token;
+        // return res.json(token)
+   
+        const url = `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/${dedicatedCapacityName}/suspend?api-version=2022-07-01`;
+        // const url= `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/${dedicatedCapacityName}/suspend?api-version=2022-07-01`
+        
+  
+         // Send the POST request to suspend the capacity
+         const response = await axios.post(url, null, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+        });
+
+        return res.status(200).json(response.data.value);
+    } catch (error) {
+        console.error("Error pausing capacity:", error);
+        return next(createError.createError(500, error));
+    }
+};
 // async function listCapacities(accessToken) {
 //   const url = 'https://api.powerbi.com/v1.0/myorg/capacities';
 

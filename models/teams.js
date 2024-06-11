@@ -3,8 +3,8 @@ const sequelize = require("../database/db.js");
 const Tenant = require("./tenant.js");
 const User = require("./Users.js");
 
-const Role = sequelize.define("Role", {
-  name: {
+const Team = sequelize.define("Team", {
+  teamName: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -12,18 +12,18 @@ const Role = sequelize.define("Role", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  status: {
+    type: DataTypes.STRING,
+    // allowNull: false,
+  },
 
 });
 
-Role.belongsTo(Tenant);
-Tenant.hasMany(Role);
-
-
-
-Role.hasMany(User);
-User.belongsTo(Role);
+Team.belongsTo(Tenant);
+Tenant.hasMany(Team);
 
 
 
 
-module.exports = Role;
+
+module.exports = Team;

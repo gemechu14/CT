@@ -1,5 +1,6 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../database/db.js");
+const User = require("./Users.js");
 
 const Address = sequelize.define("Address", {
   streetNumber: {
@@ -33,3 +34,5 @@ const Address = sequelize.define("Address", {
 module.exports = Address;
 
 
+User.hasOne(Address);
+Address.belongsTo(User);

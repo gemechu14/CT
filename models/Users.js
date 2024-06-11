@@ -2,6 +2,7 @@ const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../database/db.js");
 const bcrypt = require("bcrypt");
 const Address = require("./address.js");
+const Role= require("./role.js")
 
 const User = sequelize.define("User", {
   firstName: {
@@ -71,5 +72,8 @@ User.beforeUpdate((user, options) => {
 module.exports = User;
 
 
-User.hasOne(Address);
-Address.belongsTo(User);
+
+// User.hasOne(Role);
+// Role.belongsTo(User);
+
+

@@ -12,7 +12,7 @@ router.get("/dashboards",workspacesControllers.getDashboards)
 router.get("/datasets",workspacesControllers.getDATASETS)
 router.get("/capabilities",workspacesControllers.getListOfOfCapability);
 router.get("/capabilities/start",workspacesControllers.startCapability);
-router.get("/capabilities/pause",workspacesControllers.pauseCapability);
+router.get("/capabilities/pause",workspacesControllers.pauseSubscribtionCapability);
 
 
 module.exports = router;

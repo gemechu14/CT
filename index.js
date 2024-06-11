@@ -40,6 +40,7 @@ const tenantRoutes=require("./routes/tenantRoutes.js");
 const workspacesRoute=require("./routes/workspaceRoutes.js")
 const navigationRoute=require("./routes/navigationRoutes.js");
 const categoryRoute=require("./routes/categoryRoutes.js")
+const teamRoute= require("./routes/teamRoutes.js")
 // const UserTenant=require("./models/userTenant.js")
 
 
@@ -50,7 +51,8 @@ app.use("/",authRoutes);
 app.use("/api/v1/tenants",tenantRoutes);
 app.use("/api/v1/workspaces",workspacesRoute)
 app.use("/api/v1/navigations",navigationRoute)
-app.use("/api/v1/category",categoryRoute)
+app.use("/api/v1/category",categoryRoute);
+app.use("/api/v1/team", teamRoute);
 
 
 app.use(express.json());
