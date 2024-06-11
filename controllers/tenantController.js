@@ -30,7 +30,7 @@ exports.getAllTenants = async (req, res, next) => {
 // CREATE ROLE
 exports.createTenant = async (req, res, next) => {
   try {
-    const { tenantName, tenantStatus,isSuperTenant } = req.body;
+    const { tenantName, tenantStatus,isSuperTenant,language,numberOfTeams,numberOfUsers,powerBIWorkspace } = req.body;
     const existingTenant = await Tenant.findOne({ where: { tenantName} });
     if (existingTenant) {
       return next(createError.createError(400, "Tenant already defined "));
@@ -40,6 +40,7 @@ exports.createTenant = async (req, res, next) => {
         tenantName,
         tenantStatus,
         isSuperTenant,
+        language,numberOfTeams,numberOfUsers,powerBIWorkspace
         
     });
 

@@ -20,6 +20,10 @@ const Tenant = sequelize.define("Tenant", {
     type: DataTypes.BOOLEAN,
     defaultValue:true
   },
+  language: {
+    type: DataTypes.STRING,
+    // allowNull: false,
+  },
   numberOfTeams: {
     type: DataTypes.STRING,
     // allowNull: false,

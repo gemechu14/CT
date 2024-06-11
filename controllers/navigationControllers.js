@@ -73,7 +73,9 @@ exports.createNavigation = async (req, res, next) => {
       SortOrder,
       __RequestVerificationToken,
       EmbedUrl,
-      NavSecurity
+      NavSecurity,
+      type,
+
     } = req.body;
 
 
@@ -113,7 +115,8 @@ exports.createNavigation = async (req, res, next) => {
       SortOrder,
       __RequestVerificationToken,
       EmbedUrl,
-      NavSecurity
+      NavSecurity,
+      type
     });
 
     res
