@@ -14,13 +14,11 @@ exports.getAllRoles = async (req, res, next) => {
   try {
     const roles = await Role.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
-      where:{
-        TenantId: req?.user?.currentTenant
-      }
+ 
       // include:{model: Permission,
 
       //   through:{attributes:[]}
-      
+
       // }
     });
 
@@ -46,7 +44,7 @@ exports.createRole = async (req, res, next) => {
     const newURole = await Role.create({
       name,
       description,
-      TenantId: req.user.currentTenant
+      // TenantId: req.user.currentTenant
     });
 
     res
@@ -253,10 +251,10 @@ exports.updateRole = async (req, res, next) => {
 
     const role = await Role.findOne({
       where: { id: id },
-      include: {
-        model: Permission,
-        through: { attributes: [] }
-      }
+      // include: {
+      //   model: Permission,
+      //   through: { attributes: [] }
+      // }
     });
 
     if (!role) {

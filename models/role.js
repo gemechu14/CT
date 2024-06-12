@@ -15,8 +15,8 @@ const Role = sequelize.define("Role", {
 
 });
 
-Role.belongsTo(Tenant);
-Tenant.hasMany(Role);
+// Role.belongsTo(Tenant);
+// Tenant.hasMany(Role);
 
 
 
