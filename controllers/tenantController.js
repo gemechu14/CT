@@ -30,7 +30,10 @@ exports.getAllTenants = async (req, res, next) => {
 
 // CREATE ROLE
 exports.createTenant = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
   try {
+ 
+
     const {
       tenantName,
       tenantStatus,
@@ -45,6 +48,7 @@ exports.createTenant = async (req, res, next) => {
       return next(createError.createError(400, "Tenant already defined "));
     }
 
+  
     const tenant = await Tenant.create({
       tenantName,
       tenantStatus,
@@ -53,12 +57,26 @@ exports.createTenant = async (req, res, next) => {
       numberOfTeams,
       numberOfUsers,
       powerBIWorkspace,
-    });
+    },{transaction});
+
+  //Assign SUPER ADMIN TO CREATED TENANT
+
+  const superTenant= await User.findOne({where:{ isSuperTenant: true}})
+    
+
+  const assignTenant= await UserTenant.create({
+    UserId: superTenant.id,
+    TenantId: tenant.id
+  }, {transaction})
+
+  await transaction.commit();
 
     res
       .status(201)
       .json({ message: "Tenant registered successfully", tenant: tenant });
   } catch (error) {
+    console.log(error)
+    await transaction.rollback();
     return next(createError.createError(500, "Internal server Error"));
   }
 };
@@ -308,6 +326,8 @@ exports.switchTenant = async (req, res, next) => {
         TenantId: tenantIds
       }
     })
+
+
     if(userTenant === null){
       return next(createError.createError(404,"User is not Assigned to tenant"))
     }

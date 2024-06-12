@@ -6,15 +6,15 @@ const Tenant= require("../models/tenant.js")
 const NavigationContent = sequelize.define("NavigationContent", {
   CreatedBy: {
     type: DataTypes.STRING,
-    allowNull: false,
+    // allowNull: false,
   },
   NavigationSetupId: {
     type: DataTypes.STRING,
-    allowNull: false,
+    // allowNull: false,
   },
   OrganisationId: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   Parent: {
     type: DataTypes.STRING,
@@ -23,7 +23,7 @@ const NavigationContent = sequelize.define("NavigationContent", {
 
   Type: {
     type: DataTypes.STRING,
-    allowNull: false,
+    // allowNull: false,
   },
 
   IsRls: {
@@ -142,7 +142,7 @@ const NavigationContent = sequelize.define("NavigationContent", {
 
   NavSecurity: {
     type: DataTypes.JSON, // Use JSON or JSONB
-    allowNull: false,
+    // allowNull: false,
     defaultValue: [],
     get() {
       const rawValue = this.getDataValue('NavSecurity');

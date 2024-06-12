@@ -24,21 +24,21 @@ const createError=require("./errorResponse.js")
 
 
 const initializeData = async (req, res, next) => {
-  const roles = [
-    { name: 'Admin', description: 'Administrator role with full access' },
-    { name: 'Read/Write', description: 'Read and write access' },
-    { name: 'Read Only', description: 'Read-only access' },
-    { name: 'Power', description: 'Power user with extended privileges' },
-  ];
+  // const roles = [
+  //   { name: 'Admin', description: 'Administrator role with full access' },
+  //   { name: 'Read/Write', description: 'Read and write access' },
+  //   { name: 'Read Only', description: 'Read-only access' },
+  //   { name: 'Power', description: 'Power user with extended privileges' },
+  // ];
   
   try {
-    for (const role of roles) {
-      const roleExists = await Role.findOne({ where: { name: role.name } });
-      if (!roleExists) {
-        await Role.create(role);
-        console.log(`Role '${role.name}' created successfully`);
-      }
-    }
+  //   for (const role of roles) {
+  //     const roleExists = await Role.findOne({ where: { name: role.name } });
+  //     if (!roleExists) {
+  //       await Role.create(role);
+  //       console.log(`Role '${role.name}' created successfully`);
+  //     }
+  //   }
     next(); // Proceed to the next middleware or route handler
   } catch (error) {
     console.error('Error initializing roles:', error);
