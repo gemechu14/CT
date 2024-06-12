@@ -3,9 +3,9 @@ const userController = require("../controllers/userControllers.js");
 const router = express.Router();
 const middleware = require("../middleware/auth.js");
 
-router.get("/", userController.getAllUser);
+router.get("/",  middleware.protect, userController.getAllUser);
 router.post("/", middleware.protect, userController.createUser);
-router.put("/assign-role", userController.assignRoleToUser);
+router.put("/assign-role",  middleware.protect, userController.assignRoleToUser);
 router.put("/:id", middleware.protect, userController.updateUser);
 router.delete("/:id", middleware.protect, userController.deleteUser);
 

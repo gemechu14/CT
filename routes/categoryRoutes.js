@@ -4,9 +4,9 @@ const categoryController = require("../controllers/categoryControllers.js");
 const middleware = require("../middleware/auth.js");
 const router = express.Router();
 
-router.get("/",  categoryController.getAllCategory);
+router.get("/",   middleware.protect, categoryController.getAllCategory);
 router.post("/", middleware.protect, categoryController.createCategory);
 router.delete("/:id", middleware.protect, categoryController.deleteCategory);
-router.put("/bulkupdate",categoryController.bulkUpdateCategory)
+router.put("/bulkupdate",  middleware.protect,categoryController.bulkUpdateCategory)
 
 module.exports = router;

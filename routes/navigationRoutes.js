@@ -13,6 +13,6 @@ router.delete("/:id",
     middleware.protect,
     navigationController.deleteNavigation);
 
-router.put("/bulkupdate",navigationController.bulkUpdateNavigation)
+router.put("/bulkupdate",   middleware.protect,navigationController.bulkUpdateNavigation)
 
 module.exports = router;
