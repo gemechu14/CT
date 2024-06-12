@@ -3,7 +3,9 @@ const roleControllers = require("../controllers/roleControllers.js");
 const middleware=require("../middleware/auth.js")
 const router = express.Router();
 
-router.get("/", roleControllers.getAllRoles);
+router.get("/", 
+    middleware.protect,
+    roleControllers.getAllRoles);
 router.post("/", 
 middleware.protect,
 roleControllers.createRole);
