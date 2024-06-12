@@ -10,18 +10,18 @@ const Tenant = require("../models/tenant.js");
 const { isCancel } = require("axios");
 const e = require("cors");
 const UserTenant = require("../models/userTenant.js");
-const sequelize = require('../database/db');
+const sequelize = require("../database/db");
 const { where } = require("sequelize");
 
 // GET ALL USER
 exports.getAllTenants = async (req, res, next) => {
   try {
     const tenants = await Tenant.findAll({
+      where:{ isActive:true}
+
     });
 
-    return res.status(200).json(
-       tenants,
-);
+    return res.status(200).json(tenants);
   } catch (error) {
     console.log(error)
     return next(createError.createError(500, "Internal server Error"));
@@ -31,18 +31,28 @@ exports.getAllTenants = async (req, res, next) => {
 // CREATE ROLE
 exports.createTenant = async (req, res, next) => {
   try {
-    const { tenantName, tenantStatus,isSuperTenant,language,numberOfTeams,numberOfUsers,powerBIWorkspace } = req.body;
-    const existingTenant = await Tenant.findOne({ where: { tenantName} });
+    const {
+      tenantName,
+      tenantStatus,
+      isSuperTenant,
+      language,
+      numberOfTeams,
+      numberOfUsers,
+      powerBIWorkspace,
+    } = req.body;
+    const existingTenant = await Tenant.findOne({ where: { tenantName } });
     if (existingTenant) {
       return next(createError.createError(400, "Tenant already defined "));
     }
 
     const tenant = await Tenant.create({
-        tenantName,
-        tenantStatus,
-        isSuperTenant,
-        language,numberOfTeams,numberOfUsers,powerBIWorkspace
-        
+      tenantName,
+      tenantStatus,
+      isSuperTenant,
+      language,
+      numberOfTeams,
+      numberOfUsers,
+      powerBIWorkspace,
     });
 
     res
@@ -108,13 +118,17 @@ exports.assignPermissionToRole = async (req, res, next) => {
   }
 };
 
-
-
 //UPDATE TENANT INFO
 exports.updateTenant = async (req, res, next) => {
   try {
     //insert required field
-    const { tenantName, tenantStatus,isSuperTenant } = req.body;
+    const {      tenantName,
+      tenantStatus,
+      isSuperTenant,
+      language,
+      numberOfTeams,
+      numberOfUsers,
+      powerBIWorkspace, } = req.body;
     const updates = {};
     const { id } = req.params;
 
@@ -130,10 +144,23 @@ exports.updateTenant = async (req, res, next) => {
     if (tenantStatus) {
       updates.tenantStatus = tenantStatus;
     }
-   
-    if(isSuperTenant){
-      updates.isSuperTenant=isSuperTenant
+
+    if (isSuperTenant) {
+      updates.isSuperTenant = isSuperTenant;
     }
+    if (language) {
+      updates.language = language;
+    }
+    if (numberOfTeams) {
+      updates.numberOfTeams = numberOfTeams;
+    }
+    if (numberOfUsers) {
+      updates.numberOfUsers = numberOfUsers;
+    }
+    if (powerBIWorkspace) {
+      updates.powerBIWorkspace = powerBIWorkspace;
+    }
+
 
     const result = await tenants.update(updates);
 
@@ -154,8 +181,7 @@ exports.deleteTenant = async (req, res, next) => {
     if (!tenants) {
       return next(createError.createError(404, "Tenant not found"));
     }
-    await tenants.update({ isActive:false, where: { id } });
-
+    await tenants.update({ isActive: false, where: { id } });
 
     res.status(200).json({ message: "Deleted successfully" });
   } catch (error) {
@@ -166,67 +192,84 @@ exports.deleteTenant = async (req, res, next) => {
 
 //UNASSIGN USER FROM TENANT
 
-exports.unassingUserFromTenant= async(req,res,next)=>{
+exports.unassingUserFromTenant = async (req, res, next) => {
   const transaction = await sequelize.transaction();
   try {
+    const { userId, tenantId } = req.body;
 
-    const {userId,tenantId}= req.body;
-
-
-    if(!userId || !tenantId){
-      return next(createError.createError(400, "Missing required fields: Please ensure all mandatory fields are provided"));
-
+    if (!userId || !tenantId) {
+      return next(
+        createError.createError(
+          400,
+          "Missing required fields: Please ensure all mandatory fields are provided"
+        )
+      );
     }
 
     const existingUserTenant = await UserTenant.findOne({
-      where: { UserId: Number(userId), TenantId: Number(tenantId) }
+      where: { UserId: Number(userId), TenantId: Number(tenantId) },
     });
-    
-    if (!existingUserTenant) {
-      return next(createError.createError(404, "User is not assigned to the specified tenant"));
-    }
-    
 
-    await existingUserTenant.destroy({UserId:userId, TenantId:tenantId},{transaction});
-    await User.update({defaulTenant: null,currentTenant:null, where:{id:userId}},{transaction})
+    if (!existingUserTenant) {
+      return next(
+        createError.createError(
+          404,
+          "User is not assigned to the specified tenant"
+        )
+      );
+    }
+
+    await existingUserTenant.destroy(
+      { UserId: userId, TenantId: tenantId },
+      { transaction }
+    );
+    await User.update(
+      { defaulTenant: null, currentTenant: null, where: { id: userId } },
+      { transaction }
+    );
 
     await transaction.commit();
     return res.status(200).json({
-      message:"Unassigned successfully"
-    
+      message: "Unassigned successfully",
     });
-    
   } catch (error) {
     console.log(error);
     await transaction.rollback();
-    return next(createError.createError(500,"Internal server Error"))
-    
+    return next(createError.createError(500, "Internal server Error"));
   }
-}
-
+};
 
 //ASSIGN USER TO TENANT
-exports.assingToTenant= async(req,res,next)=>{
+exports.assingToTenant = async (req, res, next) => {
   const transaction = await sequelize.transaction();
   try {
+    const { userId, tenantId } = req.body;
 
-    const {userId,tenantId}= req.body;
-
-
-    if(!userId || !tenantId){
-      return next(createError.createError(400, "Missing required fields: Please ensure all mandatory fields are provided"));
-
+    if (!userId || !tenantId) {
+      return next(
+        createError.createError(
+          400,
+          "Missing required fields: Please ensure all mandatory fields are provided"
+        )
+      );
     }
 
     const existingUserTenant = await UserTenant.findOne({
-      where: { UserId: Number(userId), TenantId: Number(tenantId) }
+      where: { UserId: Number(userId), TenantId: Number(tenantId) },
     });
     if (existingUserTenant) {
-      return next(createError.createError(404, "User is already assigned to the specified tenant"));
+      return next(
+        createError.createError(
+          404,
+          "User is already assigned to the specified tenant"
+        )
+      );
     }
 
-
-    await UserTenant.create({ UserId: userId, TenantId: tenantId }, { transaction });
+    await UserTenant.create(
+      { UserId: userId, TenantId: tenantId },
+      { transaction }
+    );
 
     await User.update(
       { defaulTenant: tenantId },
@@ -235,14 +278,11 @@ exports.assingToTenant= async(req,res,next)=>{
 
     await transaction.commit();
     return res.status(200).json({
-      message:"User assigned successfully"
-    
+      message: "User assigned successfully",
     });
-    
   } catch (error) {
     console.log(error);
     await transaction.rollback();
-    return next(createError.createError(500,"Internal server Error"))
-    
+    return next(createError.createError(500, "Internal server Error"));
   }
-}
+};

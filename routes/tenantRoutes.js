@@ -14,7 +14,10 @@ router.put("/assign-user",
 middleware.protect,
 tenantControllers.assingToTenant
 );
-router.get("/", tenantControllers.getAllTenants);
+router.get("/", 
+    middleware.protect,
+    middleware.restrictToSuperTenant,
+    tenantControllers.getAllTenants);
 router.post("/",
 middleware.protect,
 tenantControllers.createTenant);

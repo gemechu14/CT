@@ -34,7 +34,7 @@ const Tenant = sequelize.define("Tenant", {
   },
   powerBIWorkspace: {
     type: DataTypes.JSON, // Use JSON or JSONB
-    allowNull: false,
+    // allowNull: false,
     defaultValue: [],
     get() {
       const rawValue = this.getDataValue('powerBIWorkspace');
