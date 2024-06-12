@@ -13,14 +13,15 @@ const Address =require("../models/address.js")
 const signToken = (
   id,
   email,
-  permissions,
+  roleId,
   tenant,
   defaultTenant,
-  currentTenant
+  currentTenant,
+  isSuperTenant
 ) => {
   try {
     const token = jwt.sign(
-      { id, email, permissions, tenant, defaultTenant, currentTenant },
+      { id, email, roleId, tenant, defaultTenant, currentTenant,isSuperTenant },
       "secret",
       {
         expiresIn: "7d",
@@ -28,7 +29,7 @@ const signToken = (
     );
 
     const refreshToken = jwt.sign(
-      { id, email, permissions, tenant, defaultTenant, currentTenant },
+      { id, email, roleId, tenant, defaultTenant, currentTenant ,isSuperTenant},
       "refreshSecret",
       {
         expiresIn: "90d",
@@ -42,13 +43,16 @@ const signToken = (
 
 const createSendToken = async (user, statusCode, res) => {
   try {
+    // return res.json(user)
     const { token, refreshToken } = signToken(
       user.id,
       user.email,
-      user.permissions,
+      user.roleId,
+      // user.permissions,
       user.tenant,
       user.defaultTenant,
-      user.defaultTenant
+      user.defaultTenant,
+      user.isSuperTenant
     );
 
     await User.update(
@@ -90,11 +94,11 @@ exports.login = async (req, res, next) => {
         },
         {
           model: Role,
-          through: { attributes: [] }, // To exclude the UserRole pivot table data
-          include: {
-            model: Permission,
-            through: { attributes: [] }, // To exclude the RolePermission pivot table data
-          },
+          // through: { attributes: [] }, // To exclude the UserRole pivot table data
+          // include: {
+          //   model: Permission,
+          //   through: { attributes: [] }, // To exclude the RolePermission pivot table data
+          // },
         },
       ],
     });
@@ -109,14 +113,15 @@ exports.login = async (req, res, next) => {
       );
     }
 
-    const permissions = user.Roles.reduce((acc, role) => {
-      role.Permissions.forEach((permission) => {
-        if (!acc.includes(permission.name)) {
-          acc.push(permission.name);
-        }
-      });
-      return acc;
-    }, []);
+
+    // const permissions = user.Roles.reduce((acc, role) => {
+    //   role.Permissions.forEach((permission) => {
+    //     if (!acc.includes(permission.name)) {
+    //       acc.push(permission.name);
+    //     }
+    //   });
+    //   return acc;
+    // }, []);
     // Extract all tenantIds from user.Tenants
     const tenantIds = user.Tenants.map((tenant) => tenant.id);
     // Construct the desired output object
@@ -128,9 +133,11 @@ exports.login = async (req, res, next) => {
       isSuperTenant: user.isSuperTenant,
       defaultTenant: user.defaultTenant,
       currentTenant: user.defaultTenant,
+      isSuperTenant:user.isSuperTenant,
+      roleId:user?.Role?.id,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      permissions: permissions,
+      // permissions: permissions,
       tenant: tenantIds,
     };
 
@@ -161,6 +168,15 @@ exports.signup = async (req, res, next) => {
       roleId,
     } = req.body;
 
+   // Check if there is at least one user in the system
+  //  const userCount = await User.count();
+
+   if (userCount > 0) {
+     return next(createError.createError(500, "You are already signed up by this package"));
+   }
+
+
+   
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return next(createError.createError(500, "User already exists"));
@@ -187,31 +203,12 @@ exports.signup = async (req, res, next) => {
         phoneNumber,
         isSuperTenant: true,
         defaultTenant: tenant.id,
+        RoleId: defaultRole.id
       },
       { transaction }
     );
 
-  //  const address= await  Address.create({
-  //     streetNumber,
-  //     streetName,
-  //     streetType,
-  //     city,
-  //     state,
-  //     country,
-  //     postalCode,
-  //   },{transaction});
-
-  //   await address.update({UserId:newUser.id,TenantId:tenant.id},{transaction})
-
-
-    await UserRole.create(
-      {
-        UserId: newUser.id,
-        RoleId: defaultRole.id,
-      },
-      { transaction }
-    );
-
+ 
     await UserTenant.create(
       {
         UserId: newUser.id,
@@ -222,7 +219,7 @@ exports.signup = async (req, res, next) => {
     await transaction.commit();
     res
       .status(201)
-      .json({ message: "User1 registered successfully", user: newUser });
+      .json({ message: "User registered successfully", user: newUser });
   } catch (error) {
     console.error("Error registering user:", error);
     await transaction.rollback();

@@ -3,7 +3,7 @@ const Role = require('../models/role.js');
 const createError=require("./errorResponse.js")
 
 const initializeData  = async (req,res,next) => {
-  const roles = ['admin', 'user'];
+  const roles = ['admin', 'user','tenantId'];
   try {
     for (const roleName of roles) {
       const roleExists = await Role.findOne({ where: { name: roleName } });
