@@ -11,17 +11,30 @@ const Address=require("../models/address.js");
 // GET ALL USER
 exports.getAllUser = async (req, res, next) => {
   try {
+    const user= await User.findByPk(req.user.id)
+
+    // const getAlluser= await UserTenant.findAll({
+    //   include:{model:User},
+
+    //  where:{TenantId: user.currentTenant}
+    // })
     const users = await User.findAll({
       attributes: { exclude: ["password"] },
+      
       include: [{
         model: Role,
-        include: { model: Permission,          
-         },
+        // include: { model: Permission,          
+        //  },
        
       },
-    {  model: Address}
-    ]
-    });
+    {  model: Address},
+    
+    ],
+    
+    }
+  
+  
+  );
 
     // const formattedUsers = users.map((user) => ({
     //   id: user.id,
@@ -31,7 +44,7 @@ exports.getAllUser = async (req, res, next) => {
     //   isSuperTenant: user.isSuperTenant,
     //   role: user.Roles.length ? user.Roles[0].name : null,
     // }));
-    return res.status(200).json(users);
+    return res.status(200).json(getAlluser);
   } catch (error) {
     console.log(error);
     return next(createError.createError(500, "Internal server Error"));
@@ -68,7 +81,7 @@ exports.createUser = async (req, res, next) => {
     const checkrole= await Role.findByPk(Number(roleId))
 
     if(!checkrole){
-      
+
       return createError.createError(404,"Role not found")
     }
      const defaultRole = await Role.findOne({ where: { name: "Read Only" } });
@@ -78,6 +91,8 @@ exports.createUser = async (req, res, next) => {
     if (!defaultRole) {
       return next(createError.createError(404, "Default role not found"));
     }
+    const user= await User.findByPk(req.user.id)
+
 
     const newUser = await User.create(
       {
@@ -88,7 +103,7 @@ exports.createUser = async (req, res, next) => {
         password,
         phoneNumber,
         RoleId:roleId ?? defaultRole.id,     
-        defaultTenant: req.user?.currentTenant,
+        defaultTenant: user.currentTenant,
       },
       { transaction }
     );
@@ -104,7 +119,7 @@ exports.createUser = async (req, res, next) => {
     await UserTenant.create(
       {
         UserId: newUser.id,
-        TenantId: req.user?.currentTenant,
+        TenantId: user.currentTenant,
       },
       { transaction }
     );

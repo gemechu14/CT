@@ -16,8 +16,14 @@ const ReportTeam = require("../models/reportTeam.js");
 // GET ALL TEAM
 exports.getAllTeams = async (req, res, next) => {
   try {
+    const user= await User.findByPk(req.user.id)
     const teams = await Team.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt"] },
+      attributes: { exclude: ["createdAt", "updatedAt"] 
+
+      },
+      where:{
+        TenantId:user.currentTenant
+      }
     });
 
     return res.status(200).json(teams);
@@ -36,12 +42,12 @@ exports.createTeams = async (req, res, next) => {
     if (existingTeam) {
       return next(createError.createError(400, "Team already defined "));
     }
-
+    const user= await User.findByPk(req.user.id)
     const newTeam = await Team.create({
       teamName,
       description,
       status,
-      TenantId: req.user.currentTenant,
+      TenantId: user.currentTenant,
     });
 
     res

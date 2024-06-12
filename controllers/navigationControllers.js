@@ -3,15 +3,25 @@ const NavigationContent = require("../models/navigationContent.js");
 const { create } = require("domain");
 const sequelize = require("../database/db");
 const createError = require("../utils/errorResponse.js");
+const User = require("../models/Users.js");
+const Tenant = require("../models/tenant.js");
 
 
 
 // GET ALL NAVIGATION
 exports.getAllNavigation = async (req, res, next) => {
   try {
+
+    const user= await User.findByPk(req.user.id)
+
+    
     const navigationContent = await NavigationContent.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
-    });
+      where:{
+        TenantId: user.currentTenant
+      }
+    },
+);
 
 
 
@@ -78,7 +88,7 @@ exports.createNavigation = async (req, res, next) => {
 
     } = req.body;
 
-
+    const user= await User.findByPk(req.user.id)
 
     const existingTitle = await NavigationContent.findOne({ where: { Title } });
     if (existingTitle) {
@@ -116,7 +126,8 @@ exports.createNavigation = async (req, res, next) => {
       __RequestVerificationToken,
       EmbedUrl,
       NavSecurity,
-      type
+      type,
+      TenantId: user.currentTenant
     });
 
     res
