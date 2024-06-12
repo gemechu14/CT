@@ -168,8 +168,12 @@ exports.signup = async (req, res, next) => {
       roleId,
     } = req.body;
 
+    
+
+
+
    // Check if there is at least one user in the system
-  //  const userCount = await User.count();
+   const userCount = await User.count();
 
    if (userCount > 0) {
      return next(createError.createError(500, "You are already signed up by this package"));
@@ -190,7 +194,7 @@ exports.signup = async (req, res, next) => {
       },
       { transaction }
     );
-    const defaultRole = await Role.findOne({ where: { name: "admin" } });
+    const defaultRole = await Role.findOne({ where: { name: "Admin" } });
 
     defaultRole.update({ TenantId: tenant.id }, { transaction });
     const newUser = await User.create(
@@ -203,7 +207,7 @@ exports.signup = async (req, res, next) => {
         phoneNumber,
         isSuperTenant: true,
         defaultTenant: tenant.id,
-        RoleId: defaultRole.id
+        RoleId: defaultRole.id  ?? null
       },
       { transaction }
     );

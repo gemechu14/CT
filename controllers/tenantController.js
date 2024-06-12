@@ -286,3 +286,44 @@ exports.assingToTenant = async (req, res, next) => {
     return next(createError.createError(500, "Internal server Error"));
   }
 };
+
+
+//Switch TENANT
+exports.switchTenant = async (req, res, next) => {
+  // const transaction = await sequelize.transaction();
+  try {
+    const { tenantId } = req.body;
+  const tenantIds= Number(tenantId)
+    if (!tenantIds) {
+      return next(
+        createError.createError(
+          400,
+          "Please ensure all mandatory fields are provided"
+        )
+      );
+    }
+    userTenant= await UserTenant.findOne({
+      where:{
+        UserId: req.user.id,
+        TenantId: tenantIds
+      }
+    })
+    if(userTenant === null){
+      return next(createError.createError(404,"User is not Assigned to tenant"))
+    }
+
+    const data= await User.update(
+      { currentTenant: tenantIds },
+      { where: { id: req.user.id } }
+    );
+  
+  
+    return res.status(200).json({
+      message: "Switched successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    // await transaction.rollback();
+    return next(createError.createError(500, "Internal server Error"));
+  }
+};

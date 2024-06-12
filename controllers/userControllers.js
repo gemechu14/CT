@@ -64,10 +64,17 @@ exports.createUser = async (req, res, next) => {
     if (existingUser) {
       return next(createError.createError(400, "User already exists"));
     }
+  
+    const checkrole= await Role.findByPk(Number(roleId))
 
- 
+    if(!checkrole){
+      
+      return createError.createError(404,"Role not found")
+    }
+     const defaultRole = await Role.findOne({ where: { name: "Read Only" } });
+    // const defaultRole= await Role.findAll()
 
-    const defaultRole = await Role.findOne({ where: { name: "user" } });
+    // return res.json(defaultRole)
     if (!defaultRole) {
       return next(createError.createError(404, "Default role not found"));
     }

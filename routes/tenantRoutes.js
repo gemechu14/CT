@@ -24,6 +24,8 @@ router.get(
 );
 router.post("/", middleware.protect, tenantControllers.createTenant);
 
+router.put("/switch-user", middleware.protect, tenantControllers.switchTenant);
+
 router.put("/:id", middleware.protect, tenantControllers.updateTenant);
 
 router.delete("/:id", middleware.protect, tenantControllers.deleteTenant);
