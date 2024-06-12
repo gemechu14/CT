@@ -14,10 +14,14 @@ exports.getAllRoles = async (req, res, next) => {
   try {
     const roles = await Role.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
-      include:{model: Permission,
-
-        through:{attributes:[]}
+      where:{
+        TenantId: req?.user?.currentTenant
       }
+      // include:{model: Permission,
+
+      //   through:{attributes:[]}
+      
+      // }
     });
 
     return res.status(200).json(
@@ -240,11 +244,11 @@ exports.assignPermissionToRole = async (req, res, next) => {
 //   }
 // };
 
-
+//UPDATE ROLE
 exports.updateRole = async (req, res, next) => {
   const transaction = await sequelize.transaction();
   try {
-    const { name, description, permissionIds } = req.body;
+    const { name, description } = req.body;
     const { id } = req.params;
 
     const role = await Role.findOne({
@@ -257,7 +261,7 @@ exports.updateRole = async (req, res, next) => {
 
     if (!role) {
       await transaction.rollback();
-      return next(createError(404, "Role not found"));
+      return next(createError.createError(404, "Role not found"));
     }
 
     const updates = {};
@@ -279,7 +283,7 @@ exports.updateRole = async (req, res, next) => {
 
       if (permissions.length !== newPermissionIds.length) {
         await transaction.rollback();
-        return next(createError(404, "One or more Permission not found"));
+        return next(createError.createError(404, "One or more Permission not found"));
       }
 
       const currentPermissionIds = role.Permissions.map(p => p.id);
@@ -324,10 +328,49 @@ exports.updateRole = async (req, res, next) => {
   } catch (error) {
     await transaction.rollback();
     console.error(error);
-    return next(createError(500, "Internal server error"));
+    return next(createError.createError(500, "Internal server error"));
   }
 };
 
+
+
+//UPDATE ROLE WITH NEW ONE
+exports.updateRoleNew = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const { name, description } = req.body;
+    const { id } = req.params;
+
+    const role = await Role.findOne({
+      where: { id: id },
+     
+    });
+
+    if (!role) {
+      return next(createError.createError(404, "Role not found"));
+    }
+
+    const updates = {};
+    if (name) {
+      updates.name = name;
+    }
+    if (description) {
+      updates.description = description;
+    }
+
+   const updatedRole= await role.update(updates);
+ 
+
+    res.status(200).json({
+      message: "Role updated successfully",
+      data: updatedRole
+    });
+  } catch (error) {
+    await transaction.rollback();
+    console.error(error);
+    return next(createError.createError(500, "Internal server error"));
+  }
+};
 exports.deleteRole = async (req, res, next) => {
   try {
     const { id } = req.params;

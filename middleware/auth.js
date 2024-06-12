@@ -61,14 +61,15 @@ exports.restrictTo = () => {
 };
 
 //Restricted to SUPERTENANT
-exports.restrictToSuperTenant = () => {
+exports.restrictToSuperTenant = (isSuperTenant) => {
   return async (req, res, next) => {
-    // return res.json("data")
     // Check if the user is a super tenant
-    if (req.user && req.user.isSuperTenant) {
+
+   
+    if (req?.user?.isSuperTenant === isSuperTenant) {
       next();
     } else {
-      return next(createError(401, "You do not have permission to perform this action"));
+      return next(createError.createError(401, "You do not have permission to perform this action"));
     }
   };
 };

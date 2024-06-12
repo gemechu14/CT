@@ -1,37 +1,31 @@
 const express = require("express");
 const roleControllers = require("../controllers/roleControllers.js");
-const tenantControllers=require("../controllers/tenantController.js")
+const tenantControllers = require("../controllers/tenantController.js");
 const router = express.Router();
-const middleware=require("../middleware/auth.js")
+const middleware = require("../middleware/auth.js");
 
-router.put("/unassign-user",
+router.put(
+  "/unassign-user",
 
-middleware.protect,
-tenantControllers.unassingUserFromTenant
+  middleware.protect,
+  tenantControllers.unassingUserFromTenant
 );
-router.put("/assign-user",
+router.put(
+  "/assign-user",
 
-middleware.protect,
-tenantControllers.assingToTenant
+  middleware.protect,
+  tenantControllers.assingToTenant
 );
-router.get("/", 
-    middleware.protect,
-    middleware.restrictToSuperTenant,
-    tenantControllers.getAllTenants);
-router.post("/",
-middleware.protect,
-tenantControllers.createTenant);
+router.get(
+  "/",
+  middleware.protect,
+  middleware.restrictToSuperTenant(true),
+  tenantControllers.getAllTenants
+);
+router.post("/", middleware.protect, tenantControllers.createTenant);
 
+router.put("/:id", middleware.protect, tenantControllers.updateTenant);
 
-router.put("/:id",
-middleware.protect,
-tenantControllers.updateTenant);
-
-
-router.delete("/:id",
-middleware.protect,
-tenantControllers.deleteTenant);
-
-
+router.delete("/:id", middleware.protect, tenantControllers.deleteTenant);
 
 module.exports = router;
