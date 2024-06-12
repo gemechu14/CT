@@ -7,32 +7,27 @@ const Permission = require("../models/permission.js");
 const Tenant = require("../models/tenant.js");
 const UserTenant = require("../models/userTenant.js");
 const Address=require("../models/address.js");
+const { where } = require("sequelize");
 
 // GET ALL USER
 exports.getAllUser = async (req, res, next) => {
   try {
     const user= await User.findByPk(req.user.id)
 
-    // const getAlluser= await UserTenant.findAll({
-    //   include:{model:User},
-
-    //  where:{TenantId: user.currentTenant}
-    // })
+ 
     const users = await User.findAll({
       attributes: { exclude: ["password"] },
-      
       include: [{
         model: Role,
-        // include: { model: Permission,          
-        //  },
-       
+          
       },
     {  model: Address},
     
     ],
     
-    }
-  
+    },
+    
+  {where:{ defaultTenant: user.currentTenant}}
   
   );
 
@@ -44,7 +39,7 @@ exports.getAllUser = async (req, res, next) => {
     //   isSuperTenant: user.isSuperTenant,
     //   role: user.Roles.length ? user.Roles[0].name : null,
     // }));
-    return res.status(200).json(getAlluser);
+    return res.status(200).json(users);
   } catch (error) {
     console.log(error);
     return next(createError.createError(500, "Internal server Error"));
