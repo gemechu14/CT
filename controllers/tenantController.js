@@ -23,6 +23,7 @@ exports.getAllTenants = async (req, res, next) => {
        tenants,
 );
   } catch (error) {
+    console.log(error)
     return next(createError.createError(500, "Internal server Error"));
   }
 };
