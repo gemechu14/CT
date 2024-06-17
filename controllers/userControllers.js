@@ -2,7 +2,6 @@ const User = require("../models/Users.js");
 const sequelize = require("../database/db");
 const createError = require("../utils/errorResponse.js");
 const Role = require("../models/role.js");
-const UserRole = require("../models/userRole.js");
 const Permission = require("../models/permission.js");
 const Tenant = require("../models/tenant.js");
 const UserTenant = require("../models/userTenant.js");
@@ -13,23 +12,39 @@ const { where } = require("sequelize");
 exports.getAllUser = async (req, res, next) => {
   try {
     const user= await User.findByPk(req.user.id)
-
- 
-    const users = await User.findAll({
-      attributes: { exclude: ["password"] },
-      include: [{
-        model: Role,
-          
-      },
-    {  model: Address},
-    
-    ],
-    
-    },
-    
-  {where:{ defaultTenant: user.currentTenant}}
   
-  );
+
+  
+ 
+  //   const users = await User.findAll({
+  //     attributes: { exclude: ["password"] },
+  //     include: [{
+  //       model: Role,
+          
+  //     },
+  //   {  model: Address},
+    
+  //   ],
+    
+  //   },
+    
+  // {where:{ defaultTenant: user.currentTenant}}
+  
+  // );
+
+  const users = await User.findAll({
+    attributes: { exclude: ['password'] },
+    include: [
+      
+      {model:Role},
+      {model:Address},
+      {
+      model: Tenant,
+      where: { id: user.currentTenant },
+      through: { attributes: [] } // to exclude attributes from the join table
+    }]
+  });
+  
 
     // const formattedUsers = users.map((user) => ({
     //   id: user.id,
@@ -72,13 +87,17 @@ exports.createUser = async (req, res, next) => {
     if (existingUser) {
       return next(createError.createError(400, "User already exists"));
     }
-  
+   
+  if(roleId){
     const checkrole= await Role.findByPk(Number(roleId))
+  
+    if(checkrole === null){
 
-    if(!checkrole){
-
-      return createError.createError(404,"Role not found")
+      return next(createError.createError(404,"Role not found"))
     }
+
+
+  }
      const defaultRole = await Role.findOne({ where: { name: "Read Only" } });
     // const defaultRole= await Role.findAll()
 

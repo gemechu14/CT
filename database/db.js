@@ -47,9 +47,8 @@
 
 
 
-/// SECOND DATABASE
-
-//Remote Database 
+// /// SECOND DATABASE
+// //Remote Database 
 require("dotenv").config();
 const { Sequelize } = require("sequelize");
 const sequelize = new Sequelize({

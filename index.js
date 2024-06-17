@@ -23,12 +23,13 @@ app.use(cors());
 //   });
 // });
 
-const initializeData =require("./utils/initializeData .js");
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.json());
 app.use("/uploads", express.static("./uploads/"));
+// const initializeData =require("./utils/initializeData .js");
 const userRoutes=require("./routes/userRoutes.js");
 const roleRoutes=require("./routes/roleRoutes.js");
 const permissionRoutes=require("./routes/permissionRoutes.js");
@@ -44,12 +45,13 @@ const teamRoute= require("./routes/teamRoutes.js")
 app.use("/api/v1/users",userRoutes);
 app.use("/api/v1/roles", roleRoutes);
 app.use("/api/v1/permissions",permissionRoutes);
-app.use("/",authRoutes);
+
 app.use("/api/v1/tenants",tenantRoutes);
 app.use("/api/v1/workspaces",workspacesRoute)
 app.use("/api/v1/navigations",navigationRoute)
 app.use("/api/v1/category",categoryRoute);
 app.use("/api/v1/team", teamRoute);
+app.use("/",authRoutes);
 
 
 app.use(express.json());

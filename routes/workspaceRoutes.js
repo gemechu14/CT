@@ -11,8 +11,8 @@ router.get("/reports/details",workspacesControllers.fetchReportDetails)
 router.get("/dashboards",workspacesControllers.getDashboards)
 router.get("/datasets",workspacesControllers.getDATASETS)
 router.get("/capabilities",workspacesControllers.getListOfOfCapability);
-router.get("/capabilities/start",workspacesControllers.startCapability);
-router.get("/capabilities/pause",workspacesControllers.pauseSubscribtionCapability);
+router.get("/capabilities/start",workspacesControllers.resume1Capacity);
+router.get("/capabilities/pause",workspacesControllers.suspend1Capacity);
 
 
 module.exports = router;

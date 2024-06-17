@@ -7,6 +7,10 @@ app.use(bodyParser.json());
 const { URLSearchParams } = require("url");
 const msal = require("@azure/msal-node");
 const { suspendCapacity } = require('../utils/capacity.js');
+const { PowerBIDedicatedClient } = require('@azure/arm-powerbidedicated');
+const { DefaultAzureCredential } = require('@azure/identity');
+const { PowerBIEmbeddedManagementClient } = require('@azure/arm-powerbiembedded');
+const msRestNodeAuth = require('@azure/ms-rest-nodeauth');
 
 exports.getAccessToken = async (req, res, next) => {
   const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
@@ -368,6 +372,112 @@ exports.startCapability = async (req, res, next) => {
     }
   };
 
+
+// START CAPACITY
+
+
+
+exports.suspend1Capacity = async (req, res, next) => {
+  try {
+
+   const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
+      process.env.CLIENT_ID,
+      process.env.CLIENT_SECRET,
+      process.env.TENANT_ID,
+      {
+          tokenAudience: 'https://management.azure.com/'
+      }
+  );
+
+  // return res.json(creds.tokenCache._entries[0].accessToken)
+    // Retrieve the access token
+    // const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+    // const params = new URLSearchParams();
+    // params.append("grant_type", "client_credentials");
+    // params.append("client_id", process.env.CLIENT_ID);
+    // params.append("client_secret", process.env.CLIENT_SECRET);
+    // params.append("scope", process.env.SCOPE);
+
+    // const response1 = await axios.post(tokenUrl, params.toString(), {
+    //   headers: {
+    //     "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+    //   },
+    // });
+
+    const token = creds?.tokenCache?._entries[0]?.accessToken;
+    const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}?api-version=2022-07-01-preview`;
+    const statusUrl = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/suspend?api-version=2022-07-01-preview`;
+//     const statusResponse = await axios.get(url, {
+//         headers: {
+//             Authorization: `Bearer ${token}`,
+//             'Content-Type': 'application/json'
+//         }
+//     });
+// return res.json(statusResponse.data)
+
+
+    // const url = `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/${dedicatedCapacityName}/suspend?api-version=2022-07-01-preview`;
+    // const url = `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/${capacityName}/suspend?api-version=2016-01-29`;
+
+    // Make a POST request to suspend the capacity with the Authorization header
+  //  return res.json(url)
+  const response = await axios.post(statusUrl,{}, {
+    headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    }
+});
+
+    return  res.status(200).json({
+      message:"Suspended successfully"
+    });
+  } catch (error) {
+    console.error("Error suspending capacity:", error.message);
+    return next(createError.createError(500, error.message));
+  }
+
+  }
+
+
+  exports.resume1Capacity = async (req, res, next) => {
+    try {
+  
+  
+    
+  
+      const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
+        process.env.CLIENT_ID,
+        process.env.CLIENT_SECRET,
+        process.env.TENANT_ID,
+        {
+            tokenAudience: 'https://management.azure.com/'
+        }
+    );
+  
+    
+      const token = creds?.tokenCache?._entries[0]?.accessToken;
+
+  
+      const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/resume?api-version=2022-07-01-preview`;
+   
+    const response = await axios.post(url,{}, {
+      headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+      }
+  });
+  
+  return  res.status(200).json({
+    message:"Started successfully"
+  });
+    } catch (error) {
+      console.error("Error suspending capacity:", error.message);
+      return next(createError.createError(500, error.message));
+    }
+  
+    }
+  
+  
 
   //PAUSE CAPABILITY
 // exports.pauseCapability = async (req, res, next) => {

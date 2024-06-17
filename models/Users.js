@@ -72,6 +72,11 @@ User.beforeUpdate((user, options) => {
 module.exports = User;
 
 
+User.hasOne(Address);
+Address.belongsTo(User)
+
+Role.hasMany(User);
+User.belongsTo(Role);
 
 // User.hasOne(Role);
 // Role.belongsTo(User);

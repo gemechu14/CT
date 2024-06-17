@@ -8,6 +8,10 @@ router.get("/",
     
     middleware.protect,
     teamControllers.getAllTeams);
+    router.get("/users", 
+    
+        middleware.protect,
+        teamControllers.getAllUserUnderTeam);
 router.post("/", 
 middleware.protect,
 

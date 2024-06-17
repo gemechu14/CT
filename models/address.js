@@ -33,7 +33,7 @@ const Address = sequelize.define("Address", {
 
 module.exports = Address;
 
-User.hasOne(Address)
-Address.belongsTo(User)
+// User.hasOne(Address)
+// Address.belongsTo(User)
 // User.hasOne(Address);
 // Address.belongsTo(User);
