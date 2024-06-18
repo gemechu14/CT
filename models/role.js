@@ -20,8 +20,6 @@ const Role = sequelize.define("Role", {
 
 
 
-// Role.hasMany(User);
-// User.belongsTo(Role);
 
 
 

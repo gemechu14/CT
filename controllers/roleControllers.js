@@ -12,6 +12,7 @@ const { use } = require("../routes/userRoutes.js");
 // GET ALL USER
 exports.getAllRoles = async (req, res, next) => {
   try {
+// console.log(req.session)
     const roles = await Role.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
  
@@ -26,6 +27,7 @@ exports.getAllRoles = async (req, res, next) => {
        roles)
   
   } catch (error) {
+    console.log(error)
     return next(createError.createError(500, "Internal server Error"));
   }
 };

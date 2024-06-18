@@ -36,13 +36,13 @@ exports.getAllNavigation = async (req, res, next) => {
 // GET NAVIGATION BY ID
 exports.getNavigationById = async (req, res, next) => {
   try {
-
+    const user= await User.findByPk(req.user.id)
     const id = req?.params?.id;
    if(!id){
     return next(createError.createError(404,"Id not found"))
    }
 
-    const navigationContent = await NavigationContent.findOne({where:{id:id}});
+    const navigationContent = await NavigationContent.findOne({where:{id:id,  TenantId: user.currentTenant}});
 
 
     return res.status(200).json(navigationContent);

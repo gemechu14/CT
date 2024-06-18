@@ -7,6 +7,8 @@ const app = express();
 const bodyParser = require("body-parser");
 require("dotenv").config();
 app.use(cors()); 
+const session= require("express-session")
+const sessionManagement = require('./middleware/sessionManagement.js');
 
 // app.use((err, req, res, next) => {
 //   // res.setHeader('Access-Control-Allow-Origin','*')
@@ -40,6 +42,15 @@ const navigationRoute=require("./routes/navigationRoutes.js");
 const categoryRoute=require("./routes/categoryRoutes.js")
 const teamRoute= require("./routes/teamRoutes.js")
 // const UserTenant=require("./models/userTenant.js")
+
+// Session middleware setup
+app.use(session({
+  secret: 'your_secret_key', // Replace with a strong secret key
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 1 * 60 * 1000 } // Session expires in 1 hour (adjust as needed)
+}));
+
 
 
 app.use("/api/v1/users",userRoutes);
@@ -81,12 +92,20 @@ app.use(
 //     process.exit(1); // Exit the process with a non-zero status code
 //   });
 
-  app.use((req, res, next) => {
-    const error = new Error("There is no such URL");
-    error.status = 404;
-    next(error);
-  });
-  
+
+// app.use((req, res, next) => {
+//   if (req.session.user) {
+//     req.session.lastAccess = Date.now(); // Update last access time
+//     // Store session data in locals for easier access
+//     app.locals.sessions = app.locals.sessions || {};
+//     app.locals.sessions[req.sessionID] = {
+//       user: req.session.user,
+//       lastAccess: req.session.lastAccess
+//     };
+//   }
+//   next();
+// });
+
   app.use((err, req, res, next) => {
     res.removeHeader("Cross-Origin-Embedder-Policy");
     const errorStatus = err.status || 500;
@@ -100,6 +119,12 @@ app.use(
       // stack: err.stack,
     });
   });
+  // const activityCheckInterval = 1 * 60 * 1000; // 5 minutes in milliseconds
+  // setInterval(async () => {
+  //     await sessionManagement.checkUserActivity();
+  // }, activityCheckInterval);
+
+
 
 let isRunning = false;
 app.listen(process.env.PORT || 4400, () => {

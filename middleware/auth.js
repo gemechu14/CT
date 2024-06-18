@@ -36,6 +36,7 @@ exports.protect = async (req, res, next) => {
       }
  
       else {
+        await currentUser.update({last_active_at: new Date()})
         req.user = currentUser;
   
         next();

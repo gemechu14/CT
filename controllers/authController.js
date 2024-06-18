@@ -9,6 +9,19 @@ const sequelize = require("../database/db");
 const UserRole = require("../models/userRole.js");
 const UserTenant = require("../models/userTenant.js");
 const Address =require("../models/address.js")
+const axios= require("axios")
+
+
+
+const tokenBlacklist = new Set(); // Example using a Set for simplicity
+
+const checkTokenBlacklist = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (token && tokenBlacklist.has(token)) {
+    return res.status(401).json({ message: 'Token is invalid or expired' });
+  }
+  next();
+};
 
 const signToken = (
   id,
@@ -20,6 +33,7 @@ const signToken = (
   isSuperTenant
 ) => {
   try {
+    const expiresInSec = 5000
     const token = jwt.sign(
       { id, email, roleId, tenant, defaultTenant, currentTenant,isSuperTenant },
       "secret",
@@ -61,13 +75,13 @@ const createSendToken = async (user, statusCode, res) => {
     );
     // await user.update({currentTenant:user.defaultTenant})
     const cookieOptions = {
-      expires: new Date(Date.now() + 1000 * 24 * 60 * 60 * 1000),
-
+      expires: new Date(Date.now() +  1000),
       secure: "production" ? true : false,
       httpOnly: true,
     };
     user.password = undefined;
     res.cookie("jwt", token, cookieOptions);
+
     res.status(statusCode).json({
       token,
       refreshToken,
@@ -230,3 +244,43 @@ exports.signup = async (req, res, next) => {
     return next(createError.createError(500, "Internal server error"));
   }
 };
+
+
+
+exports.logout = async (req, res) => {
+  const cookieOptions = {
+    expires: new Date(Date.now() + 10 * 1000),
+    secure: 'production' ? true : false,
+    httpOnly: true,
+  };
+  res.cookie('jwt', 'expiredtoken', cookieOptions);
+  res.status(200).json({
+    status: 'success',
+    message: 'logged out successfully',
+  });
+};
+
+
+exports.getProfile= async( req,res,next)=>{
+  try {
+    const userId= req?.user?.id;
+
+    
+    const user = await User.findOne(
+      {where: { id: userId},
+      attributes:{exclude:"password"},
+    include:[
+      {model:Role  },
+      {model:Address},
+      // {model:Tenant},
+    
+    ]}
+    )
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.log(error)
+    return next(createError.createError(500,"Internal server error"))
+    
+  }
+}

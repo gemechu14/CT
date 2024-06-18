@@ -48,7 +48,7 @@
 
 
 // /// SECOND DATABASE
-// //Remote Database 
+//Remote Database 
 require("dotenv").config();
 const { Sequelize } = require("sequelize");
 const sequelize = new Sequelize({
@@ -84,9 +84,6 @@ async function testConnection() {
 //   .catch((error) => {
 //     console.error('Error synchronizing database:', error);
 //   }); 
-
-
-
 
 
 testConnection();

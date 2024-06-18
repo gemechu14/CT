@@ -40,6 +40,13 @@ const User = sequelize.define("User", {
   currentTenant:{
     type: DataTypes.STRING,
   },
+  isLoggedIn:{
+    type:DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  last_active_at:{
+    type: DataTypes.DATE,
+  }
   
 });
 
