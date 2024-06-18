@@ -7,6 +7,7 @@ const app = express();
 const bodyParser = require("body-parser");
 require("dotenv").config();
 app.use(cors()); 
+
 const session= require("express-session")
 const sessionManagement = require('./middleware/sessionManagement.js');
 
