@@ -61,6 +61,13 @@ router.put(
   "/",
   middleware.protect,
   // middleware.restrictTo(["Power"]),
+  userController.updateUserProfile
+);
+
+router.put(
+  "/:id",
+  middleware.protect,
+  middleware.restrictTo(["Power"]),
   userController.updateUser
 );
 router.delete(

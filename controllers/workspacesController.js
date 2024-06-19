@@ -9,6 +9,7 @@ const msal = require("@azure/msal-node");
 const { suspendCapacity } = require("../utils/capacity.js");
 const { PowerBIDedicatedClient } = require("@azure/arm-powerbidedicated");
 const { DefaultAzureCredential } = require("@azure/identity");
+const fs = require('fs');
 const {
   PowerBIEmbeddedManagementClient,
 } = require("@azure/arm-powerbiembedded");
@@ -545,16 +546,20 @@ exports.generateTokenWithRequiredPermission = async (req, res, next) => {
   }
 };
 
+
+//DOWNLOAD REPORTS
 exports.downloadReports = async (req, res, next) => {
   try {
     const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
     const reportId = 'fe8f66c9-5317-4818-b559-9967f69e3056'; // Replace with your actual report ID
-    const groupId='3f46887a-6ddc-4106-9896-1dc3d379459e'
+    const groupId = '3f46887a-6ddc-4106-9896-1dc3d379459e'; // Replace with your actual group ID
+
+
     const params = new URLSearchParams();
     params.append('grant_type', 'client_credentials');
     params.append('client_id', process.env.CLIENT_ID);
     params.append('client_secret', process.env.CLIENT_SECRET);
-    params.append('scope', process.env.SCOPE);
+    params.append('scope', 'https://analysis.windows.net/powerbi/api/.default');
 
     // Get access token
     const tokenResponse = await axios.post(tokenUrl, params.toString(), {
@@ -569,9 +574,10 @@ exports.downloadReports = async (req, res, next) => {
     const url = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/reports/${reportId}/ExportTo`;
 
     const exportConfig = {
-      format: 'PDF',
+      format: 'PDF', // Specify the desired format here (PDF, PNG, PPTX, etc.)
       // Add other configurations if needed
-  };
+    };
+
     const response = await axios.post(url, exportConfig, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -581,8 +587,76 @@ exports.downloadReports = async (req, res, next) => {
     });
 
     // Save the report to a file
-    fs.writeFileSync('report.pbix', response.data);
+    fs.writeFileSync('report.pdf', response.data);
     console.log('Report downloaded successfully.');
+
+    // const params = new URLSearchParams();
+    // params.append('grant_type', 'client_credentials');
+    // params.append('client_id', process.env.CLIENT_ID);
+    // params.append('client_secret', process.env.CLIENT_SECRET);
+    // params.append('scope', 'https://analysis.windows.net/powerbi/api/.default');
+
+    // // Get access token
+    // const tokenResponse = await axios.post(tokenUrl, params.toString(), {
+    //   headers: {
+    //     'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    //   },
+    // });
+
+    // const token = tokenResponse.data.access_token;
+    // // Initiate the report export
+    // const exportUrl = `https://api.powerbi.com/v1.0/myorg/reports/${reportId}/ExportTo`;
+
+    // const exportConfig = {
+    //   format: 'PDF',
+    //   // Add other configurations if needed
+    // };
+
+    // const exportResponse = await axios.get(exportUrl, {
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //     'Content-Type': 'application/json',
+    //   },
+    // });
+
+    // if (exportResponse.status !== 202) {
+    //   throw new Error('Failed to initiate export');
+    // }
+
+    // const exportId = exportResponse.data.id;
+
+    // // Poll the export status
+    // const statusUrl = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/reports/${reportId}/exports/${exportId}`;
+    // let statusResponse;
+    // while (true) {
+    //   statusResponse = await axios.get(statusUrl, {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //   });
+
+    //   if (statusResponse.data.status === 'Succeeded') {
+    //     break;
+    //   } else if (statusResponse.data.status === 'Failed') {
+    //     throw new Error('Export failed');
+    //   } else {
+    //     console.log(`Export status: ${statusResponse.data.status}. Checking again in 5 seconds...`);
+    //     await new Promise(resolve => setTimeout(resolve, 5000));
+    //   }
+    // }
+
+    // // Download the report
+    // const downloadUrl = statusResponse.data.resourceLocation;
+    // const reportResponse = await axios.get(downloadUrl, {
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    //   responseType: 'arraybuffer', // Ensure the response is treated as binary data
+    // });
+
+    // // Save the report to a file
+    // fs.writeFileSync('report.pdf', reportResponse.data); // Save as PDF
+    // console.log('Report downloaded successfully.');
 
     res.send('Report downloaded successfully.');
   } catch (error) {

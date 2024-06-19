@@ -210,6 +210,56 @@ exports.updateUser = async (req, res, next) => {
     const { id } = req.params;
 
     const user = await User.findOne({
+      where: { id: id },
+    });
+    if (!user) {
+      return next(createError.createError(404, "User not found"));
+    }
+    if (firstName) {
+      updates.firstName = firstName;
+    }
+    if (lastName) {
+      updates.lastName = lastName;
+    }
+    if (email) {
+      updates.email = email;
+    }
+    // if (password) {
+    //   updates.password = password;
+    // }
+    if (phoneNumber) {
+      updates.phoneNumber = phoneNumber;
+    }
+
+    if (roleId) {
+      updates.RoleId = roleId;
+    }
+
+    const result = await user.update(updates);
+
+    delete result?.dataValues?.password;
+
+    res.status(200).json({
+      message: "updated successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(createError.createError(500, "Internal server Error"));
+  }
+};
+
+
+//UPDATE USER  PROFILE
+exports.updateUserProfile = async (req, res, next) => {
+  try {
+    //insert required field
+    const { firstName, lastName, email, phoneNumber, roleId } =
+      req.body;
+    const updates = {};
+    const { id } = req.params;
+
+    const user = await User.findOne({
       where: { id: req?.user?.id },
     });
     if (!user) {
