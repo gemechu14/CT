@@ -7,6 +7,8 @@ router.post("/login", authControllers.login);
 router.get("/profile", middleware.protect, authControllers.getProfile)
 router.post("/logout",
     middleware.protect,
+
+    // middleware.stopCapacity,
     
     authControllers.logout)
 // router.use(initializeData);

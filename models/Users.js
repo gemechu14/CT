@@ -46,7 +46,14 @@ const User = sequelize.define("User", {
   },
   last_active_at:{
     type: DataTypes.DATE,
-  }
+  },
+  isActive:{
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
+  imageUrl: {
+    type: DataTypes.STRING,
+  },
   
 });
 

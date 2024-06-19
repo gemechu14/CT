@@ -1,0 +1,28 @@
+const { Sequelize, DataTypes } = require("sequelize");
+const sequelize = require("../database/db.js");
+const Tenant = require("./tenant.js");
+const User = require("./Users.js");
+
+const Themes = sequelize.define("Themes", {
+  teamName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.STRING,
+    // allowNull: false,
+  },
+
+});
+
+
+
+module.exports = Themes;
+
+
+Themes.belongsTo(Themes);
+Tenant.hasOne(Team);

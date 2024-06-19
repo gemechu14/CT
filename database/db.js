@@ -48,64 +48,17 @@
 
 
 // /// SECOND DATABASE
-//Remote Database 
-// require("dotenv").config();
-// const { Sequelize } = require("sequelize");
-// const sequelize = new Sequelize({
-//   host: "kala.db.elephantsql.com",
-//   port: "5432",
-//   database: "tksolwrm",
-//   username: "tksolwrm",
-//   password: "kL16oLCSAzmeRUR4WAdL8Nru6Dfzxb4c",
-//   dialect: "postgres",
-  
-
-
-// });
-// // Test the database connection
-// async function testConnection() {
-
-//   try {
-       
-//     await sequelize.authenticate();
-//     console.log("Database connection has been established successfully.");
-//   } catch (error) {
-//     console.log(error)
-//     // console.log(process.env.DB_HOST)
-//     console.error("Error connecting");
-//   }
-
-// }
-
-// // sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables
-// //   .then(() => {
-// //     console.log('Database synchronized successfully.');
-// //   })
-// //   .catch((error) => {
-// //     console.error('Error synchronizing database:', error);
-// //   }); 
-
-
-// testConnection();
-// module.exports = sequelize;
-
-
-
-
-
-
-
-
-// // //Local Database 
+// Remote Database 
 require("dotenv").config();
 const { Sequelize } = require("sequelize");
 const sequelize = new Sequelize({
-  host: "localhost",
+  host: "kala.db.elephantsql.com",
   port: "5432",
-  database: process.env.DB_NAME,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  database: "tksolwrm",
+  username: "tksolwrm",
+  password: "kL16oLCSAzmeRUR4WAdL8Nru6Dfzxb4c",
   dialect: "postgres",
+  
 
 
 });
@@ -113,8 +66,7 @@ const sequelize = new Sequelize({
 async function testConnection() {
 
   try {
-
-    
+       
     await sequelize.authenticate();
     console.log("Database connection has been established successfully.");
   } catch (error) {
@@ -122,6 +74,7 @@ async function testConnection() {
     // console.log(process.env.DB_HOST)
     console.error("Error connecting");
   }
+
 }
 
 // sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables
@@ -132,8 +85,55 @@ async function testConnection() {
 //     console.error('Error synchronizing database:', error);
 //   }); 
 
+
 testConnection();
 module.exports = sequelize;
+
+
+
+
+
+
+
+
+// // //Local Database 
+// require("dotenv").config();
+// const { Sequelize } = require("sequelize");
+// const sequelize = new Sequelize({
+//   host: "localhost",
+//   port: "5432",
+//   database: process.env.DB_NAME,
+//   username: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   dialect: "postgres",
+
+
+// });
+// // Test the database connection
+// async function testConnection() {
+
+//   try {
+
+    
+//     await sequelize.authenticate();
+//     console.log("Database connection has been established successfully.");
+//   } catch (error) {
+//     console.log(error)
+//     // console.log(process.env.DB_HOST)
+//     console.error("Error connecting");
+//   }
+// }
+
+// // sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables
+// //   .then(() => {
+// //     console.log('Database synchronized successfully.');
+// //   })
+// //   .catch((error) => {
+// //     console.error('Error synchronizing database:', error);
+// //   }); 
+
+// testConnection();
+// module.exports = sequelize;
 
 
 

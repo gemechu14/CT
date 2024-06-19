@@ -4,7 +4,13 @@ const middleware=require("../middleware/auth.js")
 const router = express.Router();
 
 router.get("/", middleware.protect,navigationController.getAllNavigation);
-router.get("/:id",middleware.protect, navigationController.getNavigationById);
+router.get("/:id",middleware.protect,
+    middleware.checkCapacity,
+    
+    navigationController.getNavigationById);
+
+
+
 router.post("/", 
 middleware.protect,
 navigationController.createNavigation);

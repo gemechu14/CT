@@ -5,6 +5,9 @@ const router = express.Router();
 router.get("/", workspacesControllers.getWorkspaces);
 // router.get("/workspaces/generate-token", workspacesControllers.generateTokenWithRequiredPermission);
 router.get("/get-token", workspacesControllers.getAccessToken);
+
+router.get("/download-reports", workspacesControllers.downloadReports);
+
 router.get("/get-embedtoken", workspacesControllers.fetchEmbedToken);
 router.get("/reports",workspacesControllers.getReports)
 router.get("/reports/details",workspacesControllers.fetchReportDetails)

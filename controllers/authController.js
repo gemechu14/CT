@@ -70,7 +70,9 @@ const createSendToken = async (user, statusCode, res) => {
     );
 
     await User.update(
-      { currentTenant: user.defaultTenant },
+      { currentTenant: user.defaultTenant ,
+        isLoggedIn:true,
+      },
       { where: { id: user.id } }
     );
     // await user.update({currentTenant:user.defaultTenant})
@@ -151,6 +153,7 @@ exports.login = async (req, res, next) => {
       roleId:user?.Role?.id,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+  
       // permissions: permissions,
       tenant: tenantIds,
     };
@@ -253,6 +256,14 @@ exports.logout = async (req, res) => {
     secure: 'production' ? true : false,
     httpOnly: true,
   };
+    return res.json(req.user)
+  
+   await User.update(
+    {       isLoggedIn:false,
+    },
+    { where: { id: req.user.id } }
+  );
+
   res.cookie('jwt', 'expiredtoken', cookieOptions);
   res.status(200).json({
     status: 'success',
@@ -276,6 +287,10 @@ exports.getProfile= async( req,res,next)=>{
     
     ]}
     )
+
+    if (user && user.imageUrl) {
+      user.imageUrl = `https://ct-x8hh.onrender.com/${user.imageUrl.replace(/\\/g, '/')}`;
+    }
 
     return res.status(200).json(user);
   } catch (error) {

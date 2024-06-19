@@ -23,7 +23,4 @@ Team.belongsTo(Tenant);
 Tenant.hasMany(Team);
 
 
-
-
-
 module.exports = Team;

@@ -1,100 +1,91 @@
-const User = require('../models/Users.js');
-const { Op } = require('sequelize');
+const User = require("../models/Users.js");
+const { Op } = require("sequelize");
 const msRestNodeAuth = require("@azure/ms-rest-nodeauth");
 const axios = require("axios");
+const Capacity = require("../models/capacity.js");
+const express =require("express")
 
 // const PowerBiCapacity = require('../models/powerBiCapacity');
 
 async function checkUserActivity() {
-    try {
+  try {
+    console.log("Hello there!");
+    const inactiveThreshold = 100 * 60 * 1000; // 1 minute in milliseconds
+    const cutoffTime = new Date(Date.now() - inactiveThreshold);
 
-        console.log("Hello there!")
-        const inactiveThreshold = 1 * 60 * 1000; // 1 minute in milliseconds
-        const cutoffTime = new Date(Date.now() - inactiveThreshold);
+    // Find users who have not been active since cutoffTime and are logged in
+    const inactiveUsers = await User.findAll({
+      where: {
+        isLoggedIn: true,
+        last_active_at: { [Op.gte]: cutoffTime },
+      },
+    });
 
-        // Find users who have not been active since cutoffTime and are logged in
-        const inactiveUsers = await User.findAll({
-            where: {
-                isLoggedIn: true,
-                last_active_at: { [Op.gte]: cutoffTime }
-            }
+    if (inactiveUsers.length > 0) {
+      console.log("There are active users.");
+      // console.log(inactiveUsers.last_active_at)
+      console.log(cutoffTime);
+    } else {
+      const checkCapacity = await Capacity.findOne({
+        where: { selectedCapacity: "superTenant" },
+      });
+
+      if (checkCapacity === null) {
+        await Capacity.create({
+          selectedCapacity: "superTenant",
+          embeddedTimeout: 100,
         });
+      }
 
-        if (inactiveUsers.length > 0) {
-            console.log('There are active users.');
-            // console.log(inactiveUsers.last_active_at)
-            console.log(cutoffTime)
-        } else {
+      const foundCapacity = await Capacity.findOne({
+        where: { selectedCapacity: "superTenant" },
+      });
 
-            const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
-                process.env.CLIENT_ID,
-                process.env.CLIENT_SECRET,
-                process.env.TENANT_ID,
-                {
-                  tokenAudience: "https://management.azure.com/",
-                }
-              );
-          
-              const token = creds?.tokenCache?._entries[0]?.accessToken;
-              const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}?api-version=${process.env.APPVERSION}`;
-              const statusUrl = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/suspend?api-version=${process.env.APPVERSION}`;
-              //     const statusResponse = await axios.get(url, {
-              //         headers: {
-              //             Authorization: `Bearer ${token}`,
-              //             'Content-Type': 'application/json'
-              //         }
-              //     });
-              // return res.json(statusResponse.data)
-          
-              // const url = `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/${dedicatedCapacityName}/suspend?api-version=2022-07-01-preview`;
-              // const url = `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/${capacityName}/suspend?api-version=2016-01-29`;
-          
-              // Make a POST request to suspend the capacity with the Authorization header
-              const response = await axios.post(
-                statusUrl,
-                {},
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                  },
-                }
-              );
-          
-            //   return res.status(200).json({
-            //     message: "Suspended successfully",
-            //   });\
-            console.log(response)
-            console.log('Suspended successfully.');
-        }
+      if (!foundCapacity.isActive) {
+        console.log("Capacity is already suspended")
+        // next();
+      } else {
+        const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
+          process.env.CLIENT_ID,
+          process.env.CLIENT_SECRET,
+          process.env.TENANT_ID,
+          {
+            tokenAudience: "https://management.azure.com/",
+          }
+        );
 
-        // Update Power BI capacity based on user activity
-        // await updatePowerBiCapacity(inactiveUsers.length === 0);
-    } catch (err) {
-        console.error('Error checking user activity:', err);
+        const token = creds?.tokenCache?._entries[0]?.accessToken;
+        const statusUrl = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/suspend?api-version=${process.env.APPVERSION}`;
+
+        const response = await axios.post(
+          statusUrl,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if(response.status === 200 || response.status === 201 || response.status === 202){
+            await foundCapacity.update({isActive:false})
+          }
+      
+
+        
+        console.log(response.status);
+        console.log("Suspended successfully.");
+      }
     }
+
+   
+  } catch (err) {
+    console.error("Error checking user activity:", err);
+  }
 }
 
-async function updatePowerBiCapacity(activeUsersExist) {
-    try {
-        const powerBiCapacity = await PowerBiCapacity.findByPk(1);
 
-        if (!powerBiCapacity) {
-            throw new Error('Power BI capacity settings not found');
-        }
-
-        if (activeUsersExist && !powerBiCapacity.capacity_active) {
-            // Start capacity if there are active users and it's not already active
-            await powerBiCapacity.update({ capacity_active: true });
-        } else if (!activeUsersExist && powerBiCapacity.capacity_active) {
-            // Stop capacity if no active users and it's currently active
-            await powerBiCapacity.update({ capacity_active: false });
-        }
-    } catch (err) {
-        console.error('Error updating Power BI capacity:', err);
-    }
-}
 
 module.exports = {
-    checkUserActivity
+  checkUserActivity,
 };

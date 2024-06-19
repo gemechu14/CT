@@ -11,14 +11,20 @@ router.get("/",
     router.get("/users", 
     
         middleware.protect,
+        middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),
+        
         teamControllers.getAllUserUnderTeam);
 router.post("/", 
 middleware.protect,
+middleware.restrictTo(['Power']),
 
 teamControllers.createTeams);
 
 
-router.put("/assign-to-user",  middleware.protect,teamControllers.assignTeamToUser);
+router.put("/assign-to-user",  middleware.protect,
+    
+    middleware.restrictTo(['Power']),
+    teamControllers.assignTeamToUser);
 router.put("/assign-report",  middleware.protect,teamControllers.assignNavigationToTeam);
 router.put("/:id", middleware.protect, teamControllers.updateTeam);
 router.delete("/:id", middleware.protect,teamControllers.deleteTeam);

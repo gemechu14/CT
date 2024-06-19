@@ -32,6 +32,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.json());
 app.use("/uploads", express.static("./uploads/"));
+// app.use("/uploads", express.static("./uploads/"));
 // const initializeData =require("./utils/initializeData .js");
 const userRoutes=require("./routes/userRoutes.js");
 const roleRoutes=require("./routes/roleRoutes.js");
@@ -134,3 +135,4 @@ app.listen(process.env.PORT || 4400, () => {
 
 
 
+ 

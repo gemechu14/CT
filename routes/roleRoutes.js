@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get("/", 
     middleware.protect,
+    middleware.restrictTo(['Admin1','Power']),
     roleControllers.getAllRoles);
 router.post("/", 
 middleware.protect,

@@ -544,3 +544,49 @@ exports.generateTokenWithRequiredPermission = async (req, res, next) => {
     });
   }
 };
+
+exports.downloadReports = async (req, res, next) => {
+  try {
+    const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+    const reportId = 'fe8f66c9-5317-4818-b559-9967f69e3056'; // Replace with your actual report ID
+    const groupId='3f46887a-6ddc-4106-9896-1dc3d379459e'
+    const params = new URLSearchParams();
+    params.append('grant_type', 'client_credentials');
+    params.append('client_id', process.env.CLIENT_ID);
+    params.append('client_secret', process.env.CLIENT_SECRET);
+    params.append('scope', process.env.SCOPE);
+
+    // Get access token
+    const tokenResponse = await axios.post(tokenUrl, params.toString(), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+      },
+    });
+
+    const token = tokenResponse.data.access_token;
+
+    // Download the report
+    const url = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/reports/${reportId}/ExportTo`;
+
+    const exportConfig = {
+      format: 'PDF',
+      // Add other configurations if needed
+  };
+    const response = await axios.post(url, exportConfig, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      responseType: 'arraybuffer', // Ensure the response is treated as binary data
+    });
+
+    // Save the report to a file
+    fs.writeFileSync('report.pbix', response.data);
+    console.log('Report downloaded successfully.');
+
+    res.send('Report downloaded successfully.');
+  } catch (error) {
+    console.error('Error downloading report:', error);
+    return next(createError.createError(500, 'Internal server error'));
+  }
+};
