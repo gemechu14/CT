@@ -204,13 +204,13 @@ exports.assignRoleToUser = async (req, res, next) => {
 exports.updateUser = async (req, res, next) => {
   try {
     //insert required field
-    const { firstName, lastName, email, password, phoneNumber, roleId } =
+    const { firstName, lastName, email, phoneNumber, roleId } =
       req.body;
     const updates = {};
     const { id } = req.params;
 
     const user = await User.findOne({
-      where: { id: id },
+      where: { id: req?.user?.id },
     });
     if (!user) {
       return next(createError.createError(404, "User not found"));
@@ -224,9 +224,9 @@ exports.updateUser = async (req, res, next) => {
     if (email) {
       updates.email = email;
     }
-    if (password) {
-      updates.password = password;
-    }
+    // if (password) {
+    //   updates.password = password;
+    // }
     if (phoneNumber) {
       updates.phoneNumber = phoneNumber;
     }

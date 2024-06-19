@@ -58,9 +58,9 @@ upload.fields([
   userController.changeProfile
 );
 router.put(
-  "/:id",
+  "/",
   middleware.protect,
-  middleware.restrictTo(["Power"]),
+  // middleware.restrictTo(["Power"]),
   userController.updateUser
 );
 router.delete(
