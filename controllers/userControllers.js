@@ -204,7 +204,7 @@ exports.assignRoleToUser = async (req, res, next) => {
 exports.updateUser = async (req, res, next) => {
   try {
     //insert required field
-    const { firstName, lastName, email, phoneNumber, roleId } =
+    const { firstName, lastName, email,dateOfBirth, phoneNumber, roleId } =
       req.body;
     const updates = {};
     const { id } = req.params;
@@ -217,6 +217,9 @@ exports.updateUser = async (req, res, next) => {
     }
     if (firstName) {
       updates.firstName = firstName;
+    }
+    if (dateOfBirth) {
+      updates.dateOfBirth = dateOfBirth;
     }
     if (lastName) {
       updates.lastName = lastName;
@@ -254,7 +257,7 @@ exports.updateUser = async (req, res, next) => {
 exports.updateUserProfile = async (req, res, next) => {
   try {
     //insert required field
-    const { firstName, lastName, email, phoneNumber, roleId } =
+    const { firstName, lastName, email,dateOfBirth, phoneNumber, roleId } =
       req.body;
     const updates = {};
     const { id } = req.params;
@@ -267,6 +270,9 @@ exports.updateUserProfile = async (req, res, next) => {
     }
     if (firstName) {
       updates.firstName = firstName;
+    }
+    if (dateOfBirth) {
+      updates.dateOfBirth = dateOfBirth;
     }
     if (lastName) {
       updates.lastName = lastName;
