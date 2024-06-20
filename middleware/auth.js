@@ -56,17 +56,7 @@ exports.restrictTo = (allowedRoleNames) => {
     try {
      console.log(req.user)
 
-    // if(req?.user === undefined){
-
-    // return next(
-    //       createError.createError(
-    //         401,
-    //         "In valid token"
-    //       )
-    //     );
-    // }
-      // Check if the user is a super tenant
-      if (req?.user?.isSuperTenant) {
+          if (req?.user?.isSuperTenant) {
         return next();
       }
 
@@ -177,11 +167,15 @@ exports.checkCapacity = async (req, res, next) => {
 
     console.log(response.status)
     if(response.status === 200 || response.status === 201 || response.status === 202){
-      await foundCapacity.update({isActive:true},{transaction})
+      await foundCapacity.update({isActive:true},
+        // {transaction}
+      
+      
+      )
     }
 
    
-     await transaction.commit();
+    //  await transaction.commit();
 
         next()
      }
@@ -191,7 +185,7 @@ exports.checkCapacity = async (req, res, next) => {
 
 
   } catch (error) {
-    await transaction.rollback();
+    // await transaction.rollback();
     console.log(error);
     return next(createError.createError(500, "Internal server error"));
   }
@@ -260,11 +254,15 @@ exports.stopCapacity = async (req, res, next) => {
 
     console.log(response.status)
     if(response.status === 200 || response.status === 201 || response.status === 202){
-      await foundCapacity.update({isActive:false},{transaction})
+      await foundCapacity.update({isActive:false},
+        // {transaction}
+      
+      
+      )
     }
 
    
-     await transaction.commit();
+    //  await transaction.commit();
 
         next()
      }
@@ -274,7 +272,7 @@ exports.stopCapacity = async (req, res, next) => {
     }
 
   } catch (error) {
-    await transaction.rollback();
+    // await transaction.rollback();
     console.log(error);
     return next(createError.createError(500, "Internal server error"));
   }
