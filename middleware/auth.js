@@ -129,8 +129,7 @@ exports.checkCapacity = async (req, res, next) => {
       });
       
     }
-    
-   
+       
     const foundCapacity= await Capacity.findOne({where: {selectedCapacity: 'superTenant'}});
 
     
@@ -160,12 +159,14 @@ exports.checkCapacity = async (req, res, next) => {
  
 
   console.log(response.status)
-  if(response.status === 200 || response.status === 201 || response.status === 202){
+  if(response?.status === 200 || response?.status === 201 || response?.status === 202){
     await foundCapacity.update({isActive:true},
       // {transaction}
           
     )
   }
+  
+
 
  
   //  await transaction.commit();
@@ -226,7 +227,8 @@ exports.checkCapacity = async (req, res, next) => {
   } catch (error) {
     // await transaction.rollback();
     console.log(error);
-    return next(createError.createError(500, "Internal server error"));
+    next()
+    // return next(createError.createError(500, "Internal server error"));
   }
 };
 
