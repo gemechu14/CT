@@ -133,52 +133,91 @@ exports.checkCapacity = async (req, res, next) => {
    
     const foundCapacity= await Capacity.findOne({where: {selectedCapacity: 'superTenant'}});
 
-     if (foundCapacity.isActive){
-      next();
-     }
-     
-     else{
-     
+    
+    const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
+      process.env.CLIENT_ID,
+      process.env.CLIENT_SECRET,
+      process.env.TENANT_ID,
+      {
+        tokenAudience: "https://management.azure.com/",
+      }
+    );
 
-      const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
-        process.env.CLIENT_ID,
-        process.env.CLIENT_SECRET,
-        process.env.TENANT_ID,
-        {
-          tokenAudience: "https://management.azure.com/",
-        }
-      );
-  
-      const token = creds?.tokenCache?._entries[0]?.accessToken;
-  
-      const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/resume?api-version=${process.env.APPVERSION}`;
-  
-      const response = await axios.post(
-        url,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    const token = creds?.tokenCache?._entries[0]?.accessToken;
+
+    const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/resume?api-version=${process.env.APPVERSION}`;
+
+    const response = await axios.post(
+      url,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+ 
+
+  console.log(response.status)
+  if(response.status === 200 || response.status === 201 || response.status === 202){
+    await foundCapacity.update({isActive:true},
+      // {transaction}
+          
+    )
+  }
+
+ 
+  //  await transaction.commit();
+
+      next()
    
 
-    console.log(response.status)
-    if(response.status === 200 || response.status === 201 || response.status === 202){
-      await foundCapacity.update({isActive:true},
-        // {transaction}
-      
-      
-      )
-    }
+    //  if (foundCapacity.isActive){
+    //   next();
+    //  }
+     
+    //  else{
+     
+
+    //   const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
+    //     process.env.CLIENT_ID,
+    //     process.env.CLIENT_SECRET,
+    //     process.env.TENANT_ID,
+    //     {
+    //       tokenAudience: "https://management.azure.com/",
+    //     }
+    //   );
+  
+    //   const token = creds?.tokenCache?._entries[0]?.accessToken;
+  
+    //   const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/resume?api-version=${process.env.APPVERSION}`;
+  
+    //   const response = await axios.post(
+    //     url,
+    //     {},
+    //     {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //         "Content-Type": "application/json",
+    //       },
+    //     }
+    //   );
+   
+
+    // console.log(response.status)
+    // if(response.status === 200 || response.status === 201 || response.status === 202){
+    //   await foundCapacity.update({isActive:true},
+    //     // {transaction}
+            
+    //   )
+    // }
 
    
-    //  await transaction.commit();
+    // //  await transaction.commit();
 
-        next()
-     }
+    //     next()
+    //  }
 
 
    
