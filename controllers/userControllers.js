@@ -9,6 +9,7 @@ const Address = require("../models/address.js");
 const { where } = require("sequelize");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const sendEmail= require("../utils/sendEmail.js")
 
 
 // GET ALL USER
@@ -133,6 +134,24 @@ exports.createUser = async (req, res, next) => {
       { transaction }
     );
 
+    const text = `Dear User,\n\nWelcome to Cedarstreet! Your account has been successfully created.\n\nEmail: ${newUser.email}\nPassword: ${newUser.password}\n\nThank you!`;
+    await sendEmail({
+      email: newUser.email,
+      subject: "Welcome to Cedarstreet",
+      text,
+      html:`<p>Dear ${newUser.firstName},</p>
+         <p>Welcome to Cedarstreet! Your account has been successfully created.</p>
+         <p><strong>Email:</strong> ${newUser.email}</p>
+         <p><strong>Password:</strong> ${password}</p>
+         <p>You can log in to Cedarstreet <a href="https://cedarstreet.vercel.app/">here</a>.</p>
+         <p>Thank you!</p>`    },
+         {transaction});
+
+  
+
+
+
+    
     await transaction.commit();
     res.status(201).json(newUser);
   } catch (error) {

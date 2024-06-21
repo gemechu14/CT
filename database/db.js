@@ -173,7 +173,7 @@ async function testConnection() {
   try {
 
     
-    await sequelize.authenticate();
+    await sequelize.authenticate(); 
     console.log("Database connection has been established successfully.");
   } catch (error) {
     console.log(error)
@@ -182,7 +182,7 @@ async function testConnection() {
   }
 }
 
-// sequelize.sync({ alter: true }) // Use force: true carefully, as it drops existing tables
+// sequelize.sync({ alter: true }) //Use force: true carefully, as it drops existing tables
 //   .then(() => {
 //     console.log('Database synchronized successfully.');
 //   })

@@ -39,7 +39,7 @@ exports.protect = async (req, res, next) => {
         createError.createError(401, `currentUserdoes not longer exists `)
       );
     } else {
-      await currentUser.update({ last_active_at: new Date() });
+      // await currentUser.update({ last_active_at: new Date() });
       req.user = currentUser;
 
       next();
@@ -115,7 +115,7 @@ exports.restrictToSuperTenant = (isSuperTenant) => {
 };
 
 exports.checkCapacity = async (req, res, next) => {
-  const transaction = await sequelize.transaction();
+  // const transaction = await sequelize.transaction();
   try {
   
 
@@ -144,6 +144,8 @@ exports.checkCapacity = async (req, res, next) => {
 
     const token = creds?.tokenCache?._entries[0]?.accessToken;
 
+    
+
     const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/resume?api-version=${process.env.APPVERSION}`;
 
     const response = await axios.post(
@@ -158,75 +160,23 @@ exports.checkCapacity = async (req, res, next) => {
     );
  
 
-  console.log(response.status)
+  console.log(response?.status)
   if(response?.status === 200 || response?.status === 201 || response?.status === 202){
     await foundCapacity.update({isActive:true},
       // {transaction}
           
     )
   }
-  
-
-
- 
-  //  await transaction.commit();
+   
 
       next()
    
 
-    //  if (foundCapacity.isActive){
-    //   next();
-    //  }
-     
-    //  else{
-     
-
-    //   const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
-    //     process.env.CLIENT_ID,
-    //     process.env.CLIENT_SECRET,
-    //     process.env.TENANT_ID,
-    //     {
-    //       tokenAudience: "https://management.azure.com/",
-    //     }
-    //   );
-  
-    //   const token = creds?.tokenCache?._entries[0]?.accessToken;
-  
-    //   const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/resume?api-version=${process.env.APPVERSION}`;
-  
-    //   const response = await axios.post(
-    //     url,
-    //     {},
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //         "Content-Type": "application/json",
-    //       },
-    //     }
-    //   );
-   
-
-    // console.log(response.status)
-    // if(response.status === 200 || response.status === 201 || response.status === 202){
-    //   await foundCapacity.update({isActive:true},
-    //     // {transaction}
-            
-    //   )
-    // }
-
-   
-    // //  await transaction.commit();
-
-    //     next()
-    //  }
-
-
-   
+ 
 
 
   } catch (error) {
-    // await transaction.rollback();
-    console.log(error);
+    console.log(error.message);
     next()
     // return next(createError.createError(500, "Internal server error"));
   }
@@ -234,7 +184,7 @@ exports.checkCapacity = async (req, res, next) => {
 
 
 exports.stopCapacity = async (req, res, next) => {
-  const transaction = await sequelize.transaction();
+  // const transaction = await sequelize.transaction();
   try {
   
 
@@ -296,15 +246,11 @@ exports.stopCapacity = async (req, res, next) => {
     console.log(response.status)
     if(response.status === 200 || response.status === 201 || response.status === 202){
       await foundCapacity.update({isActive:false},
-        // {transaction}
-      
       
       )
     }
 
    
-    //  await transaction.commit();
-
         next()
      }
 
@@ -313,7 +259,6 @@ exports.stopCapacity = async (req, res, next) => {
     }
 
   } catch (error) {
-    // await transaction.rollback();
     console.log(error);
     return next(createError.createError(500, "Internal server error"));
   }
