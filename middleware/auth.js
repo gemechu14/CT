@@ -39,7 +39,7 @@ exports.protect = async (req, res, next) => {
         createError.createError(401, `currentUserdoes not longer exists `)
       );
     } else {
-      // await currentUser.update({ last_active_at: new Date() });
+      await currentUser.update({ last_active_at: new Date() });
       req.user = currentUser;
 
       next();

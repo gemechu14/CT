@@ -361,7 +361,13 @@ exports.suspend1Capacity = async (req, res, next) => {
                 'Content-Type': 'application/json'
             }
         });
-    return res.json(statusResponse.data.properties.state)
+
+        const capacityStataus= statusResponse?.data?.properties?.state;
+    return res.json(capacityStataus)
+
+    if(capacityStataus === 'Active'){
+
+    }
 
     // const url = `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/${dedicatedCapacityName}/suspend?api-version=2022-07-01-preview`;
     // const url = `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/${capacityName}/suspend?api-version=2016-01-29`;

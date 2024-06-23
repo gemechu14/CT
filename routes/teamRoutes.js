@@ -25,7 +25,10 @@ router.put("/assign-to-user",  middleware.protect,
     
     middleware.restrictTo(['Power']),
     teamControllers.assignTeamToUser);
-router.put("/assign-report",  middleware.protect,teamControllers.assignNavigationToTeam);
+router.put("/assign-report",  middleware.protect,
+    
+    middleware.restrictTo(['Admin']),
+    teamControllers.assignNavigationToTeam);
 router.put("/:id", middleware.protect, teamControllers.updateTeam);
 router.delete("/:id", middleware.protect,teamControllers.deleteTeam);
 module.exports = router;

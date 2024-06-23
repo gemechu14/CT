@@ -4,18 +4,74 @@ const Tenant = require("./tenant.js");
 const User = require("./Users.js");
 
 const Themes = sequelize.define("Themes", {
-  teamName: {
+  logoImage: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  description: {
+  siteFaviconImage: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  status: {
+  customLoader: {
     type: DataTypes.STRING,
     // allowNull: false,
   },
+
+  layout: {
+    type: DataTypes.ENUM("Classic", "Modern"),
+    // allowNull: false,
+  },
+
+  showFooter:{
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  secondaryLogoImage:{
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  externalLinks:{
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  sideNavigationPanelItemHighlight:{
+    type: DataTypes.STRING,
+  },
+  sideNavigationFontHover:{
+    type: DataTypes.STRING,
+  },
+  topNavigationPanel:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  }
+
+
+
 
 });
 

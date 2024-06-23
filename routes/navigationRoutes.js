@@ -5,14 +5,13 @@ const router = express.Router();
 
 router.get("/", middleware.protect,navigationController.getAllNavigation);
 router.get("/:id",middleware.protect,
-    middleware.checkCapacity,
-    
+    middleware.checkCapacity,    
     navigationController.getNavigationById);
-
 
 
 router.post("/", 
 middleware.protect,
+middleware.restrictTo(['Admin']),
 navigationController.createNavigation);
 
 router.delete("/:id", 
