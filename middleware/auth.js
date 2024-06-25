@@ -263,3 +263,16 @@ exports.stopCapacity = async (req, res, next) => {
     return next(createError.createError(500, "Internal server error"));
   }
 };
+
+
+exports.isLoggedIn = (req, res, next) => {
+  if (req.user) {
+    return next();
+  }
+  return next(
+    createError.createError(
+      401,
+      "Unauthorized"
+    )
+  );
+};

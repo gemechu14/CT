@@ -1,17 +1,84 @@
 const express = require("express");
 const authControllers = require("../controllers/authController.js");
 const router = express.Router();
-const initializeData=require("../utils/initializeData .js")
-const middleware= require("../middleware/auth.js")
-router.post("/login", authControllers.login);
-router.get("/profile", middleware.protect, authControllers.getProfile)
-router.post("/logout",
-    middleware.protect,
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth2").Strategy;
+const session = require("express-session");
+const jwt = require("jsonwebtoken");
 
-    // middleware.stopCapacity,
-    
-    authControllers.logout)
-router.use(initializeData);
-router.post("/signup",authControllers.signup);
+const middleware = require("../middleware/auth.js");
+const User = require("../models/Users.js");
+const Tenant = require("../models/tenant.js");
+
+router.post("/login", authControllers.login);
+router.get("/profile", middleware.protect, authControllers.getProfile);
+
+const users = {};
+
+//GOOGLE AUTH
+router.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["email", "profile"],
+  })
+);
+
+router.get('/auth/microsoft', passport.authenticate('microsoft', {
+    scope: ['user.read']
+  }));
+
+  router.get('/auth/microsoft/callback', 
+    passport.authenticate('microsoft', {
+        successRedirect: "/auth/microsoft/protected",
+       failureRedirect: '/auth/microsoft/failure'
+    }),
+    // authControllers.handleMicrosoftCallback
+  );
+  
+  router.get('/auth/microsoft/failure', (req, res) => {
+    res.send('Something went wrong');
+  });
+  
+  router.get(
+    "/auth/microsoft/protected",
+    middleware.isLoggedIn,
+    authControllers.handleGoogleCallback
+  );
+
+
+
+//CALLBACK
+router.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    successRedirect: "/auth/protected",
+    failureRedirect: "/auth/google/failure",
+  })
+);
+//AUTH FAILURE
+router.get("/auth/google/failure", (req, res) => {
+  res.send("Something went wrong");
+});
+//PROTECTED ROUTE
+router.get(
+  "/auth/protected",
+  middleware.isLoggedIn,
+  authControllers.handleGoogleCallback
+);
+//LOGOUT
+router.get("/auth/logout", authControllers.logout);
+
+//END OF ROUTE
+router.post(
+  "/logout",
+  middleware.protect,
+
+  // middleware.stopCapacity,
+
+  authControllers.logout
+);
+// router.use(initializeData);
+router.post("/signup", authControllers.signup);
+
 
 module.exports = router;

@@ -9,8 +9,10 @@ const sequelize = require("../database/db");
 const UserRole = require("../models/userRole.js");
 const UserTenant = require("../models/userTenant.js");
 const Address =require("../models/address.js")
-const axios= require("axios")
-
+const axios= require("axios");
+const passport= require("passport");
+const GoogleStrategy= require("passport-google-oauth2").Strategy;
+const MicrosoftStrategy = require('passport-microsoft').Strategy;
 
 
 const tokenBlacklist = new Set(); // Example using a Set for simplicity
@@ -299,3 +301,94 @@ exports.getProfile= async( req,res,next)=>{
     
   }
 }
+
+// GOOGLE AUTHENTICATION
+
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: 'http://localhost:4400/auth/google/callback',
+  passReqToCallback: true
+},
+async function (request, accessToken, refreshToken, profile, done) {
+  try {
+    const email = profile.emails[0].value;
+    const user = await User.findOne({
+      where: { email },
+      include: {
+        model: Tenant,
+        through: { attributes: [] },
+      },
+    });
+
+    if (!user) {
+      return done(null, false, { message: 'User not found' });
+    }
+
+    // Store user in request for the next middleware
+    request.user = user;
+    return done(null, user);
+  } catch (err) {
+    return done(err);
+  }
+}));
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+//MICROSOFT
+
+passport.use(new MicrosoftStrategy({
+  clientID: process.env.MICROSOFT_CLIENT_ID,
+  clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+  callbackURL: 'http://localhost:4400/auth/microsoft/callback',
+  passReqToCallback: true,
+  scope: ['user.read']
+},
+async function (request, accessToken, refreshToken, profile, done) {
+  try {
+    const email = profile.emails[0].value;
+    const user = await User.findOne({
+      where: { email },
+      include: {
+        model: Tenant,
+        through: { attributes: [] },
+      },
+    });
+
+    if (!user) {
+      return done(null, false, { message: 'User not found' });
+    }
+
+    request.user = user;
+    return done(null, user);
+  } catch (err) {
+    return done(err);
+  }
+}));
+passport.deserializeUser(async (id, done) => {
+  const user = await User.findByPk(id);
+  if (user) {
+    done(null, user);
+  } else {
+    done(new Error('User not found'));
+  }
+});
+
+
+
+exports.handleGoogleCallback = async (req, res) => {
+  await createSendToken(req.user, 200, res);
+};
+
+
+
+exports.logout = (req, res) => {
+  req.logout((err) => {
+    if (err) return next(err);
+    req.session.destroy((err) => {
+      if (err) return next(err);
+      res.send('Logged out successfully');
+    });
+  });
+};
