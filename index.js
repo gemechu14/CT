@@ -13,7 +13,6 @@ const GoogleStrategy= require("passport-google-oauth2").Strategy;
 const sessionManagement = require('./middleware/sessionManagement.js');
 
 
-
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
@@ -83,7 +82,6 @@ app.use(
   });
 
   // SCHEDULE
-
   // const activityCheckInterval = 1 * 60 * 1000; // 5 minutes in milliseconds
   // setInterval(async () => {
   //     await sessionManagement.checkUserActivity();
@@ -91,7 +89,8 @@ app.use(
 
 
 
-let isRunning = false;
+
+
 app.listen(process.env.PORT || 4400, () => {
   console.log(`Server is running on port: ${process.env.PORT}`);
 });

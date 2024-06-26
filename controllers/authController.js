@@ -13,7 +13,73 @@ const axios= require("axios");
 const passport= require("passport");
 const GoogleStrategy= require("passport-google-oauth2").Strategy;
 const MicrosoftStrategy = require('passport-microsoft').Strategy;
+const msal = require('@azure/msal-node');
 
+
+
+
+//MICROSOFT AUTHENTICATION
+const config = {
+  auth: {
+      clientId: 'e7a57613-cc2f-496c-8cd6-1d2950a04a12', // Replace with your ID
+      authority: `https://login.microsoftonline.com/f8cdef31-a31e-4b4a-93e4-5f571e91255a`, // Replace with your tenant ID
+      redirectUri: 'localhost:4400/auth/microsoft/callback' // Replace if needed
+  },
+  cache: {
+      cacheLocation: 'sessionStorage' // Adjust if needed (e.g., for persisted logins)
+  }
+};
+const pca = new msal.PublicClientApplication(config);
+
+
+exports.microsoftAuthentication= async(req,res,next)=>{
+
+  try {
+    console.log("here")
+    console.log(pca)
+
+    const loginRequest = {
+      scopes: ['user.read'] // Replace with desired scopes
+  };
+
+  // Redirect the user to the Microsoft login page
+  const authResult = await pca.acquireTokenRedirect(loginRequest);
+  console.log(authResult);
+    
+  } catch (error) {
+console.log(error.message);
+
+return next(createError.createError(500,error.message))
+  }
+}
+
+
+
+async function login() {
+  try {
+      const loginRequest = {
+          scopes: ['user.read'] // Replace with desired scopes
+      };
+
+      // Redirect the user to the Microsoft login page
+      const authResult = await pca.acquireAuthCodeFlow(loginRequest);
+      console.log(authResult); // For debugging purposes
+
+      // Handle redirect and extract access token
+      // (Covered in step 6)
+  } catch (error) {
+      console.error(error);
+  }
+}
+
+
+
+
+
+
+
+
+//END OF MICROSOFT AUTHENTICATION
 
 const tokenBlacklist = new Set(); // Example using a Set for simplicity
 
@@ -338,12 +404,15 @@ passport.serializeUser((user, done) => {
 });
 //MICROSOFT
 
+// tenant:'f8cdef31-a31e-4b4a-93e4-5f571e91255a',
+
 passport.use(new MicrosoftStrategy({
-  clientID: process.env.MICROSOFT_CLIENT_ID,
-  clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
-  callbackURL: 'http://localhost:4400/auth/microsoft/callback',
+  clientID: 'e7a57613-cc2f-496c-8cd6-1d2950a04a12',
+  clientSecret: 'TnY8Q~47CWV43~GeFBMUA7Ac1CtN_aY-xCj-0aoA', 
+  callbackURL: 'localhost:4400/auth/microsoft/callback',
+  tenant: 'f8cdef31-a31e-4b4a-93e4-5f571e91255a',
   passReqToCallback: true,
-  scope: ['user.read']
+  scope: ['user.read.all']
 },
 async function (request, accessToken, refreshToken, profile, done) {
   try {
