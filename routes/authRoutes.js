@@ -24,28 +24,28 @@ router.get(
   })
 );
 
-// router.get("/auth/micro",authControllers.microsoftAuthentication)
-// router.get('/auth/microsoft1', passport.authenticate('microsoft', {
-//     scope: ['user.read.all']
-//   }));
+router.get("/auth/micro",authControllers.microsoftAuthentication)
+router.get('/auth/microsoft1', passport.authenticate('microsoft', {
+    scope: ['user.read.all']
+  }));
 
-//   router.get('/auth/microsoft/callback1', 
-//     passport.authenticate('microsoft', {
-//         successRedirect: "/auth/microsoft/protected",
-//         failureRedirect: '/auth/microsoft/failure'
-//     }),
-//     // authControllers.handleMicrosoftCallback
-//   );
+  router.get('/auth/microsoft/callback', 
+    passport.authenticate('microsoft', {
+        successRedirect: "/auth/microsoft/protected",
+        failureRedirect: '/auth/microsoft/failure'
+    }),
+    // authControllers.handleMicrosoftCallback
+  );
   
-//   router.get('/auth/microsoft/failure1', (req, res) => {
-//     res.send('Something went wrong');
-//   });
+  router.get('/auth/microsoft/failure', (req, res) => {
+    res.send('Something went wrong');
+  });
   
-//   router.get(
-//     "/auth/microsoft/protected1",
-//     middleware.isLoggedIn,
-//     authControllers.handleGoogleCallback
-//   );
+  router.get(
+    "/auth/microsoft/protected",
+    middleware.isLoggedIn,
+    authControllers.handleGoogleCallback
+  );
 
 
 
