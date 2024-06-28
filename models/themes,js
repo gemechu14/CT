@@ -1,0 +1,84 @@
+const { Sequelize, DataTypes } = require("sequelize");
+const sequelize = require("../database/db.js");
+const Tenant = require("./tenant.js");
+const User = require("./Users.js");
+
+const Themes = sequelize.define("Themes", {
+  logoImage: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  siteFaviconImage: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  customLoader: {
+    type: DataTypes.STRING,
+    // allowNull: false,
+  },
+
+  layout: {
+    type: DataTypes.ENUM("Classic", "Modern"),
+    // allowNull: false,
+  },
+
+  showFooter:{
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  secondaryLogoImage:{
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  externalLinks:{
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  sideNavigationPanelItemHighlight:{
+    type: DataTypes.STRING,
+  },
+  sideNavigationFontHover:{
+    type: DataTypes.STRING,
+  },
+  topNavigationPanel:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  },
+  brandPrimaryColor:{
+    type: DataTypes.STRING,
+  }
+
+
+
+
+});
+
+
+
+module.exports = Themes;
+
+
+Themes.belongsTo(Themes);
+Tenant.hasOne(Team);
