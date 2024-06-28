@@ -401,38 +401,38 @@ async function (request, accessToken, refreshToken, profile, done) {
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
-passport.use(new MicrosoftStrategy({
-  clientID: 'e7a57613-cc2f-496c-8cd6-1d2950a04a12',
-  authority: `https://login.microsoftonline.com/common`,
-    redirectUri: 'http://localhost:4400/auth/microsoft/callback',
-  clientSecret: 'Vs48Q~o13LoVVRAOK4mp2A1xlQR.aNB~CD_UacU0', 
-  callbackURL: 'http://localhost:4400/auth/microsoft/callback',
-  tenant: '96a76859-fbd7-4ef9-a70a-917b0f4339c1',
-  passReqToCallback: true,
+// passport.use(new MicrosoftStrategy({
+//   clientID: process.env.CLIENT_ID_Microsoft,
+//   authority: `https://login.microsoftonline.com/common`,
+//     redirectUri: 'http://localhost:4400/auth/microsoft/callback',
+//   clientSecret: 'Vs48Q~o13LoVVRAOK4mp2A1xlQR.aNB~CD_UacU0', 
+//   callbackURL: 'http://localhost:4400/auth/microsoft/callback',
+//   tenant: '96a76859-fbd7-4ef9-a70a-917b0f4339c1',
+//   passReqToCallback: true,
   
-  scope: ['user.read.all']
-},
-async function (request, accessToken, refreshToken, profile, done) {
-  try {
-    const email = profile.emails[0].value;
-    const user = await User.findOne({
-      where: { email },
-      include: {
-        model: Tenant,
-        through: { attributes: [] },
-      },
-    });
+//   scope: ['user.read.all']
+// },
+// async function (request, accessToken, refreshToken, profile, done) {
+//   try {
+//     const email = profile.emails[0].value;
+//     const user = await User.findOne({
+//       where: { email },
+//       include: {
+//         model: Tenant,
+//         through: { attributes: [] },
+//       },
+//     });
 
-    if (!user) {
-      return done(null, false, { message: 'User not found' });
-    }
+//     if (!user) {
+//       return done(null, false, { message: 'User not found' });
+//     }
 
-    request.user = user;
-    return done(null, user);
-  } catch (err) {
-    return done(err);
-  }
-}));
+//     request.user = user;
+//     return done(null, user);
+//   } catch (err) {
+//     return done(err);
+//   }
+// }));
 passport.deserializeUser(async (id, done) => {
   const user = await User.findByPk(id);
   if (user) {
