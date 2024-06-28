@@ -9,7 +9,7 @@ require("dotenv").config();
 app.use(cors()); 
 const session= require("express-session");
 const passport= require("passport")
-const GoogleStrategy= require("passport-google-oauth2").Strategy;
+// const GoogleStrategy= require("passport-google-oauth2").Strategy;
 const sessionManagement = require('./middleware/sessionManagement.js');
 
 
