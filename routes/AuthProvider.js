@@ -292,7 +292,7 @@ class AuthProvider {
 
             try {
                 const authCodeUrlResponse = await msalInstance.getAuthCodeUrl(req.session.authCodeUrlRequest);
-                return res.json("authCodeUrlResponse")
+                // return res.json("authCodeUrlResponse")
 
            const data=     res.redirect(authCodeUrlResponse);
 
