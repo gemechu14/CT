@@ -405,9 +405,9 @@ passport.serializeUser((user, done) => {
 //   clientID: process.env.CLIENT_ID_Microsoft,
 //   authority: `https://login.microsoftonline.com/common`,
 //     redirectUri: 'http://localhost:4400/auth/microsoft/callback',
-//   clientSecret: 'Vs48Q~o13LoVVRAOK4mp2A1xlQR.aNB~CD_UacU0', 
+//   clientSecret: '', 
 //   callbackURL: 'http://localhost:4400/auth/microsoft/callback',
-//   tenant: '96a76859-fbd7-4ef9-a70a-917b0f4339c1',
+//   tenant: '',
 //   passReqToCallback: true,
   
 //   scope: ['user.read.all']
