@@ -401,38 +401,7 @@ async function (request, accessToken, refreshToken, profile, done) {
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
-// passport.use(new MicrosoftStrategy({
-//   clientID: process.env.CLIENT_ID_Microsoft,
-//   authority: `https://login.microsoftonline.com/common`,
-//     redirectUri: 'http://localhost:4400/auth/microsoft/callback',
-//   clientSecret: '', 
-//   callbackURL: 'http://localhost:4400/auth/microsoft/callback',
-//   tenant: '',
-//   passReqToCallback: true,
-  
-//   scope: ['user.read.all']
-// },
-// async function (request, accessToken, refreshToken, profile, done) {
-//   try {
-//     const email = profile.emails[0].value;
-//     const user = await User.findOne({
-//       where: { email },
-//       include: {
-//         model: Tenant,
-//         through: { attributes: [] },
-//       },
-//     });
 
-//     if (!user) {
-//       return done(null, false, { message: 'User not found' });
-//     }
-
-//     request.user = user;
-//     return done(null, user);
-//   } catch (err) {
-//     return done(err);
-//   }
-// }));
 passport.deserializeUser(async (id, done) => {
   const user = await User.findByPk(id);
   if (user) {
