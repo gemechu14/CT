@@ -2,8 +2,6 @@ const express = require("express");
 const authControllers = require("../controllers/authController.js");
 const router = express.Router();
 const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth2").Strategy;
-const MicrosoftStrategy = require("passport-microsoft").Strategy;
 const session = require("express-session");
 const jwt = require("jsonwebtoken");
 
