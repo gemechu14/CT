@@ -9,7 +9,14 @@ const ReportTeam = sequelize.define('ReportTeam', {
     primaryKey: true,
     autoIncrement: true,
   },
- 
+  CanEdit:{
+    type: DataTypes.BOOLEAN,
+    defaultValue:true
+  },
+  RolesValidation:{
+    type: DataTypes.STRING,
+  }
+  
 })
 NavigationContent.belongsToMany(Teams, {
   through: ReportTeam,

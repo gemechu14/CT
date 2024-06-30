@@ -16,7 +16,7 @@ const MicrosoftStrategy = require('passport-microsoft').Strategy;
 // const MicrosoftStrategy = require('passport-microsoft-auth').Strategy;
 const msal = require('@azure/msal-node');
 
-
+require("dotenv").config();
 
 //MICROSOFT AUTHENTICATION
 const config = {

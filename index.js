@@ -30,6 +30,10 @@ const categoryRoute=require("./routes/categoryRoutes.js")
 const teamRoute= require("./routes/teamRoutes.js");
 const authRoute1= require("./routes/auth.js")
 const themesRoute=require("./routes/themesRoute.js")
+const themeBrandingRoute=require("./routes/themeBrandingRoutes.js");
+const themeColorRoute= require("./routes/themeColorRoutes.js");
+const themeFontRoute=require("./routes/themeFontRoutes.js");
+const themeLayoutRoute= require("./routes/themeLayoutRoute.js")
 
 
 app.use(session({
@@ -52,9 +56,12 @@ app.use("/api/v1/navigations",navigationRoute)
 app.use("/api/v1/category",categoryRoute);
 app.use("/api/v1/team", teamRoute);
 app.use("/api/v1/themes", themesRoute);
+app.use("/api/v1/branding",themeBrandingRoute);
+app.use("/api/v1/colors", themeColorRoute)
+app.use("/api/v1/fonts",themeFontRoute)
+app.use("/api/v1/layouts",themeLayoutRoute)
 app.use("/",authRoutes);
-
-app.use('/auth1',authRoute1)
+app.use('/auth1',authRoute1);
 
 
 
