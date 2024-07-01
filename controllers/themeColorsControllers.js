@@ -24,8 +24,7 @@ exports.getCurrentThemeColors = async (req, res, next) => {
 };
 
 
-//CREATE THEME
-
+//CREATE THEME COLOR
 exports.createThemeColor = async (req, res, next) => {
     try {
       const {
@@ -88,7 +87,6 @@ exports.createThemeColor = async (req, res, next) => {
 
 
   //UPDATE THEME COLOR
-
   exports.updateThemeColor = async (req, res, next) => {
     try {
       const {
@@ -170,3 +168,65 @@ exports.createThemeColor = async (req, res, next) => {
       return next(createError(500, 'Internal server error'));
     }
   }; 
+
+  //RESET TO DEFAULT
+  exports.resetThemeColor = async (req, res, next) => {
+    try {
+      
+      const themeColor= await ThemeColor.findOne({
+        where: {TenantId: req.user.currentTenant}
+    })
+     
+      if (!themeColor) {
+       // Create ThemeColor record
+       const newThemeColor = await ThemeColor.create({
+        brandPrimaryColor: "#FF00FF",
+        sideNavigationPanelItemHighlight :"#FF00FF",
+        sideNavigationFontHover :"#FF00FF",
+        topNavigationPanelPrimary :"#FF00FF",
+        reportPaneBackground:"#FF00FF",
+        navigationArrowColor:"#FF00FF",
+        sideNavigationHeaderFontColor:"#FF00FF",
+        sideNavigationFontPrimary:"#FF00FF",
+        buttonFaceColor:"#FF00FF",
+        topNavigationPanelSecondary:"#FF00FF",
+        contentPaneTitles:"#FF00FF",
+        sideNavigationPanelPrimary:"#FF00FF",
+        sideNavigationPanelSecondary:"#FF00FF",
+        topNavatigationFont:"#FF00FF",
+        paneNameCurrentPage:"#FF00FF",
+        navigationBorderColor:"#FF00FF",
+        TenantId: req.user.currentTenant
+      });
+  
+      return res.status(201).json({ message: 'ThemeColor created successfully', newThemeColor });
+      }
+  
+
+      // Update the ThemeColor record
+      await themeColor.update({
+        brandPrimaryColor: "#FF00FF",
+        sideNavigationPanelItemHighlight :"#FF00FF",
+        sideNavigationFontHover :"#FF00FF",
+        topNavigationPanelPrimary :"#FF00FF",
+        reportPaneBackground:"#FF00FF",
+        navigationArrowColor:"#FF00FF",
+        sideNavigationHeaderFontColor:"#FF00FF",
+        sideNavigationFontPrimary:"#FF00FF",
+        buttonFaceColor:"#FF00FF",
+        topNavigationPanelSecondary:"#FF00FF",
+        contentPaneTitles:"#FF00FF",
+        sideNavigationPanelPrimary:"#FF00FF",
+        sideNavigationPanelSecondary:"#FF00FF",
+        topNavatigationFont:"#FF00FF",
+        paneNameCurrentPage:"#FF00FF",
+        navigationBorderColor:"#FF00FF",
+      });
+  
+      return res.status(200).json({ message: 'ThemeColor Reseted successfully', themeColor });
+    } catch (error) {
+      console.error('Error updating ThemeColor:', error);
+      return next(createError(500, 'Internal server error'));
+    }
+  }; 
+

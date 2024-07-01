@@ -25,7 +25,12 @@ router.post("/",
 
     router.put("/", 
         middleware.protect,
-        middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),
-       
+        middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),       
         themeColorController.updateThemeColor);
+
+
+        router.put("/reset", 
+                middleware.protect,
+                middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),       
+                themeColorController.resetThemeColor);
 module.exports = router;
