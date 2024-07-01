@@ -33,7 +33,8 @@ const themesRoute=require("./routes/themesRoute.js")
 const themeBrandingRoute=require("./routes/themeBrandingRoutes.js");
 const themeColorRoute= require("./routes/themeColorRoutes.js");
 const themeFontRoute=require("./routes/themeFontRoutes.js");
-const themeLayoutRoute= require("./routes/themeLayoutRoute.js")
+const themeLayoutRoute= require("./routes/themeLayoutRoute.js");
+const capacityRoute= require("./routes/capacityRoutes.js")
 
 
 app.use(session({
@@ -60,6 +61,8 @@ app.use("/api/v1/branding",themeBrandingRoute);
 app.use("/api/v1/colors", themeColorRoute)
 app.use("/api/v1/fonts",themeFontRoute)
 app.use("/api/v1/layouts",themeLayoutRoute)
+
+app.use("/api/v1/capacity", capacityRoute)
 app.use("/",authRoutes);
 app.use('/auth1',authRoute1);
 
