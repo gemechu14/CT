@@ -12,19 +12,19 @@ exports.getCurrentThemeBranding = async (req, res, next) => {
    
          });
   
-         const updatedThemeBranding = themeBranding.map(item => {
-          const { logoImage, siteFaviconImage, customLoader, secondaryLogoImage, ...rest } = item.dataValues;
+        //  const updatedThemeBranding = themeBranding.map(item => {
+        //   const { logoImage, siteFaviconImage, customLoader, secondaryLogoImage, ...rest } = item.dataValues;
         
-          return {
-            ...rest,
-            logoImage: logoImage ? `http://54.218.135.148:4400/${logoImage}` : logoImage,
-            siteFaviconImage: siteFaviconImage ? `http://54.218.135.148:4400/${siteFaviconImage}` : siteFaviconImage,
-            customLoader: customLoader ? `http://54.218.135.148:4400/${customLoader}` : customLoader,
-            secondaryLogoImage: secondaryLogoImage ? `http://54.218.135.148:4400/${secondaryLogoImage}` : secondaryLogoImage,
-          };
-        });
+        //   return {
+        //     ...rest,
+        //     logoImage: logoImage ? `http://54.218.135.148:4400/${logoImage}` : logoImage,
+        //     siteFaviconImage: siteFaviconImage ? `http://54.218.135.148:4400/${siteFaviconImage}` : siteFaviconImage,
+        //     customLoader: customLoader ? `http://54.218.135.148:4400/${customLoader}` : customLoader,
+        //     secondaryLogoImage: secondaryLogoImage ? `http://54.218.135.148:4400/${secondaryLogoImage}` : secondaryLogoImage,
+        //   };
+        // });
         
-        return res.status(200).json(updatedThemeBranding);
+        return res.status(200).json(themeBranding);
     
     } catch (error) {
       console.log(error)
@@ -53,17 +53,30 @@ if(themeBranding){
       } = req.body;
 
   
-      const logoImagePath = req.files?.logoImage?.[0]?.path;
-      const logoImage = logoImagePath ?? null;
+      // const logoImagePath = req.files?.logoImage?.[0]?.path;
+      // const logoImage = logoImagePath ?? null;
 
+      // const siteFaviconImagePath = req.files?.siteFaviconImage?.[0]?.path;
+      // const siteFaviconImage = siteFaviconImagePath?? null;
+  
+      // const secondaryLogoImagePath = req.files?.secondaryLogoImage?.[0]?.path;
+      // const secondaryLogoImage = secondaryLogoImagePath?? null;
+  
+      // const customLoaderPath = req.files?.customLoader?.[0]?.path;
+      // const customLoader = customLoaderPath ?? null;
+
+
+      const logoImagePath = req.files?.logoImage?.[0]?.path;
+      const logoImage = logoImagePath ? `http://54.218.135.148:4400/${logoImagePath}` : null;
+  
       const siteFaviconImagePath = req.files?.siteFaviconImage?.[0]?.path;
-      const siteFaviconImage = siteFaviconImagePath?? null;
+      const siteFaviconImage = siteFaviconImagePath ? `http://54.218.135.148:4400/${siteFaviconImagePath}` : null;
   
       const secondaryLogoImagePath = req.files?.secondaryLogoImage?.[0]?.path;
-      const secondaryLogoImage = secondaryLogoImagePath?? null;
+      const secondaryLogoImage = secondaryLogoImagePath ? `http://54.218.135.148:4400/${secondaryLogoImagePath}` : null;
   
       const customLoaderPath = req.files?.customLoader?.[0]?.path;
-      const customLoader = customLoaderPath ?? null;
+      const customLoader = customLoaderPath ? `http://54.218.135.148:4400/${customLoaderPath}` : null;
 
     
         // Create ThemeBranding record
@@ -89,38 +102,121 @@ if(themeBranding){
 
 
   //UPDATE BRANDING
-  exports.updateThemeBranding = async (req, res, next) => {
-    try {
+//   exports.updateThemeBranding = async (req, res, next) => {
+//     try {
 
 
 
-const {
+// const {
         
-    loginLogoutBackground,
-    showFooter,
-    externalLinks,
-  } = req.body;
+//     loginLogoutBackground,
+//     showFooter,
+//     externalLinks,
+//   } = req.body;
 
 
-  const logoImagePath = req.files?.logoImage?.[0]?.path;
-  const logoImage = logoImagePath ?? null;
+//   const logoImagePath = req.files?.logoImage?.[0]?.path;
+//   const logoImage = logoImagePath ?? null;
 
-  const siteFaviconImagePath = req.files?.siteFaviconImage?.[0]?.path;
-  const siteFaviconImage = siteFaviconImagePath?? null;
+//   const siteFaviconImagePath = req.files?.siteFaviconImage?.[0]?.path;
+//   const siteFaviconImage = siteFaviconImagePath?? null;
 
-  const secondaryLogoImagePath = req.files?.secondaryLogoImage?.[0]?.path;
-  const secondaryLogoImage = secondaryLogoImagePath?? null;
+//   const secondaryLogoImagePath = req.files?.secondaryLogoImage?.[0]?.path;
+//   const secondaryLogoImage = secondaryLogoImagePath?? null;
 
-  const customLoaderPath = req.files?.customLoader?.[0]?.path;
-  const customLoader = customLoaderPath ?? null;
+//   const customLoaderPath = req.files?.customLoader?.[0]?.path;
+//   const customLoader = customLoaderPath ?? null;
 
 
-  const themeBranding= await ThemeBranding.findOne({
-    where: {TenantId: req.user.currentTenant}
-})
+//   const themeBranding= await ThemeBranding.findOne({
+//     where: {TenantId: req.user.currentTenant}
+// })
 
-if(!themeBranding){
-    const newThemeBranding = await ThemeBranding.create({
+// if(!themeBranding){
+//     const newThemeBranding = await ThemeBranding.create({
+//         logoImage,
+//         siteFaviconImage,
+//         customLoader,
+//         loginLogoutBackground,
+//         showFooter,
+//         secondaryLogoImage,
+//         externalLinks,
+//         TenantId:req.user.currentTenant
+//       });
+
+//       return res.status(200).json("Updated successfully")
+// }
+     
+
+// const updates = {};
+
+
+
+// if (logoImage) {
+//   updates.logoImage = logoImage;
+// }
+// if (siteFaviconImage) {
+//   updates.siteFaviconImage = siteFaviconImage;
+// }
+// if (customLoader) {
+//   updates.loginLogoutBackground = loginLogoutBackground;
+// }
+// if (showFooter) {
+//   updates.showFooter = showFooter;
+// }
+// if (secondaryLogoImage) {
+//   updates.secondaryLogoImage = secondaryLogoImage;
+// }
+// if (externalLinks) {
+//   updates.externalLinks = externalLinks;
+// }
+// if (loginLogoutBackground) {
+//     updates.loginLogoutBackground = loginLogoutBackground;
+//   }
+  
+
+// const result = await themeBranding.update(updates);
+
+
+// res.status(200).json({
+//   message: "updated successfully",
+//   data: result,
+// });  
+//       return res.status(201).json({ message: 'Updated successfully', themeBranding: newThemeBranding });
+//     } catch (error) {
+//       console.error('Error creating ThemeBranding:', error);
+//       return next(createError.createError(500, 'Internal server error'));
+//     }
+//   };
+
+
+
+exports.updateThemeBranding = async (req, res, next) => {
+  try {
+    const {
+      loginLogoutBackground,
+      showFooter,
+      externalLinks,
+    } = req.body;
+
+    const logoImagePath = req.files?.logoImage?.[0]?.path;
+    const logoImage = logoImagePath ? `http://54.218.135.148:4400/${logoImagePath}` : null;
+
+    const siteFaviconImagePath = req.files?.siteFaviconImage?.[0]?.path;
+    const siteFaviconImage = siteFaviconImagePath ? `http://54.218.135.148:4400/${siteFaviconImagePath}` : null;
+
+    const secondaryLogoImagePath = req.files?.secondaryLogoImage?.[0]?.path;
+    const secondaryLogoImage = secondaryLogoImagePath ? `http://54.218.135.148:4400/${secondaryLogoImagePath}` : null;
+
+    const customLoaderPath = req.files?.customLoader?.[0]?.path;
+    const customLoader = customLoaderPath ? `http://54.218.135.148:4400/${customLoaderPath}` : null;
+
+    const themeBranding = await ThemeBranding.findOne({
+      where: { TenantId: req.user.currentTenant }
+    });
+
+    if (!themeBranding) {
+      const newThemeBranding = await ThemeBranding.create({
         logoImage,
         siteFaviconImage,
         customLoader,
@@ -128,50 +224,44 @@ if(!themeBranding){
         showFooter,
         secondaryLogoImage,
         externalLinks,
-        TenantId:req.user.currentTenant
+        TenantId: req.user.currentTenant
       });
 
-      return res.status(200).json("Updated successfully")
-}
-     
-
-const updates = {};
-
-
-
-if (logoImage) {
-  updates.logoImage = logoImage;
-}
-if (siteFaviconImage) {
-  updates.siteFaviconImage = siteFaviconImage;
-}
-if (customLoader) {
-  updates.loginLogoutBackground = loginLogoutBackground;
-}
-if (showFooter) {
-  updates.showFooter = showFooter;
-}
-if (secondaryLogoImage) {
-  updates.secondaryLogoImage = secondaryLogoImage;
-}
-if (externalLinks) {
-  updates.externalLinks = externalLinks;
-}
-if (loginLogoutBackground) {
-    updates.loginLogoutBackground = loginLogoutBackground;
-  }
-  
-
-const result = await themeBranding.update(updates);
-
-
-res.status(200).json({
-  message: "updated successfully",
-  data: result,
-});  
-      return res.status(201).json({ message: 'Updated successfully', themeBranding: newThemeBranding });
-    } catch (error) {
-      console.error('Error creating ThemeBranding:', error);
-      return next(createError.createError(500, 'Internal server error'));
+      return res.status(200).json("Updated successfully");
     }
-  };
+
+    const updates = {};
+
+    if (logoImage) {
+      updates.logoImage = logoImage;
+    }
+    if (siteFaviconImage) {
+      updates.siteFaviconImage = siteFaviconImage;
+    }
+    if (customLoader) {
+      updates.customLoader = customLoader;
+    }
+    if (showFooter !== undefined) {
+      updates.showFooter = showFooter;
+    }
+    if (secondaryLogoImage) {
+      updates.secondaryLogoImage = secondaryLogoImage;
+    }
+    if (externalLinks) {
+      updates.externalLinks = externalLinks;
+    }
+    if (loginLogoutBackground) {
+      updates.loginLogoutBackground = loginLogoutBackground;
+    }
+
+    const result = await themeBranding.update(updates);
+
+    res.status(200).json({
+      message: "updated successfully",
+      data:result
+    });
+  } catch (error) {
+    console.error('Error creating ThemeBranding:', error);
+    return next(createError(500, 'Internal server error'));
+  }
+};
