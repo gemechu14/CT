@@ -1,26 +1,7 @@
 const createError = require("../utils/errorResponse.js");
 const ThemeBranding = require("../models/themeBranding.js");
 
-// GET ALL 
-exports.getAllThemeBranding = async (req, res, next) => {
-  try {
-// console.log(req.session)
-    const themeBranding = await ThemeBranding.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt"] },
- 
-       });
-
-    return res.status(200).json(
-        themeBranding)
-  
-  } catch (error) {
-    console.log(error)
-    return next(createError.createError(500, "Internal server Error"));
-  }
-};
-
-
-
+// GET CURRENT TENANT THEME
 exports.getCurrentThemeBranding = async (req, res, next) => {
     try {
 
@@ -31,8 +12,19 @@ exports.getCurrentThemeBranding = async (req, res, next) => {
    
          });
   
-      return res.status(200).json(
-          themeBranding)
+         const updatedThemeBranding = themeBranding.map(item => {
+          const { logoImage, siteFaviconImage, customLoader, secondaryLogoImage, ...rest } = item.dataValues;
+        
+          return {
+            ...rest,
+            logoImage: logoImage ? `http://54.218.135.148:4400/${logoImage}` : logoImage,
+            siteFaviconImage: siteFaviconImage ? `http://54.218.135.148:4400/${siteFaviconImage}` : siteFaviconImage,
+            customLoader: customLoader ? `http://54.218.135.148:4400/${customLoader}` : customLoader,
+            secondaryLogoImage: secondaryLogoImage ? `http://54.218.135.148:4400/${secondaryLogoImage}` : secondaryLogoImage,
+          };
+        });
+        
+        return res.status(200).json(updatedThemeBranding);
     
     } catch (error) {
       console.log(error)
@@ -97,7 +89,6 @@ if(themeBranding){
 
 
   //UPDATE BRANDING
-
   exports.updateThemeBranding = async (req, res, next) => {
     try {
 
