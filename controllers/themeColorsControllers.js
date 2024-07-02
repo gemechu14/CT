@@ -180,22 +180,22 @@ exports.createThemeColor = async (req, res, next) => {
       if (!themeColor) {
        // Create ThemeColor record
        const newThemeColor = await ThemeColor.create({
-        brandPrimaryColor: "#FF00FF",
-        sideNavigationPanelItemHighlight :"#FF00FF",
-        sideNavigationFontHover :"#FF00FF",
-        topNavigationPanelPrimary :"#FF00FF",
-        reportPaneBackground:"#FF00FF",
-        navigationArrowColor:"#FF00FF",
-        sideNavigationHeaderFontColor:"#FF00FF",
-        sideNavigationFontPrimary:"#FF00FF",
+        brandPrimaryColor: "#081C2E",
+        sideNavigationPanelItemHighlight :"#F0F0F0",
+        sideNavigationFontHover :"#C7C7C7",
+        topNavigationPanelPrimary :"#ffffff",
+        reportPaneBackground:"#FFFFFF",
+        navigationArrowColor:"#FF00FF",        
+        sideNavigationHeaderFontColor:"#FFFFFF",
+        sideNavigationFontPrimary:"#FFFFFF",
         buttonFaceColor:"#FF00FF",
-        topNavigationPanelSecondary:"#FF00FF",
+        topNavigationPanelSecondary:"#081C2E",
         contentPaneTitles:"#FF00FF",
-        sideNavigationPanelPrimary:"#FF00FF",
-        sideNavigationPanelSecondary:"#FF00FF",
-        topNavatigationFont:"#FF00FF",
+        sideNavigationPanelPrimary:"#081C2E",
+        sideNavigationPanelSecondary:"#D95558",
+        topNavatigationFont:"#403A3A",
         paneNameCurrentPage:"#FF00FF",
-        navigationBorderColor:"#FF00FF",
+        navigationBorderColor:"#D95558",
         TenantId: req.user.currentTenant
       });
   
@@ -205,22 +205,23 @@ exports.createThemeColor = async (req, res, next) => {
 
       // Update the ThemeColor record
       await themeColor.update({
-        brandPrimaryColor: "#FF00FF",
-        sideNavigationPanelItemHighlight :"#FF00FF",
-        sideNavigationFontHover :"#FF00FF",
-        topNavigationPanelPrimary :"#FF00FF",
-        reportPaneBackground:"#FF00FF",
-        navigationArrowColor:"#FF00FF",
-        sideNavigationHeaderFontColor:"#FF00FF",
-        sideNavigationFontPrimary:"#FF00FF",
+        brandPrimaryColor: "#081C2E",
+        sideNavigationPanelItemHighlight :"#F0F0F0",
+        sideNavigationFontHover :"#C7C7C7",
+        topNavigationPanelPrimary :"#FFFFFF",
+        reportPaneBackground:"#FFFFFF",
+        navigationArrowColor:"#FF00FF",        
+        sideNavigationHeaderFontColor:"#FFFFFF",
+        sideNavigationFontPrimary:"#FFFFFF",
         buttonFaceColor:"#FF00FF",
-        topNavigationPanelSecondary:"#FF00FF",
+        topNavigationPanelSecondary:"#081C2E",
         contentPaneTitles:"#FF00FF",
-        sideNavigationPanelPrimary:"#FF00FF",
-        sideNavigationPanelSecondary:"#FF00FF",
-        topNavatigationFont:"#FF00FF",
+        sideNavigationPanelPrimary:"#081C2E",
+        sideNavigationPanelSecondary:"#D95558",
+        topNavatigationFont:"#403A3A",
         paneNameCurrentPage:"#FF00FF",
-        navigationBorderColor:"#FF00FF",
+        navigationBorderColor:"#D95558",
+        TenantId: req.user.currentTenant
       });
   
       return res.status(200).json({ message: 'ThemeColor Reseted successfully', themeColor });
