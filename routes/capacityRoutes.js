@@ -5,6 +5,7 @@ const scheduleCapacityController= require("../controllers/scheduleCapacity.js")
 const router = express.Router();
 
 router.put("/",   middleware.protect, capacityController.updateCapacity);
+router.get("/",middleware.protect, capacityController.getAllCapacity)
 
 router.post("/schedule", middleware.protect, scheduleCapacityController.addSchedule);
 router.put("/schedule/:id" ,middleware.protect, scheduleCapacityController.updateSchedule);

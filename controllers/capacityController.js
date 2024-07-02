@@ -12,7 +12,16 @@ const Capacity = require("../models/capacity.js");
 const { nextTick } = require("process");
 
 
+exports.getAllCapacity = async (req, res, next) => {
+  try {
+    const capacity = await Capacity.findAll();
 
+    res.status(200).json(capacity);
+  } catch (error) {
+    console.error('Error fetching schedules:', error);
+    return next(createError.createError(500, 'Internal server error.'));
+  }
+};
 
 exports.updateCapacity= async(req,res,next)=>{
     try {
@@ -37,7 +46,8 @@ exports.updateCapacity= async(req,res,next)=>{
               embeddedTimeout: embeddedTimeout?? 100,
 
             });
-          }else{
+          }
+          else{
             await checkCapacity.update(updates)
           }
     
