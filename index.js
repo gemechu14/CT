@@ -35,6 +35,7 @@ const themeColorRoute= require("./routes/themeColorRoutes.js");
 const themeFontRoute=require("./routes/themeFontRoutes.js");
 const themeLayoutRoute= require("./routes/themeLayoutRoute.js");
 const capacityRoute= require("./routes/capacityRoutes.js")
+const {setupScheduledTasks}= require("./scheduler.js")
 
 
 app.use(session({
@@ -140,13 +141,21 @@ app.use(
 
 
 
+const moment = require('moment-timezone');
+
+const currentTime = moment().tz('Africa/Nairobi').format('YYYY-MM-DD hh:mm:ss a');
+
+console.log('Current time in Nairobi:', currentTime);
 
 
 
-
-
-app.listen(process.env.PORT || 4400, () => {
+app.listen(process.env.PORT || 4400,async () => {
   console.log(`Server is running on port: ${process.env.PORT}`);
+  try {
+    await setupScheduledTasks();
+  } catch (error) {
+    console.log(error)
+  }
 });
 
 
