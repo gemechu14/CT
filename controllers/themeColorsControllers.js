@@ -174,14 +174,13 @@ exports.createThemeColor = async (req, res, next) => {
   exports.resetThemeColor = async (req, res, next) => {
     try {
 
-      const user= await User.findByPk(Number(req.user.id))
+      // const user= await User.findByPk(Number(req.user.id))
       // return res.json(user.currentTenant)
       
       const themeColor= await ThemeColor.findOne({
-        where: {TenantId: Number(user.currentTenant)}
+        where: {TenantId: req.user.currentTenant}
     })
      
-    return res.json(themeColor)
       if (!themeColor) {
        // Create ThemeColor record
        const newThemeColor = await ThemeColor.create({
