@@ -12,6 +12,7 @@ const e = require("cors");
 const UserTenant = require("../models/userTenant.js");
 const sequelize = require("../database/db");
 const { where } = require("sequelize");
+const ThemeColor = require("../models/themeColors.js");
 
 // GET ALL USER
 exports.getAllTenants = async (req, res, next) => {
@@ -68,6 +69,33 @@ exports.createTenant = async (req, res, next) => {
     UserId: superTenant.id,
     TenantId: tenant.id
   }, {transaction})
+
+//ASSIGN THEME COLOR
+
+const newThemeColor = await ThemeColor.create({
+  brandPrimaryColor: "#081C2E",
+  sideNavigationPanelItemHighlight :"#F0F0F0",
+  sideNavigationFontHover :"#C7C7C7",
+  topNavigationPanelPrimary :"#ffffff",
+  reportPaneBackground:"#FFFFFF",
+  navigationArrowColor:"#D95558", 
+  sideNavigationHeaderFontColor:"#FFFFFF",
+  sideNavigationFontPrimary:"#FFFFFF",
+  buttonFaceColor:"#595959",
+  topNavigationPanelSecondary:"#081C2E",
+  contentPaneTitles:"#D95558",
+  sideNavigationPanelPrimary:"#081C2E",
+  sideNavigationPanelSecondary:"#D95558",
+  topNavatigationFont:"#403A3A",
+  paneNameCurrentPage:"#F3F4F6",
+  navigationBorderColor:"#D95558",
+  TenantId: tenant.id
+},{transaction});
+
+
+
+
+
 
   await transaction.commit();
 

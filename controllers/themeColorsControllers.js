@@ -1,6 +1,7 @@
 const createError = require("../utils/errorResponse.js");
 const ThemeBranding = require("../models/themeBranding.js");
 const ThemeColor = require("../models/themeColors.js");
+const User = require("../models/Users.js");
 
 // GET CURRENT TENANT THEME
 exports.getCurrentThemeColors = async (req, res, next) => {
@@ -172,11 +173,15 @@ exports.createThemeColor = async (req, res, next) => {
   //RESET TO DEFAULT
   exports.resetThemeColor = async (req, res, next) => {
     try {
+
+      const user= await User.findByPk(Number(req.user.id))
+      // return res.json(user.currentTenant)
       
       const themeColor= await ThemeColor.findOne({
-        where: {TenantId: req.user.currentTenant}
+        where: {TenantId: Number(user.currentTenant)}
     })
      
+    return res.json(themeColor)
       if (!themeColor) {
        // Create ThemeColor record
        const newThemeColor = await ThemeColor.create({
