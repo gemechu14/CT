@@ -13,6 +13,7 @@ const UserTenant = require("../models/userTenant.js");
 const sequelize = require("../database/db");
 const { where } = require("sequelize");
 const ThemeColor = require("../models/themeColors.js");
+const ThemeLayout = require("../models/themeLayout.js");
 
 // GET ALL USER
 exports.getAllTenants = async (req, res, next) => {
@@ -93,7 +94,10 @@ const newThemeColor = await ThemeColor.create({
 },{transaction});
 
 
-
+const newThemeLayout = await ThemeLayout.create({
+  layout: 'Modern',
+  TenantId: tenant.id
+},{transaction});
 
 
 

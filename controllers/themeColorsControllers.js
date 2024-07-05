@@ -109,8 +109,11 @@ exports.createThemeColor = async (req, res, next) => {
         navigationBorderColor,
       } = req.body;
   
+
+      const user= await User.findByPk(Number(req.user.id));
+
       const themeColor= await ThemeColor.findOne({
-        where: {TenantId: req.user.currentTenant}
+        where: {TenantId: Number(user.currentTenant)}
     })
      
       if (!themeColor) {
@@ -132,7 +135,7 @@ exports.createThemeColor = async (req, res, next) => {
         topNavatigationFont,
         paneNameCurrentPage,
         navigationBorderColor,
-        TenantId: req.user.currentTenant
+        TenantId: user.currentTenant
       });
   
       return res.status(201).json({ message: 'ThemeColor created successfully', themeColor: newThemeColor });
@@ -158,7 +161,7 @@ exports.createThemeColor = async (req, res, next) => {
       if (paneNameCurrentPage ) updates.paneNameCurrentPage = paneNameCurrentPage;
       if (navigationBorderColor ) updates.navigationBorderColor = navigationBorderColor;
   
-      updates.TenantId = req.user.currentTenant;
+      updates.TenantId = user.currentTenant;
   
       // Update the ThemeColor record
       await themeColor.update(updates);
@@ -174,11 +177,10 @@ exports.createThemeColor = async (req, res, next) => {
   exports.resetThemeColor = async (req, res, next) => {
     try {
 
-      // const user= await User.findByPk(Number(req.user.id))
-      // return res.json(user.currentTenant)
-      
+    
+      const user= await User.findByPk(Number(req.user.id));
       const themeColor= await ThemeColor.findOne({
-        where: {TenantId: req.user.currentTenant}
+        where: {TenantId: Number(user.currentTenant)}
     })
      
       if (!themeColor) {
@@ -200,7 +202,7 @@ exports.createThemeColor = async (req, res, next) => {
         topNavatigationFont:"#403A3A",
         paneNameCurrentPage:"#F3F4F6",
         navigationBorderColor:"#D95558",
-        TenantId: req.user.currentTenant
+        TenantId: user.currentTenant
       });
   
       return res.status(201).json({ message: 'ThemeColor created successfully', newThemeColor });
@@ -225,7 +227,7 @@ exports.createThemeColor = async (req, res, next) => {
         topNavatigationFont:"#403A3A",
         paneNameCurrentPage:"#F3F4F6",
         navigationBorderColor:"#D95558",
-        TenantId: req.user.currentTenant
+        TenantId:  user.currentTenant
       });
   
       return res.status(200).json({ message: 'ThemeColor Reseted successfully', themeColor });

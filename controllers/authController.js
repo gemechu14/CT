@@ -143,13 +143,18 @@ const createSendToken = async (user, statusCode, res) => {
       { where: { id: user.id } }
     );
     // await user.update({currentTenant:user.defaultTenant})
+
+
+  
     const cookieOptions = {
       expires: new Date(Date.now() +  1000),
       secure: "production" ? true : false,
       httpOnly: true,
     };
+
     user.password = undefined;
     res.cookie("jwt", token, cookieOptions);
+    // console.log('Response Headers:', res.getHeaders());
 
     res.status(statusCode).json({
       token,
@@ -186,6 +191,8 @@ exports.login = async (req, res, next) => {
       ],
     });
 
+        
+
     // return res.json(user)
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return next(
@@ -196,7 +203,9 @@ exports.login = async (req, res, next) => {
       );
     }
 
-
+    if (user?.isActive === false) {
+      return next(createError.createError(400, "Your account is currently inactive. Please contact support for assistance."));
+    }
     // const permissions = user.Roles.reduce((acc, role) => {
     //   role.Permissions.forEach((permission) => {
     //     if (!acc.includes(permission.name)) {
@@ -317,27 +326,30 @@ exports.signup = async (req, res, next) => {
 
 
 
-// exports.logout = async (req, res) => {
+exports.logout = async (req, res) => {
   
-//   const cookieOptions = {
-//     expires: new Date(Date.now() + 10 * 1000),
-//     secure: 'production' ? true : false,
-//     httpOnly: true,
-//   };
-//     return res.json(req.user)
+  const cookieOptions = {
+    expires: new Date(Date.now() + 10 * 1000),
+    secure: 'production' ? true : false,
+    httpOnly: true,
+  };
+    // return res.json(req.user)
   
-//    await User.update(
-//     {       isLoggedIn:false,
-//     },
-//     { where: { id: req.user.id } }
-//   );
+   await User.update(
+    {       isLoggedIn:false,
+    },
+    { where: { id: req.user.id } }
+  );
 
-//   res.cookie('jwt', 'expiredtoken', cookieOptions);
-//   res.status(200).json({
-//     status: 'success',
-//     message: 'logged out successfully',
-//   });
-// };
+
+  res.cookie("jwt", "expiredtoken", cookieOptions);
+  // res.cookie('jwt', 'expiredtoken', cookieOptions);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'logged out successfully',
+  });
+};
 
 
 exports.getProfile= async( req,res,next)=>{
@@ -511,20 +523,20 @@ exports.handleGoogleCallback = async (req, res) => {
 
 
 
-  exports.logout = (req, res) => {
-    req.logout((err) => {
-      if (err) {
-        console.error('Error logging out:', err);
-        return res.status(500).send('Logout failed');
-      }
+  // exports.logout = (req, res) => {
+  //   req.logout((err) => {
+  //     if (err) {
+  //       console.error('Error logging out:', err);
+  //       return res.status(500).send('Logout failed');
+  //     }
       
-      req.session.destroy((err) => {
-        if (err) {
-          console.error('Error destroying session:', err);
-          return res.status(500).send('Session destruction failed');
-        }
+  //     req.session.destroy((err) => {
+  //       if (err) {
+  //         console.error('Error destroying session:', err);
+  //         return res.status(500).send('Session destruction failed');
+  //       }
         
-        res.send('Logged out successfully');
-      });
-    });
-  }
+  //       res.send('Logged out successfully');
+  //     });
+  //   });
+  // }

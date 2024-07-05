@@ -5,6 +5,7 @@ const swaggerSpec = require("./swagger");
 const sequelize = require("./database/db");
 const app = express();
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');  
 require("dotenv").config();
 app.use(cors()); 
 const session= require("express-session");
@@ -12,11 +13,12 @@ const passport= require("passport")
 // const GoogleStrategy= require("passport-google-oauth2").Strategy;
 const sessionManagement = require('./middleware/sessionManagement.js');
 
-
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.json());
+// app.use(cookieParser());
 app.use("/uploads", express.static("./uploads/"));
 // app.use("/uploads", express.static("./uploads/"));
 const userRoutes=require("./routes/userRoutes.js");

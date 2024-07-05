@@ -37,6 +37,56 @@ exports.getAllNavigation = async (req, res, next) => {
   }
 };
 
+//GET ALL NAVIGATION
+exports.getAllNavigation2 = async (req, res, next) => {
+  try {
+
+
+    const user = await User.findByPk(req.user.id, {
+      include: {
+        model: Team,
+        through: { attributes: [] }, 
+      },
+    });
+
+
+    const teamIds = user.Teams.map(team => team.id);
+
+
+const navigationContent = await NavigationContent.findAll({
+  attributes: { exclude: ["createdAt", "updatedAt"] },
+  where: {
+    TenantId: user.currentTenant,
+    [Op.or]: [
+      { CreatedBy: user.id.toString()},
+      { 
+        '$Teams.id$': { [Op.in]: teamIds }
+      }
+    ]
+  },
+  include: [
+    {
+      model: Team,
+      where: {
+        id: { [Op.in]: teamIds },
+      },
+
+      through: {
+        attributes: [],
+      },
+      required:false
+    },
+  ],
+});
+
+
+    return res.status(200).json(navigationContent);
+  } catch (error) {
+    console.log(error);
+    return next(createError.createError(500, "Internal server Error"));
+  }
+};
+
 // GET NAVIGATION BY ID
 exports.getNavigationById = async (req, res, next) => {
   try {
@@ -67,6 +117,51 @@ exports.getNavigationById = async (req, res, next) => {
   }
 };
 
+
+
+// exports.getNavigationById2 = async (req, res, next) => {
+//   try {
+//     // const user = await User.findByPk(req.user.id, {
+//     //   include: {
+//     //     model: Team,
+//     //     through: { attributes: [] }, // Exclude the UserTeam attributes
+//     //   },
+//     // });
+
+//     return res.json(req.user)
+//     const id = req?.params?.id;
+//     if (!id) {
+//       return next(createError.createError(404, "Id not found"));
+//     }
+//     const teamIds = user.Teams.map(team => team.id);
+
+//     const navigationContent = await NavigationContent.findAll({
+//       attributes: { exclude: ["createdAt", "updatedAt"] },
+//       where: {
+//         TenantId: user.currentTenant, // Ensure the TenantId matches the data type in your DB
+//         // [Op.or]: [
+//         //   { CreatedBy: '1' },
+//         // ],
+//       },
+//       include: [
+//         {
+//           model: Team,
+//           // where: {
+//           //   id: { [Op.in]: teamIds },
+//           // },
+//           through: {
+//             attributes: [], // Exclude the ReportTeam attributes
+//           },
+//           required: true, // Ensure the include is not optional
+//         },
+//       ],
+//     });
+//     return res.status(200).json(navigationContent);
+//   } catch (error) {
+//     console.log(error);
+//     return next(createError.createError(500, "Internal server Error"));
+//   }
+// };
 // CREATE NAVIGATION
 exports.createNavigation = async (req, res, next) => {
   const transaction = await sequelize.transaction();
