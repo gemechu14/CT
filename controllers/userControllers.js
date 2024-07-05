@@ -485,7 +485,7 @@ exports.changeProfile= async(req,res,next)=>{
     // const imageUrl= req?.body?.imageUrl;
     
     const data = req.files?.imageUrl?.[0]?.path;
-    const imagePath = data ? data : null;
+    const imagePath = data ? `http://54.218.135.148:4400/${data}` :null;
 
     const user= await User.findOne({where:{id: req?.user?.id}})
 

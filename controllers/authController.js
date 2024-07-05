@@ -368,9 +368,9 @@ exports.getProfile= async( req,res,next)=>{
     ]}
     )
 
-    if (user && user.imageUrl) {
-      user.imageUrl = `https://ct-x8hh.onrender.com/${user.imageUrl.replace(/\\/g, '/')}`;
-    }
+    // if (user && user.imageUrl) {
+    //   user.imageUrl = `https://ct-x8hh.onrender.com/${user.imageUrl.replace(/\\/g, '/')}`;
+    // }
 
     return res.status(200).json(user);
   } catch (error) {
