@@ -11,6 +11,7 @@ const User = require("../models/Users.js");
 const Tenant = require("../models/tenant.js");
 
 router.post("/login", authControllers.login);
+router.post("/signin", authControllers.googleAuthentication)
 router.get("/profile", middleware.protect, authControllers.getProfile);
 
 const users = {};

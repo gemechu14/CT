@@ -326,6 +326,72 @@ exports.signup = async (req, res, next) => {
 
 
 
+//GOOGLE AND MICROSOFT AUTHENTICATION
+
+exports.googleAuthentication = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email ) {
+      return next(createError(400, "Please provide both email"));
+    }
+    const user = await User.findOne({
+      where: { email },
+      include: [
+        {
+          model: Tenant,
+
+          through: { attributes: [] },
+        },
+        {
+          model: Role,
+          // through: { attributes: [] }, // To exclude the UserRole pivot table data
+          // include: {
+          //   model: Permission,
+          //   through: { attributes: [] }, // To exclude the RolePermission pivot table data
+          // },
+        },
+      ],
+    });
+
+        if(!user){
+
+          return next(createError.createError(400," User not found"))
+        }
+
+ 
+
+    if (user?.isActive === false) {
+      return next(createError.createError(400, "Your account is currently inactive. Please contact support for assistance."));
+    }
+ 
+    const tenantIds = user.Tenants.map((tenant) => tenant.id);
+    // Construct the desired output object
+    const userData = {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      isSuperTenant: user.isSuperTenant,
+      defaultTenant: user.defaultTenant,
+      currentTenant: user.defaultTenant,
+      isSuperTenant:user.isSuperTenant,
+      roleId:user?.Role?.id,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+  
+      // permissions: permissions,
+      tenant: tenantIds,
+    };
+
+    createSendToken(userData, 200, res);
+  } catch (error) {
+    console.log(error);
+    return next(createError.createError(500, "Internal server error"));
+  }
+};
+
+
 exports.logout = async (req, res) => {
   
   const cookieOptions = {
@@ -351,7 +417,7 @@ exports.logout = async (req, res) => {
   });
 };
 
-
+//GET USER PROFILE
 exports.getProfile= async( req,res,next)=>{
   try {
     const userId= req?.user?.id;
