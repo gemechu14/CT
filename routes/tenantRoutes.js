@@ -12,17 +12,18 @@ router.put(
 );
 router.put(
   "/assign-user",
-
   middleware.protect,
   tenantControllers.assingToTenant
 );
 router.get(
   "/",
   middleware.protect,
-  middleware.restrictToSuperTenant(true),
+  // middleware.restrictToSuperTenant(true),
   tenantControllers.getAllTenants
 );
-router.post("/", middleware.protect, tenantControllers.createTenant);
+router.post("/", middleware.protect, 
+  // middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),
+  tenantControllers.createTenant);
 
 router.put("/switch-user", middleware.protect, tenantControllers.switchTenant);
 

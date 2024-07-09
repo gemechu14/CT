@@ -18,12 +18,40 @@ const ThemeLayout = require("../models/themeLayout.js");
 // GET ALL USER
 exports.getAllTenants = async (req, res, next) => {
   try {
+
+    const isSuperTenant= req.user.isSuperTenant;
+
+    if(isSuperTenant){
     const tenants = await Tenant.findAll({
       where:{ isActive:true}
 
     });
 
     return res.status(200).json(tenants);
+  }
+
+  else{
+
+    const tenants = await Tenant.findAll({
+      include: [
+        {
+          model: User,
+          where: { id: req.user.id }, // Ensure that only the specified user is included
+          through: {
+            model: UserTenant,
+            attributes: [], // Exclude UserTenant attributes if not needed
+          },
+          attributes: [], // Exclude User attributes if not needed
+          required: true, // Ensure the join is not optional
+        },
+      ],
+    });
+
+    return res.status(200).json(tenants);
+
+
+  }
+    
   } catch (error) {
     console.log(error)
     return next(createError.createError(500, "Internal server Error"));
