@@ -233,7 +233,7 @@ await foundCapacity.update({isActive:true},// {transaction}
   } catch (error) {
 
     console.log(error)
-    return res.status(500).json({ message: error });
+    return res.status(500).json({ message: error.message });
   }
 };
 
