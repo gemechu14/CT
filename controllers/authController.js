@@ -446,6 +446,41 @@ exports.getProfile= async( req,res,next)=>{
   }
 }
 
+
+
+//CHECK SUPERTENANT
+exports.checkSuperTenant= async( req,res,next)=>{
+  try {
+
+    
+    const user = await User.findOne(
+      {where: { isSuperTenant: true},
+      attributes:{exclude:"password"},
+      }
+    )
+
+ if(user){
+  return res.status(200).json(
+    {isExist :true}
+  )
+ }else{
+  return res.status(404).json(
+    {isExist :false}
+  )
+ }
+
+    return res.json(user.length)
+    // if (user && user.imageUrl) {
+    //   user.imageUrl = `https://ct-x8hh.onrender.com/${user.imageUrl.replace(/\\/g, '/')}`;
+    // }
+
+  } catch (error) {
+    console.log(error)
+    return next(createError.createError(500,"Internal server error"))
+    
+  }
+}
+
 // GOOGLE AUTHENTICATION
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,

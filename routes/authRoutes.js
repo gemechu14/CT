@@ -17,6 +17,7 @@ router.post("/login", authControllers.login,        );
 router.post("/signin", authControllers.googleAuthentication)
 router.get("/profile", middleware.protect, authControllers.getProfile);
 
+router.get("/superuserexist", authControllers.checkSuperTenant);
 const users = {};
 
 //GOOGLE AUTH
