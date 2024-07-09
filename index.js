@@ -12,6 +12,14 @@ const session= require("express-session");
 const passport= require("passport")
 // const GoogleStrategy= require("passport-google-oauth2").Strategy;
 const sessionManagement = require('./middleware/sessionManagement.js');
+const cron = require('node-cron');
+const ScheduleCapacity = require('./models/scheduleCapacity.js');
+
+
+const { initializeSchedules, startScheduledTasks } = require('./scheduleCapacity.js');
+
+
+const startSchedules = require('./');
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -110,51 +118,75 @@ app.use(
 
 
 
-  // MICROSOFT AUTHENTICATION
 
-//   const { msalConfig, REDIRECT_URI, POST_LOGOUT_REDIRECT_URI, GRAPH_ME_ENDPOINT } = require('./routes/authConfig.js');
-//   const AuthProvider = require('./routes/AuthProvider.js');
-//   const fetch = require('./routes/fetch.js');
+// const moment = require('moment-timezone');
+
+// const currentTime = moment().tz('Africa/Nairobi').format('YYYY-MM-DD hh:mm:ss a');
+
+// console.log('Current time in Nairobi:', currentTime);
+
+//////SCHEDULER
+// sequelize.sync().then(  async () => {
+// const schedules = await ScheduleCapacity.findAll({
+//   where: { isEnabled: true }
+// });
+
+// // console.log(schedules)
+// schedules.forEach(schedule => {
+//   const { startHour, startMinute, period, durationHours, durationMinutes } = schedule;
+
+//   // Convert startHour and startMinute to 24-hour format
+//   let hour = parseInt(startHour, 10);
+//   const minute = parseInt(startMinute, 10);
+
+//   if (period === 'PM' && hour < 12) {
+//     hour += 12;
+//   } else if (period === 'AM' && hour === 12) {
+//     hour = 0; // Midnight case
+//   }
+
+//   // Schedule the task using node-cron
+//   cron.schedule(`${minute} ${hour} * * *`, () => {
+//     console.log(`Task started at ${startHour}:${startMinute} ${period}`);
+
+//     // Calculate the duration in milliseconds
+//     const duration = (durationHours * 60 * 60 * 1000) + (durationMinutes * 60 * 1000);
+
+//     // Perform your scheduled task here
+//     setTimeout(() => {
+//       console.log('Task ended after specified duration');
+//     }, duration);
+//   });
+// });
+// })
 
 
-//   const authProvider = new AuthProvider(msalConfig);
+// async () => {
+//   console.log("Database & tables created!");
+
+//   // Start the schedules
+//  const data= await startSchedules();
+//  console.log(data)
+// }
 
 
-// // Authentication Routes
-// app.get('/auth/signin', authProvider.login({
-//   scopes: [],
-//   redirectUri: REDIRECT_URI,
-//   successRedirect: '/auth/microsoft/protected'
-// }));
+// initializeSchedules().then(() => {
+//   startScheduledTasks();
+// }).catch(error => {
+//   console.error('Failed to initialize schedules:', error);
+// });
 
-// app.get('/auth/acquireToken', authProvider.acquireToken({
-//   scopes: ['User.Read'],
-//   redirectUri: REDIRECT_URI,
-//   successRedirect: '/users/profile'
-// }));
+// initializeSchedules().catch(error => {
+//   console.error('Failed to initialize schedules:', error);
+// });
 
-// app.get('/auth/redirect', authProvider.handleRedirect());
-
-// app.get('/auth/signout', authProvider.logout({
-//   postLogoutRedirectUri: POST_LOGOUT_REDIRECT_URI
-// }));
-
-
-
-
-
-const moment = require('moment-timezone');
-
-const currentTime = moment().tz('Africa/Nairobi').format('YYYY-MM-DD hh:mm:ss a');
-
-console.log('Current time in Nairobi:', currentTime);
-
+///END OF SCHEDULER
 
 
 app.listen(process.env.PORT || 4400,async () => {
   console.log(`Server is running on port: ${process.env.PORT}`);
   try {
-    await setupScheduledTasks();
+    // await setupScheduledTasks();//
   } catch (error) {
     console.log(error)
   }

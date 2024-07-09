@@ -168,12 +168,12 @@ exports.checkCapacity = async (req, res, next) => {
   if(response?.status === 200 || response?.status === 201 || response?.status === 202){
     await foundCapacity.update({isActive:true},
       // {transaction}
+      next()
           
     )
-  }
-   
-
-      next()
+  }   else{
+    next()
+  }   
    
 
  
