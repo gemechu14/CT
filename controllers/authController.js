@@ -15,8 +15,6 @@ const GoogleStrategy= require("passport-google-oauth2").Strategy;
 const MicrosoftStrategy = require('passport-microsoft').Strategy;
 // const MicrosoftStrategy = require('passport-microsoft-auth').Strategy;
 const msal = require('@azure/msal-node');
-const Capacity = require("../models/capacity.js");
-const msRestNodeAuth = require("@azure/ms-rest-nodeauth");
 
 require("dotenv").config();
 
@@ -156,84 +154,14 @@ const createSendToken = async (user, statusCode, res) => {
 
     user.password = undefined;
     res.cookie("jwt", token, cookieOptions);
-//////START CAPACITY
+    
 
-
-const capacity = await Capacity.findOne({where: {selectedCapacity: 'superTenant'}});
-// return res.json(capacity.length)
-if (capacity === null) {
-
-  await Capacity.create({
-    selectedCapacity:"superTenant",
-    embeddedTimeout:100,
-  });
-  
-}
-   
-const foundCapacity= await Capacity.findOne({where: {selectedCapacity: 'superTenant'}});
-
-
-const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
-  process.env.CLIENT_ID,
-  process.env.CLIENT_SECRET,
-  process.env.TENANT_ID,
-  {
-    tokenAudience: "https://management.azure.com/",
-  }
-);
-
-const accesstoken = creds?.tokenCache?._entries[0]?.accessToken;
-
-
-
-const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/resume?api-version=${process.env.APPVERSION}`;
-
-const response = await axios.post(
-  url,
-  {},
-  {
-    headers: {
-      Authorization: `Bearer ${accesstoken}`,
-      "Content-Type": "application/json",
-    },
-  }
-);
-
-
-console.log(response?.status)
-if(response?.status === 200 || response?.status === 201 || response?.status === 202){
-await foundCapacity.update({isActive:true},// {transaction}
-
-        )
-        res.status(statusCode).json({
-          token,
-          refreshToken,
-        });
-}   else{
-  res.status(statusCode).json({
-    token,
-    refreshToken,
-  });
-}   
-
-
-
-
-
-///END OF START CAPACITY
-
-
-
-
-
-    // res.status(statusCode).json({
-    //   token,
-    //   refreshToken,
-    // });
+    res.status(statusCode).json({
+      token,
+      refreshToken,
+    });
   } catch (error) {
-
-    console.log(error)
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.name });
   }
 };
 
