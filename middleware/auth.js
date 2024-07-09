@@ -122,7 +122,7 @@ exports.checkCapacity = async (req, res, next) => {
   // const transaction = await sequelize.transaction();
   try {
   
-
+console.log("dataaa ")
     const capacity = await Capacity.findOne({where: {selectedCapacity: 'superTenant'}});
     // return res.json(capacity.length)
     if (capacity === null) {

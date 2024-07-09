@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/", middleware.protect,navigationController.getAllNavigation2);
 router.get("/:id",middleware.protect,
-    middleware.checkCapacity,    
+    // middleware.checkCapacity,    
     navigationController.getNavigationById);
 
 

@@ -9,8 +9,11 @@ const jwt = require("jsonwebtoken");
 const middleware = require("../middleware/auth.js");
 const User = require("../models/Users.js");
 const Tenant = require("../models/tenant.js");
+const sequelize = require('../database/db');
+const msRestNodeAuth = require("@azure/ms-rest-nodeauth");
+const axios = require("axios");
 
-router.post("/login", authControllers.login);
+router.post("/login", authControllers.login,        );
 router.post("/signin", authControllers.googleAuthentication)
 router.get("/profile", middleware.protect, authControllers.getProfile);
 
