@@ -15,6 +15,12 @@ const GoogleStrategy= require("passport-google-oauth2").Strategy;
 const MicrosoftStrategy = require('passport-microsoft').Strategy;
 // const MicrosoftStrategy = require('passport-microsoft-auth').Strategy;
 const msal = require('@azure/msal-node');
+const Capacity = require("../models/capacity.js");
+const { Op } = require("sequelize");
+const msRestNodeAuth = require("@azure/ms-rest-nodeauth");
+const middleware= require("../middleware/auth.js")
+// const activateCapacityIfNeeded = require('../utils/activateCapacity.js');
+const activateCapacity = require('../utils/activateCapacity.js');
 
 require("dotenv").config();
 
@@ -51,7 +57,7 @@ console.log(error.message);
 return next(createError.createError(500,error.message))
   }
 }
-
+  
 
 
 async function login() {
@@ -122,9 +128,14 @@ const signToken = (
   }
 };
 
-const createSendToken = async (user, statusCode, res) => {
+const createSendToken = async (user, statusCode, res,next) => {
   try {
     // return res.json(user)
+
+    await activateCapacity();
+
+    // await activateCapacity();?
+
     const { token, refreshToken } = signToken(
       user.id,
       user.email,
@@ -155,16 +166,20 @@ const createSendToken = async (user, statusCode, res) => {
     user.password = undefined;
     res.cookie("jwt", token, cookieOptions);
     
-
     res.status(statusCode).json({
       token,
       refreshToken,
     });
+  
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ message: error.name });
   }
 };
 
+
+
+//LOGIN
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -234,7 +249,7 @@ exports.login = async (req, res, next) => {
       tenant: tenantIds,
     };
 
-    createSendToken(userData, 200, res);
+    createSendToken(userData, 200, res,next);
   } catch (error) {
     console.log(error);
     return next(createError.createError(500, "Internal server error"));
@@ -605,39 +620,67 @@ exports.handleGoogleCallback = async (req, res) => {
 
 
 
-// exports.logout = (req, res) => {
-//   req.logout((err) => {
-//     if (err) return next(err);
-//     req.session.destroy((err) => {
-//       if (err) return next(err);
 
-//       // req.logout();
 
-//       console.log(req)
+// CHECK CAPACITY
 
-//       // return res.json(req)
-      
-//       res.send('Logged out successfully');
+// const activateCapacityIfNeeded = async () => {
+//   try {
+//     // Check if 'superTenant' capacity is already activated
+//     let capacity = await Capacity.findOne({ where: { selectedCapacity: 'superTenant' } });
+
+//     // If capacity is not found, create it
+//     if (capacity === null) {
+//       await Capacity.create({
+//         selectedCapacity: "superTenant",
+//         embeddedTimeout: 100,
+//       });
+//     }
+
+//     // Fetch the capacity again to ensure it exists
+//     capacity = await Capacity.findOne({ where: { selectedCapacity: 'superTenant' } });
+
+//     // Get Azure credentials
+//     const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
+//       process.env.CLIENT_ID,
+//       process.env.CLIENT_SECRET,
+//       process.env.TENANT_ID,
+//       {
+//         tokenAudience: "https://management.azure.com/",
+//       }
+//     );
+
+//     // Obtain access token
+//     const token = creds?.tokenCache?._entries[0]?.accessToken;
+
+//     // Check capacity status
+//     const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}?api-version=${process.env.APPVERSION}`;
+//     const statusResponse = await axios.get(url, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//         'Content-Type': 'application/json'
+//       }
 //     });
-//   });
+
+//     const capacityStatus = statusResponse?.data?.properties?.state;
+
+//     // If capacity status is not 'Active', resume it
+//     if (capacityStatus != 'Active') {
+//       const resumeUrl = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/resume?api-version=${process.env.APPVERSION}`;
+
+//       await axios.post(
+//         resumeUrl,
+//         {},
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             "Content-Type": "application/json",
+//           },
+//         }
+//       );
+//     }
+//   } catch (error) {
+//     console.error("Error activating capacity:", error);
+//     throw error; // Propagate the error to handle it elsewhere if needed
+//   }
 // };
-
-
-
-  // exports.logout = (req, res) => {
-  //   req.logout((err) => {
-  //     if (err) {
-  //       console.error('Error logging out:', err);
-  //       return res.status(500).send('Logout failed');
-  //     }
-      
-  //     req.session.destroy((err) => {
-  //       if (err) {
-  //         console.error('Error destroying session:', err);
-  //         return res.status(500).send('Session destruction failed');
-  //       }
-        
-  //       res.send('Logged out successfully');
-  //     });
-  //   });
-  // }
