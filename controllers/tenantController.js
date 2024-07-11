@@ -14,6 +14,7 @@ const sequelize = require("../database/db");
 const { where } = require("sequelize");
 const ThemeColor = require("../models/themeColors.js");
 const ThemeLayout = require("../models/themeLayout.js");
+const ThemeBranding = require("../models/themeBranding.js");
 
 // GET ALL USER
 exports.getAllTenants = async (req, res, next) => {
@@ -100,7 +101,6 @@ exports.createTenant = async (req, res, next) => {
   }, {transaction})
 
 //ASSIGN THEME COLOR
-
 const newThemeColor = await ThemeColor.create({
   brandPrimaryColor: "#081C2E",
   sideNavigationPanelItemHighlight :"#F0F0F0",
@@ -121,9 +121,21 @@ const newThemeColor = await ThemeColor.create({
   TenantId: tenant.id
 },{transaction});
 
-
+//ASSIGN LAYOUT
 const newThemeLayout = await ThemeLayout.create({
   layout: 'Modern',
+  TenantId: tenant.id
+},{transaction});
+
+//ASSIGN THEME BRAND
+const newThemeBranding = await ThemeBranding.create({
+  logoImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+  siteFaviconImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+  customLoader:"https://cedarplatform.io:4400/uploads/customLoader-1720701314174-483869383.gif",
+  loginLogoutBackground: "#ffffff",
+  showFooter :"true",
+  secondaryLogoImage:"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+  externalLinks :"https://cedarplatform.io",
   TenantId: tenant.id
 },{transaction});
 
