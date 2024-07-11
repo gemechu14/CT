@@ -17,10 +17,10 @@ exports.getCurrentThemeBranding = async (req, res, next) => {
         
         //   return {
         //     ...rest,
-        //     logoImage: logoImage ? `http://54.218.135.148:4400/${logoImage}` : logoImage,
-        //     siteFaviconImage: siteFaviconImage ? `http://54.218.135.148:4400/${siteFaviconImage}` : siteFaviconImage,
-        //     customLoader: customLoader ? `http://54.218.135.148:4400/${customLoader}` : customLoader,
-        //     secondaryLogoImage: secondaryLogoImage ? `http://54.218.135.148:4400/${secondaryLogoImage}` : secondaryLogoImage,
+        //     logoImage: logoImage ? `https://cedarplatform.io:4400/${logoImage}` : logoImage,
+        //     siteFaviconImage: siteFaviconImage ? `https://cedarplatform.io:4400/${siteFaviconImage}` : siteFaviconImage,
+        //     customLoader: customLoader ? `https://cedarplatform.io:4400/${customLoader}` : customLoader,
+        //     secondaryLogoImage: secondaryLogoImage ? `https://cedarplatform.io:4400/${secondaryLogoImage}` : secondaryLogoImage,
         //   };
         // });
         
@@ -67,16 +67,16 @@ if(themeBranding){
 
 
       const logoImagePath = req.files?.logoImage?.[0]?.path;
-      const logoImage = logoImagePath ? `http://54.218.135.148:4400/${logoImagePath}` : null;
+      const logoImage = logoImagePath ? `https://cedarplatform.io:4400/${logoImagePath}` : null;
   
       const siteFaviconImagePath = req.files?.siteFaviconImage?.[0]?.path;
-      const siteFaviconImage = siteFaviconImagePath ? `http://54.218.135.148:4400/${siteFaviconImagePath}` : null;
+      const siteFaviconImage = siteFaviconImagePath ? `https://cedarplatform.io:4400/${siteFaviconImagePath}` : null;
   
       const secondaryLogoImagePath = req.files?.secondaryLogoImage?.[0]?.path;
-      const secondaryLogoImage = secondaryLogoImagePath ? `http://54.218.135.148:4400/${secondaryLogoImagePath}` : null;
+      const secondaryLogoImage = secondaryLogoImagePath ? `https://cedarplatform.io:4400/${secondaryLogoImagePath}` : null;
   
       const customLoaderPath = req.files?.customLoader?.[0]?.path;
-      const customLoader = customLoaderPath ? `http://54.218.135.148:4400/${customLoaderPath}` : null;
+      const customLoader = customLoaderPath ? `https://cedarplatform.io:4400/${customLoaderPath}` : null;
 
     
         // Create ThemeBranding record
@@ -200,16 +200,16 @@ exports.updateThemeBranding = async (req, res, next) => {
     } = req.body;
 
     const logoImagePath = req.files?.logoImage?.[0]?.path;
-    const logoImage = logoImagePath ? `http://54.218.135.148:4400/${logoImagePath}` : null;
+    const logoImage = logoImagePath ? `https://cedarplatform.io:4400/${logoImagePath}` : null;
 
     const siteFaviconImagePath = req.files?.siteFaviconImage?.[0]?.path;
-    const siteFaviconImage = siteFaviconImagePath ? `http://54.218.135.148:4400/${siteFaviconImagePath}` : null;
+    const siteFaviconImage = siteFaviconImagePath ? `https://cedarplatform.io:4400/${siteFaviconImagePath}` : null;
 
     const secondaryLogoImagePath = req.files?.secondaryLogoImage?.[0]?.path;
-    const secondaryLogoImage = secondaryLogoImagePath ? `http://54.218.135.148:4400/${secondaryLogoImagePath}` : null;
+    const secondaryLogoImage = secondaryLogoImagePath ? `https://cedarplatform.io:4400/${secondaryLogoImagePath}` : null;
 
     const customLoaderPath = req.files?.customLoader?.[0]?.path;
-    const customLoader = customLoaderPath ? `http://54.218.135.148:4400/${customLoaderPath}` : null;
+    const customLoader = customLoaderPath ? `https://cedarplatform.io:4400/${customLoaderPath}` : null;
 
     const themeBranding = await ThemeBranding.findOne({
       where: { TenantId: req.user.currentTenant }
