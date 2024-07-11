@@ -4,6 +4,7 @@ const router = express.Router();
 const passport = require("passport");
 const session = require("express-session");
 const jwt = require("jsonwebtoken");
+const initializeData= require("../utils/initializeData .js")
 
 
 const middleware = require("../middleware/auth.js");
@@ -104,7 +105,7 @@ router.post(
 
   authControllers.logout
 );
-// router.use(initializeData);
+router.use(initializeData);
 router.post("/signup", authControllers.signup);
 
 

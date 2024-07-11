@@ -132,7 +132,7 @@ const createSendToken = async (user, statusCode, res,next) => {
   try {
     // return res.json(user)
 
-    await activateCapacity();
+    // await activateCapacity();
 
     // await activateCapacity();?
 
