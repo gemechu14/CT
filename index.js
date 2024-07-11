@@ -9,17 +9,15 @@ const cookieParser = require('cookie-parser');
 require("dotenv").config();
 app.use(cors()); 
 const session= require("express-session");
+const fs = require("fs");
+const https = require("https");
 const passport= require("passport")
 // const GoogleStrategy= require("passport-google-oauth2").Strategy;
 const sessionManagement = require('./middleware/sessionManagement.js');
 const cron = require('node-cron');
 const ScheduleCapacity = require('./models/scheduleCapacity.js');
-
-
 const { initializeSchedules, startScheduledTasks } = require('./scheduleCapacity.js');
-
-
-const startSchedules = require('./');
+// const startSchedules = require('./');
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -72,14 +70,13 @@ app.use("/api/v1/branding",themeBrandingRoute);
 app.use("/api/v1/colors", themeColorRoute)
 app.use("/api/v1/fonts",themeFontRoute)
 app.use("/api/v1/layouts",themeLayoutRoute)
-
 app.use("/api/v1/capacity", capacityRoute)
 app.use("/",authRoutes);
-app.use('/auth1',authRoute1);
 
-
+// app.use('/auth1',authRoute1);
 
 app.use(express.json());
+
 const swaggerOptions = {
   swaggerOptions: {
     url: "http://localhost:4400/api-docs/swagger.json", // Update the URL to match your setup
@@ -114,83 +111,60 @@ app.use(
   // }, activityCheckInterval);
 
 
-
-
-
-
-
-// const moment = require('moment-timezone');
-
-// const currentTime = moment().tz('Africa/Nairobi').format('YYYY-MM-DD hh:mm:ss a');
-
-// console.log('Current time in Nairobi:', currentTime);
-
-//////SCHEDULER
-// sequelize.sync().then(  async () => {
-// const schedules = await ScheduleCapacity.findAll({
-//   where: { isEnabled: true }
-// });
-
-// // console.log(schedules)
-// schedules.forEach(schedule => {
-//   const { startHour, startMinute, period, durationHours, durationMinutes } = schedule;
-
-//   // Convert startHour and startMinute to 24-hour format
-//   let hour = parseInt(startHour, 10);
-//   const minute = parseInt(startMinute, 10);
-
-//   if (period === 'PM' && hour < 12) {
-//     hour += 12;
-//   } else if (period === 'AM' && hour === 12) {
-//     hour = 0; // Midnight case
-//   }
-
-//   // Schedule the task using node-cron
-//   cron.schedule(`${minute} ${hour} * * *`, () => {
-//     console.log(`Task started at ${startHour}:${startMinute} ${period}`);
-
-//     // Calculate the duration in milliseconds
-//     const duration = (durationHours * 60 * 60 * 1000) + (durationMinutes * 60 * 1000);
-
-//     // Perform your scheduled task here
-//     setTimeout(() => {
-//       console.log('Task ended after specified duration');
-//     }, duration);
-//   });
-// });
-// })
-
-
-// async () => {
-//   console.log("Database & tables created!");
-
-//   // Start the schedules
-//  const data= await startSchedules();
-//  console.log(data)
-// }
-
-
-// initializeSchedules().then(() => {
-//   startScheduledTasks();
-// }).catch(error => {
-//   console.error('Failed to initialize schedules:', error);
-// });
-
+  // SCHEDULER
 // initializeSchedules().catch(error => {
 //   console.error('Failed to initialize schedules:', error);
 // });
 
-///END OF SCHEDULER
+
+// // Load SSL certificate and key
+// const sslOptions = {
+//   key: fs.readFileSync('./certificate/cedarplatform_io.key'),
+//   cert: fs.readFileSync('./certificate/cedarplatform_io.crt')
+// };
 
 
-app.listen(process.env.PORT || 4400,async () => {
-  console.log(`Server is running on port: ${process.env.PORT}`);
-  try {
-    // await setupScheduledTasks();//
-  } catch (error) {
-    console.log(error)
-  }
+const PORT = process.env.PORT || 4400;
+
+// Start the HTTPS server
+// https.createServer(sslOptions, app).listen(PORT, async () => {
+//   console.log(`Server is running on https://localhost:${PORT}`);
+//   try {
+//     // await setupScheduledTasks();//
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
+
+
+
+
+// // Path to your SSL certificate files
+const privateKey = fs.readFileSync('/home/ubuntu/cedarplatform_io.key', 'utf8');
+const certificate = fs.readFileSync('/home/ubuntu/cedarplatform_io.crt', 'utf8');
+const credentials = {
+  key: privateKey,
+  cert: certificate
+};
+
+
+// Create the HTTPS server
+const httpsServer = https.createServer(credentials, app);
+
+
+httpsServer.listen(4400, () => {
+  console.log('HTTPS Server running on port 4400');
 });
+
+
+// app.listen(process.env.PORT || 4400,async () => {
+//   console.log(`Server is running on port: ${process.env.PORT}`);
+//   try {
+//     // await setupScheduledTasks();//
+//   } catch (error) {
+//     console.log(error)
+//   }
+// });
 
 
 
