@@ -54,7 +54,7 @@ async function checkUserActivity() {
     //   );
     // }
 
-    const inactiveThreshold = 100 * 60 * 1000; // 100 minutes in milliseconds
+    const inactiveThreshold = 10 * 60 * 1000; // 100 minutes in milliseconds
     const cutoffTime = new Date(Date.now() - inactiveThreshold);
 
     // Find users who have not been active since cutoffTime and are logged in
