@@ -8,6 +8,7 @@ const User = require("../models/Users.js");
 const UserRole = require("../models/userRole.js");
 const sequelize = require('../database/db');
 const ScheduleCapacity = require("../models/scheduleCapacity.js");
+const { initializeSchedules } = require('../scheduleCapacity.js');
 
 const { setupScheduledTasks } = require('../scheduler.js'); 
 
@@ -62,7 +63,10 @@ exports.addSchedule = async (req, res,next) => {
         isEnabled: isEnabled || false,
       });
    // Setup scheduled tasks including the new schedule
-   await setupScheduledTasks();
+    // Reload schedules after update
+    await initializeSchedules();
+  //  await setupScheduledTasks();
+
       res.status(201).json(newSchedule);
     } catch (error) {
       console.error('Error creating schedule:', error);
@@ -109,7 +113,8 @@ exports.updateSchedule = async (req, res, next) => {
   
       // Update the schedule
      const updatedSchedule=   await scheduleCapacity.update(updates);
-  
+      // Reload schedules after update
+    await initializeSchedules();
       res.status(200).json({
         message: "Schedule updated successfully",
         data:updatedSchedule

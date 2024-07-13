@@ -9,10 +9,10 @@ async function checkUserActivity() {
   try {
     // No active users found, proceed with checking schedules
 
-    // const currentHour = new Date().getHours();
-    // const currentMinute = new Date().getMinutes();
-    // const currentTimeInMinutes = currentHour * 60 + currentMinute;
-    // const currentTime = `${currentHour}:${currentMinute}`;
+    const currentHour = new Date().getHours();
+    const currentMinute = new Date().getMinutes();
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+    const currentTime = `${currentHour}:${currentMinute}`;
 
     // // Fetch all enabled schedules from the database
     // const schedules = await ScheduleCapacity.findAll({
@@ -69,6 +69,56 @@ async function checkUserActivity() {
       console.log("There are active users.");
       console.log(cutoffTime);
     } else {
+
+   ///////
+
+     const schedules = await ScheduleCapacity.findAll({
+      where: { isEnabled: true },
+        });
+
+    const activeSchedule = schedules.find((schedule) => {
+      const { startHour, startMinute, period, durationHours, durationMinutes } =
+        schedule;
+
+      let scheduleStartTime =
+        parseInt(startHour, 10) * 60 + parseInt(startMinute, 10);
+      if (period === "PM" && parseInt(startHour, 10) < 12) {
+        scheduleStartTime += 12 * 60;
+      } else if (period === "AM" && parseInt(startHour, 10) === 12) {
+        scheduleStartTime -= 12 * 60;
+      }
+
+      const endTimeInMinutes =
+        scheduleStartTime + durationHours * 60 + durationMinutes;
+
+      return (
+        currentTimeInMinutes >= scheduleStartTime &&
+        currentTimeInMinutes < endTimeInMinutes
+      );
+    });
+
+    if (activeSchedule) {
+      console.log(
+        `Current time (${currentTime}) is within schedule ${activeSchedule.id}.`
+      );
+      console.log(
+        `Scheduled start time: ${activeSchedule.startHour}:${activeSchedule.startMinute} ${activeSchedule.period}`
+      );
+      // Perform actions based on the active schedule
+    } else {
+      console.log(
+        `Current time (${currentTime}) is not within any active schedule.`
+      );
+    }
+
+
+
+
+   //////////
+
+
+
+
       const checkCapacity = await Capacity.findOne({
         where: { selectedCapacity: "superTenant" },
       });
@@ -84,7 +134,7 @@ async function checkUserActivity() {
         where: { selectedCapacity: "superTenant" },
       });
 
-      if (!foundCapacity.isActive) {
+      if (!foundCapacity.isActive  || activeSchedule) {
         console.log("Capacity is already suspended");
       } else {
         const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(

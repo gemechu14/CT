@@ -114,9 +114,9 @@ app.use(
 
 
   // SCHEDULER
-// initializeSchedules().catch(error => {
-//   console.error('Failed to initialize schedules:', error);
-// });
+initializeSchedules().catch(error => {
+  console.error('Failed to initialize schedules:', error);
+});
 
 
 
