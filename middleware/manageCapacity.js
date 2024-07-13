@@ -61,7 +61,7 @@ async function checkUserActivity() {
     const inactiveUsers = await User.findAll({
       where: {
         isLoggedIn: true,
-        last_active_at: { [Op.lte]: cutoffTime },
+        last_active_at: { [Op.gte]: cutoffTime },
       },
     });
 
