@@ -1,3 +1,4 @@
+const User = require("../models/Users.js");
 const ThemeLayout = require("../models/themeLayout.js");
 const createError = require("../utils/errorResponse.js");
 
@@ -59,7 +60,6 @@ exports.createThemeLayout = async (req, res, next) => {
 
 
   //UPDATE THEME LAYOUT
-
   exports.updateThemeLayout = async (req, res, next) => {
     try {
       const { layout } = req.body;
@@ -67,16 +67,16 @@ exports.createThemeLayout = async (req, res, next) => {
       if (!layout ) {
         return next(createError.createError(400, 'field layout  is required for update'));
       }
-  
+      const user= await User.findByPk(Number(req.user.id));
       // Find the existing ThemeLayout record
       const themeLayout= await ThemeLayout.findOne({
-        where: {TenantId: req.user.currentTenant}
+        where: {TenantId: Number(user.currentTenant)}
     })
 
       if (!themeLayout) {
         const newThemeLayout = await ThemeLayout.create({
             layout,
-            TenantId: req.user.currentTenant
+            TenantId: user.currentTenant
           });
 
           return res.status(201).json({ message: 'ThemeLayout created successfully', themeLayout: newThemeLayout });
@@ -87,7 +87,7 @@ exports.createThemeLayout = async (req, res, next) => {
       if (layout) {
         updates.layout = layout;
       }
-      updates.TenantId= req.user.currentTenant
+      updates.TenantId= user.currentTenant
   
       // Perform the update
       themalayout = await themeLayout.update(updates);

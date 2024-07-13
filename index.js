@@ -17,6 +17,8 @@ const sessionManagement = require('./middleware/sessionManagement.js');
 const cron = require('node-cron');
 const ScheduleCapacity = require('./models/scheduleCapacity.js');
 const { initializeSchedules, startScheduledTasks } = require('./scheduleCapacity.js');
+
+const manageCapacity= require("./middleware/manageCapacity.js")
 // const startSchedules = require('./');
 
 app.use(cookieParser());
@@ -117,26 +119,48 @@ app.use(
 // });
 
 
-// // Load SSL certificate and key
-// const sslOptions = {
-//   key: fs.readFileSync('./certificate/cedarplatform_io.key'),
-//   cert: fs.readFileSync('./certificate/cedarplatform_io.crt')
-// };
 
 
-const PORT = process.env.PORT || 4400;
-
-// Start the HTTPS server
-// https.createServer(sslOptions, app).listen(PORT, async () => {
-//   console.log(`Server is running on https://localhost:${PORT}`);
-//   try {
-//     // await setupScheduledTasks();//
-//   } catch (error) {
-//     console.log(error);
-//   }
-// });
 
 
+
+
+
+const { getEmbeddedTimeout } = require("./utils/embaddedTimeout.js");
+let cronJob = null;
+
+async function scheduleTask() {
+    try {
+        // const intervalInMinutes1 = await getEmbeddedTimeout();
+        const intervalInMinutes =10;
+        const cronExpression = `*/${intervalInMinutes} * * * *`;
+        // const cronExpression = '1';
+
+        if (cronJob) {
+            cronJob.stop(); // Stop the previous cron job if it exists
+        }
+
+        cronJob = cron.schedule(cronExpression, async () => {
+            try {
+                await manageCapacity.checkUserActivity();
+                console.log("User activity checked.");
+            } catch (error) {
+                console.error("Error in scheduled task:", error);
+            }
+        });
+
+        console.log(`Scheduler started with an interval of ${intervalInMinutes} minutes.`);
+    } catch (error) {
+        console.error("Error starting scheduler:", error);
+        setTimeout(scheduleTask, 10 * 60 * 1000); // Retry in 5 minutes in case of error
+    }
+}
+
+scheduleTask();
+
+
+
+////////###########################################AWS##########################################///////
 
 
 // // Path to your SSL certificate files
@@ -147,7 +171,6 @@ const credentials = {
   cert: certificate
 };
 
-
 // Create the HTTPS server
 const httpsServer = https.createServer(credentials, app);
 
@@ -155,8 +178,11 @@ const httpsServer = https.createServer(credentials, app);
 httpsServer.listen(4400, () => {
   console.log('HTTPS Server running on port 4400');
 });
+////////###########################################AWS##########################################///////
 
 
+
+////////###################################LOCAL SERVER########AWS##########################################///////
 // app.listen(process.env.PORT || 4400,async () => {
 //   console.log(`Server is running on port: ${process.env.PORT}`);
 //   try {
@@ -165,7 +191,7 @@ httpsServer.listen(4400, () => {
 //     console.log(error)
 //   }
 // });
-
+////////###################################LOCAL SERVER########AWS##########################################///////
 
 
  

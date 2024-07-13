@@ -4,7 +4,7 @@ const axios = require('axios');
 // const msRestNodeAuth = require('ms-rest-nodeauth');
 const Capacity = require('../models/capacity');
 
-const activateCapacityIfNeeded = async () => {
+const activateCapacity = async () => {
   try {
     // Check if 'superTenant' capacity is already activated
     let capacity = await Capacity.findOne({ where: { selectedCapacity: 'superTenant' } });
@@ -65,4 +65,4 @@ const activateCapacityIfNeeded = async () => {
   }
 };
 
-module.exports = activateCapacityIfNeeded;
+module.exports = activateCapacity;

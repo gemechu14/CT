@@ -44,6 +44,9 @@ function scheduleTask(scheduleInstance) {
   console.log('Current time:',moment().tz('Africa/Nairobi').format('YYYY-MM-DD hh:mm:ss a'));
   console.log('Is scheduled time after current momen    t?', scheduledTime.isAfter(moment().tz('Africa/Nairobi')));
   // Schedule job only if scheduled time is in the future
+
+
+  
   if (scheduledTime.isAfter(moment())) {
     schedule.scheduleJob(scheduleInstance.id.toString(), scheduledTime.toDate(), () => {
       executeScheduledTask(scheduleInstance);

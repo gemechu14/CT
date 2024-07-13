@@ -22,7 +22,7 @@ const sendMailAsync = promisify(transporter.sendMail.bind(transporter));
 const sendEmail = async (options) => {
   try {
     const mailOptions = {
-      from: process.env.EMAIL,
+      from: `<Cedar Street>${process.env.EMAIL}`,
       to: options.email,
       subject: options.subject,
       text: options.text,

@@ -3,26 +3,70 @@ const { Op } = require("sequelize");
 const msRestNodeAuth = require("@azure/ms-rest-nodeauth");
 const axios = require("axios");
 const Capacity = require("../models/capacity.js");
-const express =require("express")
-
-// const PowerBiCapacity = require('../models/powerBiCapacity');
+const ScheduleCapacity = require("../models/scheduleCapacity.js");
 
 async function checkUserActivity() {
   try {
-    const inactiveThreshold = 100 * 60 * 1000; // 1 minute in milliseconds
+    // No active users found, proceed with checking schedules
+
+    // const currentHour = new Date().getHours();
+    // const currentMinute = new Date().getMinutes();
+    // const currentTimeInMinutes = currentHour * 60 + currentMinute;
+    // const currentTime = `${currentHour}:${currentMinute}`;
+
+    // // Fetch all enabled schedules from the database
+    // const schedules = await ScheduleCapacity.findAll({
+    //   where: { isEnabled: true },
+    // });
+
+    // const activeSchedule = schedules.find((schedule) => {
+    //   const { startHour, startMinute, period, durationHours, durationMinutes } =
+    //     schedule;
+
+    //   let scheduleStartTime =
+    //     parseInt(startHour, 10) * 60 + parseInt(startMinute, 10);
+    //   if (period === "PM" && parseInt(startHour, 10) < 12) {
+    //     scheduleStartTime += 12 * 60;
+    //   } else if (period === "AM" && parseInt(startHour, 10) === 12) {
+    //     scheduleStartTime -= 12 * 60;
+    //   }
+
+    //   const endTimeInMinutes =
+    //     scheduleStartTime + durationHours * 60 + durationMinutes;
+
+    //   return (
+    //     currentTimeInMinutes >= scheduleStartTime &&
+    //     currentTimeInMinutes < endTimeInMinutes
+    //   );
+    // });
+
+    // if (activeSchedule) {
+    //   console.log(
+    //     `Current time (${currentTime}) is within schedule ${activeSchedule.id}.`
+    //   );
+    //   console.log(
+    //     `Scheduled start time: ${activeSchedule.startHour}:${activeSchedule.startMinute} ${activeSchedule.period}`
+    //   );
+    //   // Perform actions based on the active schedule
+    // } else {
+    //   console.log(
+    //     `Current time (${currentTime}) is not within any active schedule.`
+    //   );
+    // }
+
+    const inactiveThreshold = 100 * 60 * 1000; // 100 minutes in milliseconds
     const cutoffTime = new Date(Date.now() - inactiveThreshold);
 
     // Find users who have not been active since cutoffTime and are logged in
     const inactiveUsers = await User.findAll({
       where: {
         isLoggedIn: true,
-        last_active_at: { [Op.gte]: cutoffTime },
+        last_active_at: { [Op.lte]: cutoffTime },
       },
     });
 
     if (inactiveUsers.length > 0) {
       console.log("There are active users.");
-      // console.log(inactiveUsers.last_active_at)
       console.log(cutoffTime);
     } else {
       const checkCapacity = await Capacity.findOne({
@@ -41,8 +85,7 @@ async function checkUserActivity() {
       });
 
       if (!foundCapacity.isActive) {
-        console.log("Capacity is already suspended")
-        // next();
+        console.log("Capacity is already suspended");
       } else {
         const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
           process.env.CLIENT_ID,
@@ -66,24 +109,19 @@ async function checkUserActivity() {
             },
           }
         );
-        if(response.status === 200 || response.status === 201 || response.status === 202){
-            await foundCapacity.update({isActive:false})
-          }
-      
 
-        
+        if (response.status === 200 || response.status === 201 || response.status === 202) {
+          await foundCapacity.update({ isActive: false });
+        }
+
         console.log(response.status);
         console.log("Suspended successfully.");
       }
     }
-
-   
   } catch (err) {
     console.error("Error checking user activity:", err);
   }
 }
-
-
 
 module.exports = {
   checkUserActivity,

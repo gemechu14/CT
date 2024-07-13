@@ -140,6 +140,7 @@ async function initializeSchedules() {
           const duration = (durationHours * 60 * 60 * 1000) + (durationMinutes * 60 * 1000);
           console.log(`Task duration: ${duration} ms`);
           setTimeout(async () => {
+            
             const endTaskTime = new Date();
             console.log(`Task ended after specified duration (Actual end time: ${endTaskTime.toISOString()})`);
 

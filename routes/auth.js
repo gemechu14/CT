@@ -10,7 +10,7 @@ const { REDIRECT_URI, POST_LOGOUT_REDIRECT_URI } = require('./authConfig.js');
 
 const router = express.Router();
 
-router.get('/signin', authProvider.login({
+router.get('asdfghg/signin', authProvider.login({
     scopes: [],
     redirectUri:  'http://localhost:4400/auth1/redirect',
     successRedirect: '/'
