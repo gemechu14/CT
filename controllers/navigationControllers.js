@@ -414,21 +414,59 @@ exports.updateNavigation = async (req, res, next) => {
     const currentTeamIds = currentTeams?.map((reportTeam) => reportTeam.TeamId);
 
     // Extract updated TeamIds from NavSecurity
-    const updatedTeamIds = NavSecurity?.map((item) => item.GroupId);
 
-    // Find TeamIds to delete (present in currentTeamIds but not in updatedTeamIds)
-    const teamsToDelete = currentTeamIds.filter(
-      (teamId) => !updatedTeamIds.includes(teamId)
-    );
 
-    // Delete ReportTeam records where TeamId is in teamsToDelete
-    await ReportTeam.destroy({
-      where: {
-        NavigationContentId: navigationId,
-        TeamId: teamsToDelete,
-      },
-      transaction,
+    if(NavSecurity){
+
+
+      const updatedTeamIds = NavSecurity?.map((item) => item.GroupId);
+
+      // Find TeamIds to delete (present in currentTeamIds but not in updatedTeamIds)
+      const teamsToDelete = currentTeamIds.filter(
+        (teamId) => !updatedTeamIds.includes(teamId)
+      );
+  
+      // Delete ReportTeam records where TeamId is in teamsToDelete
+      await ReportTeam.destroy({
+        where: {
+          NavigationContentId: navigationId,
+          TeamId: teamsToDelete,
+        },
+        transaction,
+      });
+
+
+
+        // Create new ReportTeam records for new TeamIds in updated NavSecurity
+    const createReportTeamPromises = NavSecurity?.map(async (item) => {
+      const { GroupId, CanEdit, RolesValidation } = item;
+
+      // Check if TeamId already exists in currentTeamIds
+      if (!currentTeamIds.includes(GroupId)) {
+        const team = await Team.findByPk(GroupId, { transaction });
+        if (!team) {
+          throw createError.createError(
+            404,
+            `Team with ID ${GroupId} not found`
+          );
+        }
+
+        await ReportTeam.create(
+          {
+            NavigationContentId: navigationId,
+            TeamId: GroupId,
+            CanEdit,
+            RolesValidation,
+          },
+          { transaction }
+        );
+      }
     });
+
+    await Promise.all(createReportTeamPromises);
+
+    }
+    
 
     // Update existing ReportTeam records if CanEdit or RolesValidation has changed
     const updateReportTeamPromises = currentTeams.map(async (reportTeam) => {
@@ -456,33 +494,7 @@ exports.updateNavigation = async (req, res, next) => {
 
     await Promise.all(updateReportTeamPromises);
 
-    // Create new ReportTeam records for new TeamIds in updated NavSecurity
-    const createReportTeamPromises = NavSecurity.map(async (item) => {
-      const { GroupId, CanEdit, RolesValidation } = item;
-
-      // Check if TeamId already exists in currentTeamIds
-      if (!currentTeamIds.includes(GroupId)) {
-        const team = await Team.findByPk(GroupId, { transaction });
-        if (!team) {
-          throw createError.createError(
-            404,
-            `Team with ID ${GroupId} not found`
-          );
-        }
-
-        await ReportTeam.create(
-          {
-            NavigationContentId: navigationId,
-            TeamId: GroupId,
-            CanEdit,
-            RolesValidation,
-          },
-          { transaction }
-        );
-      }
-    });
-
-    await Promise.all(createReportTeamPromises);
+  
 
     // Update the NavigationContent with other attributes
     await navigation.update(
