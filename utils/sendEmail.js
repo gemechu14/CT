@@ -8,6 +8,7 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL,
     pass: process.env.EMAIL_PASSWORD,
+
   },
   tls: {
     rejectUnauthorized: false, // Disable certificate validation (use with caution)
@@ -22,7 +23,8 @@ const sendMailAsync = promisify(transporter.sendMail.bind(transporter));
 const sendEmail = async (options) => {
   try {
     const mailOptions = {
-      from: `<Cedar Street>${process.env.EMAIL}`,
+      // from: `<Cedar Street>${process.env.EMAIL}`,
+      from: `"Cedar Platform" <${process.env.EMAIL}>`,
       to: options.email,
       subject: options.subject,
       text: options.text,

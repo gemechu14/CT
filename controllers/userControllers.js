@@ -9,7 +9,9 @@ const Address = require("../models/address.js");
 const { where } = require("sequelize");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const sendEmail= require("../utils/sendEmail.js")
+const sendEmail= require("../utils/sendEmail.js");
+const Team = require("../models/teams.js");
+const UserTeam = require("../models/userTeam.js");
 
 
 // GET ALL USER
@@ -69,7 +71,8 @@ exports.createUser = async (req, res, next) => {
     const {
       firstName,
       lastName,
-      dateOfBirth,
+      // dateOfBirth,
+      teamId,
       email,
       password,
       phoneNumber,
@@ -82,6 +85,9 @@ exports.createUser = async (req, res, next) => {
       // country,
       // postalCode,
     } = req.body;
+
+   
+
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
@@ -104,12 +110,14 @@ exports.createUser = async (req, res, next) => {
     }
     const user = await User.findByPk(req.user.id);
 
+ 
+
     const newUser = await User.create(
       {
         firstName,
         lastName,
         email,
-        dateOfBirth,
+        // dateOfBirth,
         password,
         phoneNumber,
         RoleId: roleId ?? defaultRole.id,
@@ -117,6 +125,28 @@ exports.createUser = async (req, res, next) => {
       },
       { transaction }
     );
+
+
+/////////CREATE TEAM////////////////////////
+
+if(teamId){
+  const teams = await Team.findOne({where:{id:Number(teamId), TenantId: 11}});
+  if(!teams){
+    return next(createError.createError(404,"The team not found in the tenant"))
+  }
+  else{
+
+    const userTeam = await UserTeam.create({
+      UserId: newUser.id,
+      TeamId: teamId,
+    },{transaction});
+}
+}
+///////////////////////////////////////////
+
+
+    //check team
+   
 
     // await UserRole.create(
     //   {
@@ -137,21 +167,18 @@ exports.createUser = async (req, res, next) => {
     const text = `Dear User,\n\nWelcome to Cedarstreet! Your account has been successfully created.\n\nEmail: ${newUser.email}\nPassword: ${newUser.password}\n\nThank you!`;
     await sendEmail({
       email: newUser.email,
-      subject: "Welcome to Cedarstreet",
+      subject: "Welcome to Cedar Platform",
       text,
       html:`<p>Dear ${newUser.firstName},</p>
-         <p>Welcome to Cedarstreet! Your account has been successfully created.</p>
+         <p>Your account has been successfully created.</p>
          <p><strong>Email:</strong> ${newUser.email}</p>
          <p><strong>Password:</strong> ${password}</p>
-         <p>You can log in to Cedarstreet <a href="https://cedarstreet.vercel.app/">here</a>.</p>
+         <p>You can log in to Cedar platform <a href="https://cedarplatform.io/">here</a>.</p>
          <p>Thank you!</p>`    },
          {transaction});
 
   
-
-
-
-    
+   
     await transaction.commit();
     res.status(201).json(newUser);
   } catch (error) {
@@ -223,7 +250,7 @@ exports.assignRoleToUser = async (req, res, next) => {
 exports.updateUser = async (req, res, next) => {
   try {
     //insert required field
-    const { firstName, lastName, email,dateOfBirth, phoneNumber, roleId } =
+    const { firstName, lastName, email, phoneNumber, roleId } =
       req.body;
     const updates = {};
     const { id } = req.params;
@@ -237,9 +264,9 @@ exports.updateUser = async (req, res, next) => {
     if (firstName) {
       updates.firstName = firstName;
     }
-    if (dateOfBirth) {
-      updates.dateOfBirth = dateOfBirth;
-    }
+    // if (dateOfBirth) {
+    //   updates.dateOfBirth = dateOfBirth;
+    // }
     if (lastName) {
       updates.lastName = lastName;
     }
@@ -276,7 +303,7 @@ exports.updateUser = async (req, res, next) => {
 exports.updateUserProfile = async (req, res, next) => {
   try {
     //insert required field
-    const { firstName, lastName, email,dateOfBirth, phoneNumber, roleId } =
+    const { firstName, lastName, email, phoneNumber, roleId } =
       req.body;
     const updates = {};
     const { id } = req.params;
@@ -290,9 +317,9 @@ exports.updateUserProfile = async (req, res, next) => {
     if (firstName) {
       updates.firstName = firstName;
     }
-    if (dateOfBirth) {
-      updates.dateOfBirth = dateOfBirth;
-    }
+    // if (dateOfBirth) {
+    //   updates.dateOfBirth = dateOfBirth;
+    // }
     if (lastName) {
       updates.lastName = lastName;
     }

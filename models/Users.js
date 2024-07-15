@@ -25,10 +25,10 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  dateOfBirth:{
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
+  // dateOfBirth:{
+  //   type: DataTypes.DATE,
+  //   allowNull: false,
+  // },
 
   isSuperTenant:{
     type:DataTypes.BOOLEAN,
