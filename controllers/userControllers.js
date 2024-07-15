@@ -130,9 +130,9 @@ exports.createUser = async (req, res, next) => {
 /////////CREATE TEAM////////////////////////
 
 if(teamId){
-  const teams = await Team.findOne({where:{id:Number(teamId), TenantId: 11}});
+  const teams = await Team.findOne({where:{id:Number(teamId)}});
   if(!teams){
-    return next(createError.createError(404,"The team not found in the tenant"))
+    return next(createError.createError(404,"The team not found"))
   }
   else{
 
