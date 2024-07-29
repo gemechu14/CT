@@ -12,25 +12,25 @@ const router = express.Router();
 //     themeBrandingController.getAllThemeBranding);
 router.get("/", 
         middleware.protect,
-        middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),
+        middleware.restrictTo(['Admin','SuperAdmin','Read Only']),
 themeColorController.getCurrentThemeColors);
 
 
 router.post("/", 
     middleware.protect,
-    middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),
+    middleware.restrictTo(['Admin','SuperAdmin','Read Only']),
    
     themeColorController.createThemeColor);
 
 
     router.put("/", 
         middleware.protect,
-        middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),       
+        middleware.restrictTo(['Admin','SuperAdmin','Read Only']),       
         themeColorController.updateThemeColor);
 
 
         router.put("/reset", 
                 middleware.protect,
-                middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),       
+                middleware.restrictTo(['Admin','SuperAdmin','Read Only',]),       
                 themeColorController.resetThemeColor);
 module.exports = router;

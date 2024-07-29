@@ -43,6 +43,16 @@ exports.protect = async (req, res, next) => {
         createError.createError(401, `currentUserdoes not longer exists `)
       );
     } else {
+
+//////////////////////////////////////////////////////////////////////////////////
+// const lastActiveThreshold = 1 * 60 * 1000; // 10 minutes
+// if (new Date() - new Date(currentUser.last_active_at) > lastActiveThreshold) {
+//   // Update last_active_at field only if more than 10 minutes have passed
+//   await currentUser.update({ last_active_at: new Date() });
+// }
+////////////////////////////////////////////////////////////////////////////////
+
+      
       await currentUser.update({ last_active_at: new Date() });
       req.user = currentUser;
 

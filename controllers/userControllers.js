@@ -12,6 +12,7 @@ const jwt = require("jsonwebtoken");
 const sendEmail= require("../utils/sendEmail.js");
 const Team = require("../models/teams.js");
 const UserTeam = require("../models/userTeam.js");
+const { Op } = require('sequelize');
 
 
 // GET ALL USER
@@ -534,3 +535,67 @@ console.log(error)
 return next(createError.createError(500,"Internal server error"))    
   }
 }
+
+//ASSIGN SUPER TENANT
+exports.assignSuperTenant = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const { userId} = req.body;
+
+    const user = await User.findByPk(Number(userId));
+
+    if (!user) {
+      return next(createError.createError(404, "User not found "));
+    }
+
+
+    if(user.isSuperTenant){
+      return next(createError.createError(400,"User already supertenant"))
+    }
+
+    const userTenantRecords = await UserTenant.findAll({
+      where: { UserId:  Number(user.id) },
+      attributes: ['TenantId'],
+      // transaction
+    })
+
+    const userTenantIds = userTenantRecords.map(record => record.TenantId);
+
+
+    // Fetch tenants that are not associated with the user
+    const newTenants = await Tenant.findAll({
+      where: {
+        id: {
+          [Op.notIn]: userTenantIds
+        }
+      },
+      // transaction
+    });
+
+
+
+
+///ASSSIGN USER TO TENANT
+    const newUserTenants = newTenants.map(tenant => ({
+      UserId: user.id,
+      TenantId: tenant.id 
+    }));
+    
+
+    if (newUserTenants.length > 0) {
+      await UserTenant.bulkCreate(newUserTenants, { transaction });
+    }
+
+
+    await user.update({ isSuperTenant: true },transaction);
+
+    
+    await transaction.commit();
+    res.status(200).json({ message: "User assigned  successfully" });
+  } catch (error) {
+
+    // await transaction.rollback();
+    console.log(error);
+    return next(createError.createError(500, "Internal server Error"));
+  }
+};

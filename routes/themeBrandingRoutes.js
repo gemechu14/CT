@@ -11,12 +11,12 @@ const router = express.Router();
 //     themeBrandingController.getAllThemeBranding);
 router.get("/", 
         middleware.protect,
-        middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),
+        middleware.restrictTo(['Admin','SuperAdmin','Read Only']),
         themeBrandingController.getCurrentThemeBranding);
 
 router.post("/", 
             middleware.protect,
-            middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),
+            middleware.restrictTo(['Admin','SuperAdmin','Read Only']),
             upload.fields([
                 { name: 'logoImage', maxCount: 1 },
                 { name: 'siteFaviconImage', maxCount: 1 },
@@ -26,7 +26,7 @@ router.post("/",
 
  router.put("/", 
                 middleware.protect,
-                middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),
+                middleware.restrictTo(['Admin','SuperAdmin','Read Only']),
                 upload.fields([
                     { name: 'logoImage', maxCount: 1 },
                     { name: 'siteFaviconImage', maxCount: 1 },

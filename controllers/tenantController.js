@@ -419,3 +419,31 @@ exports.switchTenant = async (req, res, next) => {
     return next(createError.createError(500, "Internal server Error"));
   }
 };
+
+
+exports.suspendTenant= async(req,res,next)=>{
+  try {
+    const {tenantId}=req.body;
+    const tenants= await Tenant.findOne({where:{id: Number(tenantId)}})
+    if(!tenants){
+      return next(createError.createError(404,"Tenant not found"))
+    }
+    // return res.json(tenants.isActive)
+    if(!tenants?.isActive){
+      return next(createError.createError(400,"Tenant already suspended"))
+
+    }
+
+    const result = await tenants.update({isActive:"false"});
+
+    res.status(200).json({
+      message: "suspended successfully",
+      // data: result,
+    });
+    
+  } catch (error) {
+    console.log(error);
+    // await transaction.rollback();
+    return next(createError.createError(500, "Internal server Error"));
+  }
+}

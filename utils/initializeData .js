@@ -26,9 +26,10 @@ const createError=require("./errorResponse.js")
 const initializeData = async (req, res, next) => {
   const roles = [
     { name: 'Admin', description: 'Administrator role with full access' },
-    { name: 'Read/Write', description: 'Read and write access' },
+    { name: 'SuperAdmin', description: 'Administrator role with full access' },
     { name: 'Read Only', description: 'Read-only access' },
-    { name: 'Power', description: 'Power user with extended privileges' },
+    // { name: 'Read/Write', description: 'Read and write access' },
+    // { name: 'Power', description: 'Power user with extended privileges' },
   ];
   
   try {

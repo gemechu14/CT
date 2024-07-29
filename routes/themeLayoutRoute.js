@@ -6,13 +6,13 @@ const router = express.Router();
 router.get(
   "/",
   middleware.protect,
-  middleware.restrictTo(["Admin", "Power", "Read Only", "Read/Write"]),
+  middleware.restrictTo(["Admin", "SuperAdmin", "Read Only"]),
   themeLayoutController.getCurrentLayout
 );
 router.post(
   "/",
   middleware.protect,
-  middleware.restrictTo(["Admin", "Power", "Read Only", "Read/Write"]),
+  middleware.restrictTo(["Admin", "SuperAdmin", "Read Only"]),
 
   themeLayoutController.createThemeLayout
 );
@@ -21,7 +21,7 @@ router.post(
 router.put(
     "/",
     middleware.protect,
-    middleware.restrictTo(["Admin", "Power", "Read Only", "Read/Write"]),
+    middleware.restrictTo(["Admin", "SuperAdmin", "Read Only"]),
   
     themeLayoutController.updateThemeLayout
   );

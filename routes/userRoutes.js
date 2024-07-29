@@ -27,6 +27,19 @@ router.put(
   userController.assignRoleToUser
 );
 
+
+
+
+router.put(
+  "/assign-supertenant",
+  middleware.protect,
+  middleware.restrictToSuperTenant,
+  // middleware.restrictTo(["Power"]),
+  userController.assignSuperTenant
+);
+
+
+
 router.put(
   "/change-status/",
   middleware.protect,

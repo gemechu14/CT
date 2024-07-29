@@ -15,6 +15,11 @@ router.put(
   middleware.protect,
   tenantControllers.assingToTenant
 );
+router.put(
+  "/suspend-tenant",
+  middleware.protect,
+  tenantControllers.suspendTenant
+);
 router.get(
   "/",
   middleware.protect,

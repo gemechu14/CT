@@ -11,7 +11,7 @@ router.get("/:id",middleware.protect,
 
 router.post("/", 
 middleware.protect,
-middleware.restrictTo(['Admin']),
+middleware.restrictTo(['Admin','SuperAdmin']),
 navigationController.createNavigation);
 
 router.delete("/:id", 

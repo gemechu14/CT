@@ -13,6 +13,7 @@ const UserTeam = require("../models/userTeam.js");
 const NavigationContent = require("../models/navigationContent.js");
 const ReportTeam = require("../models/reportTeam.js");
 const Address = require("../models/address.js");
+const { nextTick } = require("process");
 
 // GET ALL TEAM
 exports.getAllTeams = async (req, res, next) => {
@@ -112,44 +113,108 @@ exports.createTeams = async (req, res, next) => {
 };
 
 //ASSIGN TEAM TO USER
+// exports.assignTeamToUser = async (req, res, next) => {
+//   try {
+//     const { teamId, userId } = req.body;
+
+//     const team = await Team.findByPk(Number(teamId));
+//     const user = await User.findByPk(Number(userId));
+
+//     if (!team) {
+//       return next(createError.createError(404, "Team not found "));
+//     }
+//     if (!user) {
+//       return next(createError.createError(404, "User not found "));
+//     }
+
+//     // Find existing RolePermission entries for the role
+//     const existingUserTeam = await UserTeam.findAll({
+//       where: {
+//         TeamId: teamId,
+//         UserId: userId,
+//       },
+//     });
+
+//     if (existingUserTeam.length > 0) {
+//       return next(
+//         createError.createError(400, "Team  already assigned to the User")
+//       );
+//     }
+
+//     const userTeam = await UserTeam.create({
+//       UserId: userId,
+//       TeamId: teamId,
+//     });
+//     res.status(200).json({ message: "User assigned to Team successfully" });
+//   } catch (error) {
+//     console.log(error);
+//     return next(createError.createError(500, "Internal server Error"));
+//   }
+// };
+
+
 exports.assignTeamToUser = async (req, res, next) => {
   try {
-    const { teamId, userId } = req.body;
+    const { teamId, userIds } = req.body; // Assume userIds is an array of user IDs
 
     const team = await Team.findByPk(Number(teamId));
-    const user = await User.findByPk(Number(userId));
 
     if (!team) {
-      return next(createError.createError(404, "Team not found "));
-    }
-    if (!user) {
-      return next(createError.createError(404, "User not found "));
+      return next(createError.createError(404, "Team not found"));
     }
 
-    // Find existing RolePermission entries for the role
-    const existingUserTeam = await UserTeam.findAll({
+    const users = await User.findAll({
       where: {
-        TeamId: teamId,
-        UserId: userId,
-      },
+        id: userIds
+      }
     });
 
-    if (existingUserTeam.length > 0) {
-      return next(
-        createError.createError(400, "Team  already assigned to the User")
-      );
+    if (users.length !== userIds.length) {
+      return next(createError.createError(404, "Some users not found"));
     }
 
-    const userTeam = await UserTeam.create({
-      UserId: userId,
-      TeamId: teamId,
+    const alreadyAssignedUsers = [];
+    const successfullyAssignedUsers = [];
+
+    for (const userId of userIds) {
+      // Check if the user is already assigned to the team
+      const existingUserTeam = await UserTeam.findOne({
+        where: {
+          TeamId: teamId,
+          UserId: userId,
+        },
+      });
+
+      if (existingUserTeam) {
+        alreadyAssignedUsers.push(userId);
+      } else {
+        // Assign the user to the team
+        await UserTeam.create({
+          UserId: userId,
+          TeamId: teamId,
+        });
+
+        successfullyAssignedUsers.push(userId);
+      }
+    }
+
+    if (alreadyAssignedUsers.length > 0) {
+      return res.status(400).json({
+        message: "Some users are already assigned to the team",
+        // alreadyAssignedUsers
+      });
+    }
+
+    res.status(200).json({
+      message: "Users Assigned successfully",
+      // successfullyAssignedUsers,
     });
-    res.status(200).json({ message: "User assigned to Team successfully" });
   } catch (error) {
     console.log(error);
-    return next(createError.createError(500, "Internal server Error"));
+    return next(createError.createError(500, "Internal server error"));
   }
 };
+
 
 //ASSIGN NAVIGATION  TO TEAM
 exports.assignNavigationToTeam = async (req, res, next) => {
