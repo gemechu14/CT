@@ -403,6 +403,11 @@ exports.switchTenant = async (req, res, next) => {
     if(userTenant === null){
       return next(createError.createError(404,"User is not Assigned to tenant"))
     }
+  const currentTenant= await Tenant.findOne({where:{id: tenantId}})
+
+  if(!currentTenant.isActive){
+return next(createError.createError(400,"Your tenant is currently suspended, and you cannot log in"))
+  }
 
     const data= await User.update(
       { currentTenant: tenantIds },
@@ -478,3 +483,48 @@ exports.ActivateTenant= async(req,res,next)=>{
     return next(createError.createError(500, "Internal server Error"));
   }
 }
+
+// CHANGE DEFAULT TENANT
+exports.changeDefaultTenant = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const { tenantId } = req.body;
+
+    // Find the user
+    const user = await User.findByPk(req.user.id, { transaction });
+
+    // Check if the provided tenant ID is already the default tenant
+    if (tenantId === user.defaultTenant) {
+      await transaction.rollback();
+      return next(createError.createError(400, "The specified tenant is already your default tenant"));
+    }
+
+    // Check if the user is assigned to the provided tenant
+    const tenant = await UserTenant.findOne({
+      where: { UserId: Number(req.user.id), TenantId: tenantId },
+      transaction
+    });
+
+    if (!tenant) {
+      await transaction.rollback();
+      return next(createError.createError(404, "User not assigned to the specified tenant"));
+    }
+
+    // Update the user's default tenant
+    await user.update(
+      { defaultTenant: tenantId },
+      { transaction }
+    );
+
+    await transaction.commit();
+    return res.status(200).json({
+      message: "Default tenant changed successfully"
+    });
+
+  } catch (error) {
+    await transaction.rollback();
+    console.log(error);
+    return next(createError.createError(500, "Internal server error"));
+  }
+};
+

@@ -16,6 +16,11 @@ router.put(
   tenantControllers.assingToTenant
 );
 router.put(
+  "/change-default-tenant",
+  middleware.protect,
+  tenantControllers.changeDefaultTenant
+);
+router.put(
   "/suspend-tenant",
   middleware.protect,
   tenantControllers.suspendTenant

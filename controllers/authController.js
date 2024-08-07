@@ -209,7 +209,16 @@ exports.login = async (req, res, next) => {
       ],
     });
 
-        
+      
+
+      //CHECK TENANT
+
+      const tenantStatus= await Tenant.findOne({where:{id: Number(user.defaultTenant)}})
+
+      if(!tenantStatus.isActive){
+       return next(createError.createError(400,"Your tenant is currently suspended, and you cannot log in"))
+
+      }
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return next(
