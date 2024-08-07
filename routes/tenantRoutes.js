@@ -42,7 +42,9 @@ router.post("/", middleware.protect,
   // middleware.restrictTo(['Admin','Power','Read Only','Read/Write']),
   tenantControllers.createTenant);
 
-router.put("/switch-user", middleware.protect, tenantControllers.switchTenant);
+router.put("/switch-user", 
+  middleware.protect, 
+  tenantControllers.switchTenant);
 
 router.put("/:id", middleware.protect, tenantControllers.updateTenant);
 
