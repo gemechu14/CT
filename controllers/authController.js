@@ -211,7 +211,6 @@ exports.login = async (req, res, next) => {
 
         
 
-    // return res.json(user)
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return next(
         createError.createError(

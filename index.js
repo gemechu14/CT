@@ -163,7 +163,7 @@ scheduleTask();
 ////////###########################################AWS##########################################///////
 
 
-// // Path to your SSL certificate files
+// Path to your SSL certificate files
 const privateKey = fs.readFileSync('/home/ubuntu/cedarplatform_io.key', 'utf8');
 const certificate = fs.readFileSync('/home/ubuntu/cedarplatform_io.crt', 'utf8');
 const credentials = {
@@ -175,7 +175,7 @@ const credentials = {
 const httpsServer = https.createServer(credentials, app);     
 
 
-httpsServer.listen(4400, () => {
+httpsServer.listen(4400, () => { 
   console.log('HTTPS Server running on port 4400');
 });
 

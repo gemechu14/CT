@@ -599,3 +599,57 @@ exports.assignSuperTenant = async (req, res, next) => {
     return next(createError.createError(500, "Internal server Error"));
   }
 };
+
+
+
+
+// UNASSIGN SUPER TENANT
+exports.unassignSuperTenant = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const { userId } = req.body;
+    const user = await User.findByPk(Number(userId), { transaction });
+
+    if (!user) {
+      await transaction.rollback();
+      return next(createError.createError(404, "User not found"));
+    }
+
+    if (!user.isSuperTenant) {
+      await transaction.rollback();
+      return next(createError.createError(400, "User is not a super tenant"));
+    }
+
+    // Find all UserTenant records for the user except the default tenant
+    const userTenantRecords = await UserTenant.findAll({
+      where: {
+        UserId: Number(user.id),
+        TenantId: { [Op.ne]: user.defaultTenant }
+      },
+      attributes: ['TenantId'],
+      transaction
+    });
+
+    // Remove the user from all tenants except the default tenant
+    if (userTenantRecords.length > 0) {
+      const tenantIdsToRemove = userTenantRecords.map(record => record.TenantId);
+      await UserTenant.destroy({
+        where: {
+          UserId: Number(user.id),
+          TenantId: tenantIdsToRemove
+        },
+        transaction
+      });
+    }
+
+    // Update the user's isSuperTenant status
+    await user.update({ isSuperTenant: false }, { transaction });
+
+    await transaction.commit();
+    res.status(200).json({ message: "User unassigned successfully" });
+  } catch (error) {
+    await transaction.rollback();
+    console.log(error);
+    return next(createError.createError(500, "Internal server error"));
+  }
+};

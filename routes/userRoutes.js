@@ -8,7 +8,7 @@ router.get(
   "/",
   middleware.protect,
 
-  middleware.restrictTo(["Admin", "Power", "Read Only", "Read/Write"]),
+  middleware.restrictTo(["Admin", "SuperAdmin", "Read Only"]),
   userController.getAllUser
 );
 
@@ -16,14 +16,14 @@ router.get(
 router.post(
   "/",
   middleware.protect,
-  middleware.restrictTo(["Power"]),
+  middleware.restrictTo(["SuperAdmin"]),
  
   userController.createUser
 );
 router.put(
   "/assign-role",
   middleware.protect,
-  middleware.restrictTo(["Power"]),
+  middleware.restrictTo(["SuperAdmin"]),
   userController.assignRoleToUser
 );
 
@@ -33,7 +33,7 @@ router.put(
 router.put(
   "/assign-supertenant",
   middleware.protect,
-  middleware.restrictToSuperTenant,
+  // middleware.restrictToSuperTenant,
   // middleware.restrictTo(["Power"]),
   userController.assignSuperTenant
 );
@@ -41,9 +41,18 @@ router.put(
 
 
 router.put(
+  "/unassign-supertenant",
+  middleware.protect,
+  // middleware.restrictToSuperTenant,
+  // middleware.restrictTo(["Power"]),
+  userController.unassignSuperTenant
+);
+
+
+router.put(
   "/change-status/",
   middleware.protect,
-  middleware.restrictTo(["Power"]),
+  middleware.restrictTo(["SuperAdmin"]),
   userController.activateUser
 );
 
@@ -57,7 +66,7 @@ router.put(
 router.put(
   "/resetpassword/:id",
   middleware.protect,
-  middleware.restrictTo(["Power"]),
+  middleware.restrictTo(["SuperAdmin"]),
   userController.resetPassword
 );
 
@@ -80,14 +89,14 @@ router.put(
 router.put(
   "/:id",
   middleware.protect,
-  middleware.restrictTo(["Power"]),
+  middleware.restrictTo(["SuperAdmin"]),
   userController.updateUser
 );
 router.delete(
   "/:id",
 
   middleware.protect,
-  middleware.restrictTo(["Power"]),
+  middleware.restrictTo(["SuperAdmin"]),
   userController.deleteUser
 );
 

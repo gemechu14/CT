@@ -20,6 +20,13 @@ router.put(
   middleware.protect,
   tenantControllers.suspendTenant
 );
+
+
+router.put(
+  "/activate-tenant",
+  middleware.protect,
+  tenantControllers.ActivateTenant
+);
 router.get(
   "/",
   middleware.protect,
