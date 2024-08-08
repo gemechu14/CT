@@ -24,7 +24,7 @@ exports.getAllTenants = async (req, res, next) => {
 
     if(isSuperTenant){
     const tenants = await Tenant.findAll({
-      where:{ isActive:true}
+      // where:{ isActive:true}
 
     });
 
