@@ -263,15 +263,33 @@ exports.updateTenant = async (req, res, next) => {
     return next(createError.createError(500, "Internal server Error"));
   }
 };
-//DELETE TENANT
+// //DELETE TENANT
+// exports.deleteTenant = async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     const tenants = await Tenant.findOne({ where: { id: id } });
+//     if (!tenants) {
+//       return next(createError.createError(404, "Tenant not found"));
+//     }
+//     await tenants.update({ isActive: false, where: { id } });
+
+//     res.status(200).json({ message: "Deleted successfully" });
+//   } catch (error) {
+//     console.log(error);
+//     return next(createError.createError(500, "Internal server error"));
+//   }
+// };
+
+// DELETE TENANT
 exports.deleteTenant = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const tenants = await Tenant.findOne({ where: { id: id } });
-    if (!tenants) {
+    const tenant = await Tenant.findOne({ where: { id: id } });
+    if (!tenant) {
       return next(createError.createError(404, "Tenant not found"));
     }
-    await tenants.update({ isActive: false, where: { id } });
+    
+    await tenant.destroy(); // Use destroy method to delete the tenant
 
     res.status(200).json({ message: "Deleted successfully" });
   } catch (error) {
@@ -279,7 +297,6 @@ exports.deleteTenant = async (req, res, next) => {
     return next(createError.createError(500, "Internal server error"));
   }
 };
-
 //UNASSIGN USER FROM TENANT
 
 exports.unassingUserFromTenant = async (req, res, next) => {
