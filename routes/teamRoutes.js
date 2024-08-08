@@ -9,7 +9,7 @@ router.get("/",
     middleware.protect,
     teamControllers.getAllTeams);
 
-    router.get("/unassigned-users", 
+    router.get("/unassigned-users/:teamId", 
     
         middleware.protect,
         teamControllers.getAllUnassignedUser);

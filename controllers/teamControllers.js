@@ -312,8 +312,7 @@ exports.deleteTeam = async (req, res, next) => {
 // GET ALL UNASSIGNED USERS
 exports.getAllUnassignedUser = async (req, res, next) => {
   try {
-    const { teamId } = req.body;
-
+    const { teamId } = req.params; // Access the teamId parameter from the URL
     // Step 1: Get all User IDs in the specified team
     const userTeams = await UserTeam.findAll({
       where: {
