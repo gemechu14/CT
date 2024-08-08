@@ -9,11 +9,15 @@ router.get("/",
     middleware.protect,
     teamControllers.getAllTeams);
 
-
+    router.get("/unassigned-users", 
+    
+        middleware.protect,
+        teamControllers.getAllUnassignedUser);
+    
     router.get("/users/:teamId", 
     
         middleware.protect,
-        middleware.restrictTo(['Admin','SuperAdmin','Read Only']),
+        // middleware.restrictTo(['Admin','SuperAdmin','Read Only']),
         
         teamControllers.getAllUserUnderTeam);
 router.post("/", 

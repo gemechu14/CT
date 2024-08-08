@@ -14,6 +14,9 @@ const NavigationContent = require("../models/navigationContent.js");
 const ReportTeam = require("../models/reportTeam.js");
 const Address = require("../models/address.js");
 const { nextTick } = require("process");
+const Tenant = require("../models/tenant.js");
+const { Sequelize, where } = require("sequelize");
+const UserTenant = require("../models/userTenant.js");
 
 // GET ALL TEAM
 exports.getAllTeams = async (req, res, next) => {
@@ -305,3 +308,159 @@ exports.deleteTeam = async (req, res, next) => {
     return next(createError.createError(500, "Internal server error"));
   }
 };
+
+// GET ALL UNASSIGNED USERS
+exports.getAllUnassignedUser = async (req, res, next) => {
+  try {
+    const { teamId } = req.body;
+
+    // Step 1: Get all User IDs in the specified team
+    const userTeams = await UserTeam.findAll({
+      where: {
+        TeamId: teamId,
+      },
+      attributes: ['UserId'],
+    });
+
+    const userIdsInTeam = userTeams.map(userTeam => userTeam.UserId);
+
+    // Step 2: Get all users under the current tenant
+    const allUsersUnderTenant = await UserTenant.findAll({
+      where: {
+        TenantId: req.user.currentTenant, // Filter by the current tenant
+      },
+      attributes: ['UserId'],
+    });
+
+    const userIdsUnderTenant = allUsersUnderTenant.map(userTenant => userTenant.UserId);
+
+    // Step 3: Get all users under the current tenant who are not in the selected team
+    const unassignedUsers = await User.findAll({
+      attributes: { exclude: ["password"] },
+      include: [
+        { model: Role },
+        { model: Address },
+        {
+          model: Tenant,
+          where: { id: req.user.currentTenant },
+          through: { attributes: [] }, // Filter users by the current tenant
+        },
+      ],
+      where: {
+        id: {
+          [Sequelize.Op.in]: userIdsUnderTenant, // Ensure users belong to the current tenant
+          [Sequelize.Op.notIn]: userIdsInTeam.length > 0 ? userIdsInTeam : [0], // Exclude users in the selected team
+        },
+      },
+    });
+
+    res.status(200).json(
+      unassignedUsers
+    );
+  } catch (error) {
+    return next(createError.createError(500, "Internal server error"));
+  }
+};
+
+
+// GET ALL UNASSIGNED USERS
+// exports.getAllUnassignedUser = async (req, res, next) => {
+//   try {
+//     const { teamId } = req.body;
+
+//     const checkTeam= Team.findOne({where:{TenantId: req.user.currentTenant, id: teamId}});
+
+//     if(!checkTeam){
+//       return next(createError.createError(404,"Team not found in the tenant"))
+//     }
+// console.log(req.user.currentTenant);
+
+// const getAllUserInTeAM= await UserTeam.findAll({
+//   where:{
+//     TeamId:teamId,
+//   }
+// })
+// return res.json(getAllUserInTeAM)
+//     const unassignedUsers = await User.findAll({
+//       attributes: { exclude: ["password"] },
+//       include: [
+//         { model: Role },
+//         { model: Address },
+//         {
+//           model: Tenant,
+//           where: { id: req.user.currentTenant },
+//           through: { attributes: [] }, // to exclude attributes from the join table
+//         },
+//       ],
+//       where: {
+//         '$Teams.UserTeam.TeamId$': null, // Filter out users who have a TeamId associated in the UserTeam join table
+//       },
+//       include: [
+//         {
+//           model: Team,
+//           required: false, // Include users even if they are not in a team
+//           through: {
+//             model: UserTeam,
+//             where: { TeamId: teamId },
+//           },
+//         },
+//       ],
+//     });
+
+//     res.status(200).json({
+//       status: 'success',
+//       data: {
+//         users: unassignedUsers,
+//       },
+//     });
+//   } catch (error) {
+//     console.log(error)
+//     return next(createError.createError(500, "Internal server error"));
+//   }
+// };
+
+
+// // GET ALL UNASSIGNED USERS
+// exports.getAllUnassignedUser = async (req, res, next) => {
+//   try {
+//     const { teamId } = req.body;
+
+//     const unassignedUsers = await User.findAll({
+//       attributes: { exclude: ["password"] },
+//       include: [
+//         { model: Role },
+//         { model: Address },
+//         {
+//           model: Tenant,
+//           where: { id: req.user.currentTenant },
+//           through: { attributes: [] }, // Filter users by the current tenant
+//         },
+//         {
+//           model: Team,
+//           required: false, // Include users even if they are not in a team
+//           through: {
+//             model: UserTeam,
+//             where: { TeamId: teamId },
+//           },
+//         },
+//       ],
+//       where: Sequelize.literal(`
+//         "User"."id" NOT IN (
+//           SELECT "UserTeam"."UserId"
+//           FROM "UserTeams" AS "UserTeam"
+//           WHERE "UserTeam"."TeamId" = ${teamId}
+//         )
+//       `),
+//     });
+
+//     res.status(200).json({
+//       status: 'success',
+//       data: {
+//         users: unassignedUsers,
+//       },
+//     });
+//   } catch (error) {
+//     console.log(error)
+//     return next(createError.createError(500, "Internal server error"));
+//   }
+// };
