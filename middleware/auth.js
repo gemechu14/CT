@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const user = require("../models/Users.js");
 const User = require("../models/Users.js");
 const Capacity = require("../models/capacity.js");
-const sequelize = require('../database/db');
+const sequelize = require("../database/db");
 const msRestNodeAuth = require("@azure/ms-rest-nodeauth");
 const axios = require("axios");
 const Role = require("../models/role.js");
@@ -12,7 +12,6 @@ const Role = require("../models/role.js");
 exports.protect = async (req, res, next) => {
   try {
     let token;
-
 
     if (
       req.headers.authorization &&
@@ -43,16 +42,14 @@ exports.protect = async (req, res, next) => {
         createError.createError(401, `currentUserdoes not longer exists `)
       );
     } else {
+      //////////////////////////////////////////////////////////////////////////////////
+      // const lastActiveThreshold = 1 * 60 * 1000; // 10 minutes
+      // if (new Date() - new Date(currentUser.last_active_at) > lastActiveThreshold) {
+      //   // Update last_active_at field only if more than 10 minutes have passed
+      //   await currentUser.update({ last_active_at: new Date() });
+      // }
+      ////////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////////////
-// const lastActiveThreshold = 1 * 60 * 1000; // 10 minutes
-// if (new Date() - new Date(currentUser.last_active_at) > lastActiveThreshold) {
-//   // Update last_active_at field only if more than 10 minutes have passed
-//   await currentUser.update({ last_active_at: new Date() });
-// }
-////////////////////////////////////////////////////////////////////////////////
-
-      
       await currentUser.update({ last_active_at: new Date() });
       req.user = currentUser;
 
@@ -68,9 +65,9 @@ exports.protect = async (req, res, next) => {
 exports.restrictTo = (allowedRoleNames) => {
   return async (req, res, next) => {
     try {
-    //  console.log(req.user)
+      //  console.log(req.user)
 
-          if (req?.user?.isSuperTenant) {
+      if (req?.user?.isSuperTenant) {
         return next();
       }
 
@@ -85,7 +82,7 @@ exports.restrictTo = (allowedRoleNames) => {
           )
         );
       }
-// return res.json(allowedRoleNames.includes(role.name))
+      // return res.json(allowedRoleNames.includes(role.name))
       // Check if the role name is in the allowedRoleNames array
       if (allowedRoleNames.includes(role?.name)) {
         return next();
@@ -98,7 +95,7 @@ exports.restrictTo = (allowedRoleNames) => {
         );
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return next(
         createError.createError(
           500,
@@ -108,7 +105,6 @@ exports.restrictTo = (allowedRoleNames) => {
     }
   };
 };
-
 
 //Restricted to SUPERTENANT
 exports.restrictToSuperTenant = (isSuperTenant) => {
@@ -131,22 +127,25 @@ exports.restrictToSuperTenant = (isSuperTenant) => {
 exports.checkCapacity = async (req, res, next) => {
   // const transaction = await sequelize.transaction();
   try {
-  
-console.log("dataaa ")
-    const capacity = await Capacity.findOne({where: {selectedCapacity: 'superTenant'}});
+    console.log("dataaa ");
+    const capacity = await Capacity.findOne({
+      where: { selectedCapacity: "superTenant" },
+    });
     // return res.json(capacity.length)
     if (capacity === null) {
-
       await Capacity.create({
-        selectedCapacity:"superTenant",
-        embeddedTimeout:100,
+        selectedCapacity: "superTenant",
+        embeddedTimeout: 100,
       });
-      
     }
-       
-    const foundCapacity= await Capacity.findOne({where: {selectedCapacity: 'superTenant'}});
 
-    
+    const foundCapacity = await Capacity.findOne({
+      where: { selectedCapacity: "superTenant" },
+    });
+
+    // // Introduce a delay of 2 seconds (2000 milliseconds)
+    // await new Promise(resolve => setTimeout(resolve, 2000));
+
     const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
       process.env.CLIENT_ID,
       process.env.CLIENT_SECRET,
@@ -157,8 +156,6 @@ console.log("dataaa ")
     );
 
     const token = creds?.tokenCache?._entries[0]?.accessToken;
-
-    
 
     const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/resume?api-version=${process.env.APPVERSION}`;
 
@@ -172,120 +169,103 @@ console.log("dataaa ")
         },
       }
     );
- 
 
-  console.log(response?.status)
-  if(response?.status === 200 || response?.status === 201 || response?.status === 202){
-    await foundCapacity.update({isActive:true},// {transaction}
- 
-            )
-            next()
-  }   else{
-    next()
-  }   
-   
+    console.log(response?.status);
+    if (
+      response?.status === 200 ||
+      response?.status === 201 ||
+      response?.status === 202
+    ) {
+      await foundCapacity.update(
+        { isActive: true } // {transaction}
+      );
 
- 
-
-
+      // Introduce a delay of 2 seconds before proceeding to the next middleware
+    await new Promise(resolve => setTimeout(resolve, 4000));
+      next();
+    } else {
+      next();
+    }
   } catch (error) {
     console.log(error.message);
-    next()
+    next();
     // return next(createError.createError(500, "Internal server error"));
   }
 };
 
-
 exports.stopCapacity = async (req, res, next) => {
   // const transaction = await sequelize.transaction();
   try {
-  
-
-    const capacity = await Capacity.findOne({where: {selectedCapacity: 'superTenant'}});
+    const capacity = await Capacity.findOne({
+      where: { selectedCapacity: "superTenant" },
+    });
     // return res.json(capacity.length)
     if (capacity === null) {
-
       await Capacity.create({
-        selectedCapacity:"superTenant",
-        embeddedTimeout:100,
+        selectedCapacity: "superTenant",
+        embeddedTimeout: 100,
       });
-      
     }
-    
-   
-    const foundCapacity= await Capacity.findOne({where: {selectedCapacity: 'superTenant'}});
 
-     if (!foundCapacity.isActive){
+    const foundCapacity = await Capacity.findOne({
+      where: { selectedCapacity: "superTenant" },
+    });
+
+    if (!foundCapacity.isActive) {
       next();
-     }
-     
-     else{
-     
-
-      const userCount= await User.count({where:{   isLoggedIn:true,}})
+    } else {
+      const userCount = await User.count({ where: { isLoggedIn: true } });
 
       // return res.json(user)
 
-      if(userCount >1){
+      if (userCount > 1) {
+        next();
+      } else if (userCount === 1) {
+        const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
+          process.env.CLIENT_ID,
+          process.env.CLIENT_SECRET,
+          process.env.TENANT_ID,
+          {
+            tokenAudience: "https://management.azure.com/",
+          }
+        );
 
-        next()
-      }else if( userCount ===1 ){
+        const token = creds?.tokenCache?._entries[0]?.accessToken;
 
-      const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
-        process.env.CLIENT_ID,
-        process.env.CLIENT_SECRET,
-        process.env.TENANT_ID,
-        {
-          tokenAudience: "https://management.azure.com/",
+        const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/suspend?api-version=${process.env.APPVERSION}`;
+
+        const response = await axios.post(
+          url,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        console.log(response.status);
+        if (
+          response.status === 200 ||
+          response.status === 201 ||
+          response.status === 202
+        ) {
+          await foundCapacity.update({ isActive: false });
         }
-      );
-  
-      const token = creds?.tokenCache?._entries[0]?.accessToken;
-  
-      const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/suspend?api-version=${process.env.APPVERSION}`;
-  
-      const response = await axios.post(
-        url,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-   
 
-    console.log(response.status)
-    if(response.status === 200 || response.status === 201 || response.status === 202){
-      await foundCapacity.update({isActive:false},
-      
-      )
+        next();
+      }
     }
-
-   
-        next()
-     }
-
-
-   
-    }
-
   } catch (error) {
     console.log(error);
     return next(createError.createError(500, "Internal server error"));
   }
 };
 
-
 exports.isLoggedIn = (req, res, next) => {
   if (req.user) {
     return next();
   }
-  return next(
-    createError.createError(
-      401,
-      "Unauthorized"
-    )
-  );
+  return next(createError.createError(401, "Unauthorized"));
 };

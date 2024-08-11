@@ -363,7 +363,7 @@ exports.suspend1Capacity = async (req, res, next) => {
         });
 
         const capacityStataus= statusResponse?.data?.properties?.state;
-    return res.json(capacityStataus)
+    // return res.json(capacityStataus)
 
     if(capacityStataus === 'Active'){
 
@@ -384,6 +384,7 @@ exports.suspend1Capacity = async (req, res, next) => {
       }
     );
 
+    console.log(response.status)
     return res.status(200).json({
       message: "Suspended successfully",
     });
@@ -420,6 +421,7 @@ exports.resume1Capacity = async (req, res, next) => {
         },
       }
     );
+    console.log(response.status)
 
     return res.status(200).json({
       message: "Started successfully",

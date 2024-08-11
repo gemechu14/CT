@@ -16,7 +16,7 @@ const MicrosoftStrategy = require('passport-microsoft').Strategy;
 // const MicrosoftStrategy = require('passport-microsoft-auth').Strategy;
 const msal = require('@azure/msal-node');
 const Capacity = require("../models/capacity.js");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 const msRestNodeAuth = require("@azure/ms-rest-nodeauth");
 const middleware= require("../middleware/auth.js")
 // const activateCapacityIfNeeded = require('../utils/activateCapacity.js');
@@ -190,8 +190,13 @@ exports.login = async (req, res, next) => {
     if (!email || !password) {
       return next(createError(400, "Please provide both email and password"));
     }
+    const lowerCaseEmail = email.toLowerCase();
+
     const user = await User.findOne({
-      where: { email },
+      where: Sequelize.where(
+        Sequelize.fn('lower', Sequelize.col('email')),
+        lowerCaseEmail
+      ),
       include: [
         {
           model: Tenant,
@@ -211,15 +216,7 @@ exports.login = async (req, res, next) => {
 
       
 
-      //CHECK TENANT
-
-      const tenantStatus= await Tenant.findOne({where:{id: Number(user.defaultTenant)}})
-
-      if(!tenantStatus.isActive){
-       return next(createError.createError(400,"Your tenant is currently suspended, and you cannot log in"))
-
-      }
-
+   
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return next(
         createError.createError(
@@ -228,6 +225,15 @@ exports.login = async (req, res, next) => {
         )
       );
     }
+       //CHECK TENANT
+
+       const tenantStatus= await Tenant.findOne({where:{id: Number(user.defaultTenant)}})
+
+       if(!tenantStatus.isActive){
+        return next(createError.createError(400,"Your tenant is currently suspended, and you cannot log in"))
+ 
+       }
+ 
 
     if (user?.isActive === false) {
       return next(createError.createError(400, "Your account is currently inactive. Please contact support for assistance."));
