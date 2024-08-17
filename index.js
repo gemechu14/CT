@@ -50,12 +50,16 @@ const {setupScheduledTasks}= require("./scheduler.js")
 
 app.use(session({
   secret: 'secret_key', 
+  secret: 'secret_key', 
   resave: false,
   saveUninitialized: false,
+  // cookie: { secure: false } ,
   cookie: { secure: false } 
 }));
 
 
+app.use(passport.initialize());
+app.use(passport.session()); 
 app.use(passport.initialize());
 app.use(passport.session()); 
 
@@ -92,6 +96,7 @@ app.use(
 );
 
 
+
   app.use((err, req, res, next) => {
     res.removeHeader("Cross-Origin-Embedder-Policy");
     const errorStatus = err.status || 500;
@@ -105,6 +110,8 @@ app.use(
       // stack: err.stack,
     });
   });
+
+  // SCHEDULE
 
   // SCHEDULE
   // const activityCheckInterval = 1 * 60 * 1000; // 5 minutes in milliseconds
