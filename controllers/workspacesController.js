@@ -14,6 +14,7 @@ const {
   PowerBIEmbeddedManagementClient,
 } = require("@azure/arm-powerbiembedded");
 const msRestNodeAuth = require("@azure/ms-rest-nodeauth");
+const { nextTick } = require("process");
 
 exports.getAccessToken = async (req, res, next) => {
   const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
@@ -237,9 +238,16 @@ exports.fetchReportDetails = async (req, res, next) => {
 
 exports.fetchEmbedToken = async (req, res, next) => {
   try {
-    const groupId = req?.query?.groupId;
-    const reportId = req?.query?.reportId;
+    const groupId = req.query.groupId;
+    const reportId = req.query.reportId;
 
+    if (!groupId || !reportId) {
+      return res.status(400).json({ error: "Missing groupId or reportId" });
+    }
+
+    console.log(`Fetching embed token for groupId: ${groupId}, reportId: ${reportId}`);
+
+    // Generate authentication token
     const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
     const params = new URLSearchParams();
     params.append("grant_type", "client_credentials");
@@ -252,16 +260,27 @@ exports.fetchEmbedToken = async (req, res, next) => {
         "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
       },
     });
+
     const token = response1?.data?.access_token;
 
-    // const token = req.query.token;
-    const body = JSON.stringify({
+    if (!token) {
+      console.log("Failed to retrieve access token");
+      return res.status(400).json({ error: "Failed to retrieve access token" });
+    }
+
+    // Generate embed token for paginated report
+    const body = {
       accessLevel: "View",
       allowSaveAs: false,
-    });
+    };
+
+
+
+    
     const url = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/reports/${reportId}/GenerateToken`;
-    // const url = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/reports/${reportId}`;
-    const response = await axios.post(url, body, {
+    console.log(`Requesting embed token from URL: ${url}`);
+
+    const response = await axios.post(url, JSON.stringify(body), {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -270,10 +289,471 @@ exports.fetchEmbedToken = async (req, res, next) => {
 
     return res.status(200).json(response.data);
   } catch (error) {
-    console.error("Error getting report details:", error);
-    return res.status(500).json({ error: error });
+    console.error("Error generating embed token for paginated report:", error.response || error.message);
+    return res.status(500).json({ error: error.response.data || error.message });
   }
 };
+
+
+
+///FETCH Embed token
+exports.fetcheEmbedTokenforReports = async (req, res, next) => {
+  try {
+    const reportId = req.query.reportId;
+    const datasetIds = req.query.datasetIds;
+    const groupId = req.query.groupId; // Workspace ID
+    // const isPaginated= req.query.isPaginated;
+
+    if (!reportId || !groupId || !datasetIds) {
+      return next(createError.createError(400,"Missing requered parameter"))
+    }
+
+    // Generate authentication token
+       const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+    const params = new URLSearchParams();
+    params.append("grant_type", "client_credentials");
+    params.append("client_id", process.env.CLIENT_ID);
+    params.append("client_secret", process.env.CLIENT_SECRET);
+    params.append("scope", process.env.SCOPE);
+
+    const authResponse = await axios.post(tokenUrl, params.toString(), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+      },
+    });
+
+
+    const authToken = authResponse?.data?.access_token;
+
+    if (!authToken) {
+      return next(createError.createError(400,"Failed to retrieve access token"))
+    }
+
+    const requestBody = {
+      reports: [
+        {
+          id: reportId,
+        },
+      ],
+
+      datasets: [
+        {
+          id: datasetIds,
+          xmlaPermissions: "ReadOnly"
+        },
+      ],
+
+      // datasourceIdentities: [
+      //   {
+      //     datasources: [
+      //       {
+      //         datasourceType: "Sql",
+      //         connectionDetails: {
+      //           server: 'cedarstreetsqlserver.database.windows.net',
+      //           database: 'cedardev',
+      //         },
+      //       },
+      //     ],
+      //     identityBlob: identityBlob,
+      //   },
+      // ],
+    };
+
+
+      // Request embed token using V2 endpoint
+    const response = await axios.post(`https://api.powerbi.com/v1.0/myorg/GenerateToken`, requestBody, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+
+    return res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error fetching embed token:", error.response || error.message);
+    // return res.status(500).json({ error: error.response?.data || error.message });
+    return next(createError.createError(500,error.response?.data))
+  }
+};
+
+exports.fetchPaginatedReports = async (req, res, next) => {
+  try {
+    const reportId = req.query.reportId;
+    const datasetIds = req.query.datasetIds;
+    const groupId = req.query.groupId; // Workspace ID
+
+    if (!reportId || !groupId) {
+      return res.status(400).json({ error: "Missing reportId or groupId" });
+    }
+
+    // Generate authentication token
+       const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+    const params = new URLSearchParams();
+    params.append("grant_type", "client_credentials");
+    params.append("client_id", process.env.CLIENT_ID);
+    params.append("client_secret", process.env.CLIENT_SECRET);
+    params.append("scope", process.env.SCOPE);
+
+    const authResponse = await axios.post(tokenUrl, params.toString(), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+      },
+    });
+
+
+    const authToken = authResponse?.data?.access_token;
+
+    if (!authToken) {
+      return res.status(400).json({ error: "Failed to retrieve access token" });
+    }
+// console.log(authToken)
+    // // Prepare the request body for V2
+    // const requestBody = {
+    //   accessLevel: "view" // You may adjust this depending on your requirements
+    // };
+    const username = "Sqladmin";  // Replace with your actual username
+    const password = "Do5i7w&HT668ovmTJ";  // Replace with your actual password
+    
+    // Combine them into the credentials string
+    const credentials = `${username}:${password}`;
+    
+    // Encode the credentials in Base64
+    const encodedCredentials = Buffer.from(credentials).toString('base64');
+    // const body1 = {
+    //   reports: [{ id: reportId }],
+    //   targetWorkspaces: [{ id: groupId }],
+    //   accessLevel: "View",
+    // };
+    // // Use encodedCredentials directly as a Base64 string for identityBlob
+    // const requestBody = {
+    //   // accessLevel: "View",
+    //     reports: [
+    //         {
+    //             id: reportId,
+    //         },
+    //     ],
+    //   //   datasets: [
+    //   //     {
+    //   //         id: datasetIds,
+    //   //     },
+    //   // ],
+    
+    //     datasourceIdentities: [
+    //         {
+    //             datasources: [
+    //                 {
+    //                     datasourceType: "Sql",
+    //                     connectionDetails: {
+    //                         server: 'cedarstreetsqlserver.database.windows.net',
+    //                         database: 'cedardev',
+    //                     },
+    //                 },
+    //             ],
+    //             identityBlob: encodedCredentials,  // Use the Base64 string directly
+    //         },
+    //     ],
+    // };
+
+
+     // Construct identityBlob and encode it in base64
+     const identityBlob = Buffer.from(
+      JSON.stringify({
+        credentialType: "OAuth2",
+        token: authToken,
+      })
+    ).toString("base64");
+
+    // Request embed token using V2 endpoint
+    const requestBody = {
+      reports: [
+        {
+          id: reportId,
+        },
+      ],
+
+      datasets: [
+        {
+          id: datasetIds,
+          xmlaPermissions: "ReadOnly"
+        },
+      ],
+
+      datasourceIdentities: [
+        {
+          datasources: [
+            {
+              datasourceType: "Sql",
+              connectionDetails: {
+                server: 'cedarstreetsqlserver.database.windows.net',
+                database: 'cedardev',
+              },
+            },
+          ],
+          identityBlob: identityBlob,
+        },
+      ],
+    };
+
+
+    // Request embed token using V2 endpoint
+    // const requestBody = {
+    //   reports: [
+    //     {
+    //       id: reportId,
+    //     },
+    //   ],
+    //   datasourceIdentities: [
+    //     {
+    //       datasources: [
+    //         {
+    //           datasourceType: "Sql",
+    //           connectionDetails: {
+    //             server: 'cedarstreetsqlserver.database.windows.net',
+    //             database: 'cedardev',
+    //           },
+    //         },
+           
+    //       ],
+    //       identityBlob: 'authToken',
+    //     },
+    //   ],
+    // };
+      // Request embed token using V2 endpoint
+    const response = await axios.post(`https://api.powerbi.com/v1.0/myorg/GenerateToken`, requestBody, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const embedToken = response.data.token;
+
+    return res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error fetching embed token:", error.response?.data || error.message);
+    return res.status(500).json({ error: error.response?.data || error.message });
+  }
+};
+
+
+
+
+
+//////Steps to Retrieve Reports for a Specific Dataset
+
+
+exports.getAllReportsUnderDataset= async(req,res,next)=>{
+  try {
+
+    const reportId = req.query.reportId;
+    const datasetId = req.query.datasetIds;
+    const groupId = req.query.groupId;
+
+    const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+    const params = new URLSearchParams();
+    params.append("grant_type", "client_credentials");
+    params.append("client_id", process.env.CLIENT_ID);
+    params.append("client_secret", process.env.CLIENT_SECRET);
+    params.append("scope", process.env.SCOPE);
+
+    const tokenResponse = await axios.post(tokenUrl, params.toString(), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+      },
+    });
+
+    const authToken = tokenResponse.data.access_token;
+
+    if (!authToken) {
+      throw new Error("Failed to retrieve access token");
+    }
+
+    // Get all reports in the workspace (group)
+    const reportsUrl = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/reports`;
+    const reportsResponse = await axios.get(reportsUrl, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const reports = reportsResponse.data.value;
+
+    // return res.json(reports)
+
+    // Filter reports by datasetId
+    const reportsForDataset = reports.filter(report => report.datasetId === datasetId);
+
+    return res.json(reportsForDataset);
+
+
+
+
+    
+  } catch (error) {
+    return res.json(error)
+  }
+}
+
+
+
+
+
+
+
+
+// exports.generateEmbedToken=async(req,res){
+//   try {
+    
+//   } catch (error) {
+//     return res.status(590)
+    
+//   }
+// }
+// exports.fetchPaginatedReports = async (req, res, next) => {
+//   try {
+//     const reportId = req.query.reportId;
+//     const datasetIds = req.query.datasetIds;
+
+//     if (!reportId) {
+//       return res.status(400).json({ error: "Missing reportId" });
+//     }
+
+//     // Generate authentication token
+//     const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+//     const params = new URLSearchParams();
+//     params.append("grant_type", "client_credentials");
+//     params.append("client_id", process.env.CLIENT_ID);
+//     params.append("client_secret", process.env.CLIENT_SECRET);
+//     params.append("scope", process.env.SCOPE);
+
+//     const authResponse = await axios.post(tokenUrl, params.toString(), {
+//       headers: {
+//         "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+//       },
+//     });
+
+//     const authToken = authResponse?.data?.access_token;
+
+//     if (!authToken) {
+//       return res.status(400).json({ error: "Failed to retrieve access token" });
+//     }
+
+//     // Prepare the request body
+//     const requestBody = {
+//       reports: [{ id: reportId }],
+//       datasets:[{ id: datasetIds}]
+//     };
+
+
+
+//     // Request embed token
+//     const response = await axios.post('https://api.powerbi.com/v1.0/myorg/GenerateToken', requestBody, {
+//       headers: {
+//         Authorization: `Bearer ${authToken}`,
+//         "Content-Type": "application/json",
+//       },
+//     });
+
+//     return res.status(200).json(response.data);
+//   } catch (error) {
+//     console.error("Error fetching embed token:", error.response?.data || error.message);
+//     return res.status(500).json({ error: error.response?.data || error.message });
+//   }
+// };
+
+
+// exports.fetchPaginatedReports = async (req, res, next) => {
+
+//     try {
+//       const groupId =  req.query.groupId;
+//       const reportId = req?.query?.reportId;
+//       const isPaginated = req?.query?.isPaginated;
+//       const datasetIds = req.query.datasetIds; // Check if the report is paginated
+  
+
+//       // return res.json(
+//       //   {
+//       //     groupId:groupId,
+//       //     reportId:reportId,
+//       //     isPaginated: isPaginated
+//       //   }
+//       // )
+//       // Get the OAuth2 token
+//       const tokenUrl = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
+//       const params = new URLSearchParams();
+//       params.append("grant_type", "client_credentials");
+//       params.append("client_id", process.env.CLIENT_ID);
+//       params.append("client_secret", process.env.CLIENT_SECRET);
+//       params.append("scope", process.env.SCOPE);
+  
+//       const response1 = await axios.post(tokenUrl, params.toString(), {
+//         headers: {
+//           "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+//         },
+//       });
+//       const token = response1?.data?.access_token;
+
+  
+//       // Prepare the request body
+//       const body = JSON.stringify({
+//         accessLevel: "View",
+//         allowSaveAs: false,
+//       });
+  
+
+
+
+//       // const formData = {
+//       //   reports: [{ id: reportId }],
+//       //   datasets: [{ id: datasetIds }],
+//       //   targetWorkspaces: [{ id: groupId }]
+//       // };
+//       const embedTokenApi = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/rdlreports/${reportId}/GenerateToken`;
+
+//     const  embedTokenApi1 = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/rdlreports/${reportId}/GenerateToken`;
+//       // const embedTokenApi = "https://api.powerbi.com/v1.0/myorg/GenerateToken";
+//       console.log(`Requesting embed token from URL: ${embedTokenApi}`);
+  
+//       const response12 = await axios.post(embedTokenApi, body, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "application/json",
+//         },
+//       });
+//   console.log("data",response12.data)
+//       return res.status(200).json(response12.data);
+
+//       // Choose the appropriate URL based on report type
+//       let url;
+//       // if (isPaginated) {
+//       //   url = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/rdlreports/${reportId}/GenerateToken`;
+//       // } else {
+//       //   url = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/reports/${reportId}/GenerateToken`;
+//       // }
+//       url = `https://api.powerbi.com/v1.0/myorg/groups/${groupId}/reports/${reportId}/GenerateToken`;
+//       // Generate the embed token
+//       // const response = await axios.post(url, body, {
+//       //   headers: {
+//       //     Authorization: Bearer ${token},
+//       //     "Content-Type": "application/json",
+//       //   },
+//       // });
+
+//       const response = await axios.post(url, body, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "application/json",
+//         },
+//       });
+  
+//       return res.status(200).json(response.data);
+//   } catch (error) {
+//     console.error("Error getting report details:", error);
+//     return res.status(500).json({ error: error });
+//   }
+// }
 
 //GET DASHBOARDS
 exports.getDashboards = async (req, res, next) => {

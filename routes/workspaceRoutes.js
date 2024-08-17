@@ -9,6 +9,9 @@ router.get("/get-token", workspacesControllers.getAccessToken);
 router.get("/download-reports", workspacesControllers.downloadReports);
 
 router.get("/get-embedtoken", workspacesControllers.fetchEmbedToken);
+
+router.get("/get-paginated-reports", workspacesControllers.fetchPaginatedReports);
+router.get("/embededtoken", workspacesControllers.fetcheEmbedTokenforReports);
 router.get("/reports",workspacesControllers.getReports)
 router.get("/reports/details",workspacesControllers.fetchReportDetails)
 router.get("/dashboards",workspacesControllers.getDashboards)
