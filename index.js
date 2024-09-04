@@ -187,34 +187,34 @@ scheduleTask();
 
 
 // Path to your SSL certificate files
-// const privateKey = fs.readFileSync('/home/ubuntu/cedarplatform_io.key', 'utf8');
-// const certificate = fs.readFileSync('/home/ubuntu/cedarplatform_io.crt', 'utf8');
-// const credentials = {
-//   key: privateKey,
-//   cert: certificate
-// };
+const privateKey = fs.readFileSync('/home/ubuntu/cedarplatform_io.key', 'utf8');
+const certificate = fs.readFileSync('/home/ubuntu/cedarplatform_io.crt', 'utf8');
+const credentials = {
+  key: privateKey,
+  cert: certificate
+};
 
-// // Create the HTTPS server
-// const httpsServer = https.createServer(credentials, app);     
+// Create the HTTPS server
+const httpsServer = https.createServer(credentials, app);     
 
 
-// httpsServer.listen(4400, () => { 
-//   console.log('HTTPS Server running on port 4400');
-// });
+httpsServer.listen(4400, () => { 
+  console.log('HTTPS Server running on port 4400');
+});
 
 ////////###########################################AWS##########################################///////
 
 
 
 ////////###################################LOCAL SERVER########AWS##########################################///////
-app.listen(process.env.PORT || 4400,async () => {
-  console.log(`Server is running on port: ${process.env.PORT}`);
-  try {
-    // await setupScheduledTasks();//
-  } catch (error) {
-    console.log(error)
-  }
-});
+// app.listen(process.env.PORT || 4400,async () => {
+//   console.log(`Server is running on port: ${process.env.PORT}`);
+//   try {
+//     // await setupScheduledTasks();//
+//   } catch (error) {
+//     console.log(error)
+//   }
+// });
 
 ////////###################################LOCAL SERVER########AWS##########################################///////
 
