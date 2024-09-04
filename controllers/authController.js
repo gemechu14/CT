@@ -24,70 +24,13 @@ const activateCapacity = require('../utils/activateCapacity.js');
 const ThemeBranding = require("../models/themeBranding.js");
 const ThemeLayout = require("../models/themeLayout.js");
 const ThemeColor = require("../models/themeColors.js");
+const sendEmail= require("../utils/sendEmail.js");
+
+const crypto = require('crypto');
 
 require("dotenv").config();
 
-//MICROSOFT AUTHENTICATION
-const config = {
-  auth: {
-      clientId: 'e7a57613-cc2f-496c-8cd6-1d2950a04a12', // Replace with your ID
-      authority: `https://login.microsoftonline.com/f8cdef31-a31e-4b4a-93e4-5f571e91255a`, // Replace with your tenant ID
-      redirectUri: 'localhost:4400/auth/microsoft/callback' // Replace if needed
-  },
-  cache: {
-      cacheLocation: 'sessionStorage' // Adjust if needed (e.g., for persisted logins)
-  }
-};
-const pca = new msal.PublicClientApplication(config);
 
-
-exports.microsoftAuthentication= async(req,res,next)=>{
-
-  try {
-    console.log(pca)
-
-    const loginRequest = {
-      scopes: ['user.read'] // Replace with desired scopes
-  };
-
-  // Redirect the user to the Microsoft login page
-  const authResult = await pca.acquireTokenRedirect(loginRequest);
-  console.log(authResult);
-    
-  } catch (error) {
-console.log(error.message);
-
-return next(createError.createError(500,error.message))
-  }
-}
-  
-
-
-async function login() {
-  try {
-      const loginRequest = {
-          scopes: ['user.read'] // Replace with desired scopes
-      };
-
-      // Redirect the user to the Microsoft login page
-      const authResult = await pca.acquireAuthCodeFlow(loginRequest);
-      console.log(authResult); // For debugging purposes
-
-      // Handle redirect and extract access token
-      // (Covered in step 6)
-  } catch (error) {
-      console.error(error);
-  }
-}
-
-
-
-
-
-
-
-
-//END OF MICROSOFT AUTHENTICATION
 
 const tokenBlacklist = new Set(); // Example using a Set for simplicity
 
@@ -133,11 +76,6 @@ const signToken = (
 
 const createSendToken = async (user, statusCode, res,next) => {
   try {
-    // return res.json(user)
-
-    // await activateCapacity();
-
-    // await activateCapacity();?
 
     const { token, refreshToken } = signToken(
       user.id,
@@ -179,7 +117,6 @@ const createSendToken = async (user, statusCode, res,next) => {
     return res.status(500).json({ message: error.name });
   }
 };
-
 
 
 //LOGIN
@@ -283,13 +220,7 @@ exports.signup = async (req, res, next) => {
       email,
       password,
       phoneNumber,
-      // streetNumber,
-      // streetName,
-      // streetType,
-      // city,
-      // state,
-      // country,
-      // postalCode,
+
       roleId,
     } = req.body;
 
@@ -409,7 +340,6 @@ const newThemeBranding = await ThemeBranding.create({
 };
 
 
-
 //GOOGLE AND MICROSOFT AUTHENTICATION
 
 exports.googleAuthentication = async (req, res, next) => {
@@ -475,7 +405,6 @@ exports.googleAuthentication = async (req, res, next) => {
   }
 };
 
-
 exports.logout = async (req, res) => {
   
   const cookieOptions = {
@@ -530,12 +459,9 @@ exports.getProfile= async( req,res,next)=>{
   }
 }
 
-
-
 //CHECK SUPERTENANT
 exports.checkSuperTenant= async( req,res,next)=>{
   try {
-
     
     const user = await User.findOne(
       {where: { isSuperTenant: true},
@@ -565,191 +491,126 @@ exports.checkSuperTenant= async( req,res,next)=>{
   }
 }
 
-// GOOGLE AUTHENTICATION
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: 'http://localhost:4400/auth/google/callback',
-  passReqToCallback: true
-},
-async function (request, accessToken, refreshToken, profile, done) {
-  try {
-    const email = profile.emails[0].value;
-    const user = await User.findOne({
-      where: { email },
-      include: {
-        model: Tenant,
-        through: { attributes: [] },
-      },
-    });
 
-    if (!user) {
-      return done(null, false, { message: 'User not found' });
+/// FORGET PASSWORD
+exports.forgetPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return next(createError.createError(400, "Please provide an email address"));
     }
 
-    // Store user in request for the next middleware
-    request.user = user;
-    return done(null, user);
-  } catch (err) {
-    return done(err);
-  }
-}));
-
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-passport.use(new MicrosoftStrategy({
-  clientID: 'e7a57613-cc2f-496c-8cd6-1d2950a04a12',
-  authority: `https://login.microsoftonline.com/common`,
-    redirectUri: 'http://localhost:4400/auth/microsoft/callback',
-  clientSecret: 'Vs48Q~o13LoVVRAOK4mp2A1xlQR.aNB~CD_UacU0', 
-  callbackURL: 'http://localhost:4400/auth/microsoft/callback',
-  tenant: '96a76859-fbd7-4ef9-a70a-917b0f4339c1',
-  passReqToCallback: true,
-  
-  scope: ['user.read.all']
-},
-async function (request, accessToken, refreshToken, profile, done) {
-  try {
-    const email = profile.emails[0].value;
-    const user = await User.findOne({
-      where: { email },
-      include: {
-        model: Tenant,
-        through: { attributes: [] },
-      },
-    });
+    // 1. Find the user by email
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return done(null, false, { message: 'User not found' });
+      return next(createError.createError(404, "No user found with that email"));
     }
 
-    request.user = user;
-    return done(null, user);
-  } catch (err) {
-    return done(err);
-  }
-}));
-passport.deserializeUser(async (id, done) => {
-  const user = await User.findByPk(id);
-  if (user) {
-    done(null, user);
-  } else {
-    done(new Error('User not found'));
-  }
-});
+    // 2. Generate a reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // 3. Hash the token and set expiration
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const resetTokenExpires = Date.now() + 10 * 60 * 1000; // Token valid for 10 minutes
+
+    // 4. Update the user's reset token and expiration in the database
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = resetTokenExpires;
+    await user.save();
+
+    // 5. Send the reset link via email
+    const resetURL = `https://cedarplatform.io/auth/createPassword/${resetToken}`;
+    //const message = `Forgot your password? Submit a request with your new password to: ${resetURL}\nIf you didn't request this, please ignore this email.`;
 
 
-//MICROSOFT
-exports.handleMicrosoftCallback = async (req, res, next) => {
-  try {
+    const message = `
+Hello,
 
+We received a request to reset your password. You can reset your password by clicking the link below:
 
-    // console.log(req)
-    // const email1 = req.body;
-    
-    
-    // return res.json(email1)
-    const clientInfo = req.body.client_info;
-    const decodedClientInfo = Buffer.from(clientInfo, 'base64').toString('utf-8');
-    const userInfo = JSON.parse(decodedClientInfo);
-    const email = userInfo.preferred_username;
+${resetURL}
 
-    return res.json(req.body)
-   
-console.log("useremail")
-const user = await User.findOne({
-  where: { email }, // Ensure email is defined and correctly passed here
-  include: {
-    model: Tenant,
-    through: { attributes: [] },
-  },
-});
+This link will expire in 10 minutes, so please use it as soon as possible.
 
-    console.log(!user)
-  return res.json(user)
+If you did not request a password reset, you can safely ignore this email.
 
+Best regards,
+Cedarplatform Team
+`;
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Your password reset token (valid for 10 minutes)',
+        text: message,
+      });
 
-    if (!user) {
-      return next(createError.createError(404, 'User not found' ));
+      
+      res.status(200).json({
+        status: 'success',
+        message: 'Token sent to email!',
+      });
+    } catch (err) {
+      user.passwordResetToken = null;
+      user.passwordResetExpires = null;
+      await user.save();
+
+      return next(createError.createError(500, 'There was an error sending the email. Try again later.'));
     }
-
-    await createSendToken(user, 200, res);
-  
 
   } catch (error) {
-    console.error('Error in handleMicrosoftCallback:', error);
-    return next(createError.createError(500,"Internal server error"));
+    console.log(error);
+    return next(createError.createError(500, "Internal server error"));
   }
 };
 
-exports.handleGoogleCallback = async (req, res) => {
-  await createSendToken(req.user, 200, res);
+
+///RESET Password
+exports.resetPassword = async (req, res, next) => {
+  try {
+   
+    const resetToken = req?.params?.token;
+
+   
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+
+    const user = await User.findOne({
+      where: {
+        passwordResetToken: hashedToken,
+        passwordResetExpires: { [Op.gt]: Date.now() }, 
+      },
+    });
+
+    if (!user) {
+      return next(createError.createError(400, 'Token is invalid or has expired'));
+    }
+
+  
+    const { newPassword } = req.body;
+    if (!newPassword) {
+      return next(createError.createError(400, 'Please provide a new password'));
+    }
+
+  
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    user.password = newPassword;
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+
+    await user.save();
+
+   
+    res.status(200).json({
+      status: 'success',
+      message: 'Password has been reset successfully',
+    });
+
+ 
+    
+  } catch (error) {
+    console.log(error);
+    return next(createError.createError(500, 'Internal server error'));
+  }
 };
-
-
-
-
-
-// CHECK CAPACITY
-
-// const activateCapacityIfNeeded = async () => {
-//   try {
-//     // Check if 'superTenant' capacity is already activated
-//     let capacity = await Capacity.findOne({ where: { selectedCapacity: 'superTenant' } });
-
-//     // If capacity is not found, create it
-//     if (capacity === null) {
-//       await Capacity.create({
-//         selectedCapacity: "superTenant",
-//         embeddedTimeout: 100,
-//       });
-//     }
-
-//     // Fetch the capacity again to ensure it exists
-//     capacity = await Capacity.findOne({ where: { selectedCapacity: 'superTenant' } });
-
-//     // Get Azure credentials
-//     const creds = await msRestNodeAuth.loginWithServicePrincipalSecret(
-//       process.env.CLIENT_ID,
-//       process.env.CLIENT_SECRET,
-//       process.env.TENANT_ID,
-//       {
-//         tokenAudience: "https://management.azure.com/",
-//       }
-//     );
-
-//     // Obtain access token
-//     const token = creds?.tokenCache?._entries[0]?.accessToken;
-
-//     // Check capacity status
-//     const url = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}?api-version=${process.env.APPVERSION}`;
-//     const statusResponse = await axios.get(url, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         'Content-Type': 'application/json'
-//       }
-//     });
-
-//     const capacityStatus = statusResponse?.data?.properties?.state;
-
-//     // If capacity status is not 'Active', resume it
-//     if (capacityStatus != 'Active') {
-//       const resumeUrl = `https://management.azure.com/subscriptions/${process.env.SUBSCRIPTION_ID}/resourceGroups/${process.env.RESOURCEGROUPNAME}/providers/Microsoft.Fabric/capacities/${process.env.DEDICATEDCAPACITYNAME}/resume?api-version=${process.env.APPVERSION}`;
-
-//       await axios.post(
-//         resumeUrl,
-//         {},
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//             "Content-Type": "application/json",
-//           },
-//         }
-//       );
-//     }
-//   } catch (error) {
-//     console.error("Error activating capacity:", error);
-//     throw error; // Propagate the error to handle it elsewhere if needed
-//   }
-// };

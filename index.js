@@ -38,7 +38,6 @@ const workspacesRoute=require("./routes/workspaceRoutes.js")
 const navigationRoute=require("./routes/navigationRoutes.js");
 const categoryRoute=require("./routes/categoryRoutes.js")
 const teamRoute= require("./routes/teamRoutes.js");
-const authRoute1= require("./routes/auth.js")
 const themesRoute=require("./routes/themesRoute.js")
 const themeBrandingRoute=require("./routes/themeBrandingRoutes.js");
 const themeColorRoute= require("./routes/themeColorRoutes.js");
@@ -126,7 +125,24 @@ initializeSchedules().catch(error => {
 });
 
 
-
+app.use((req, res, next) => {
+  const error = new Error("There is no such URL");
+  error.status = 404;
+  next(error);
+});
+app.use((err, req, res, next) => {
+  res.removeHeader("Cross-Origin-Embedder-Policy");
+  const errorStatus = err.status || 500;
+  const errorMessage = err.message || "Something went Wrong";
+// console.log()
+  return res.status(errorStatus).json({
+    success: false,
+    status: errorStatus,
+    message: err.message || "Something went",
+    timestamp: new Date().toISOString(),
+    // stack: err.stack,
+  });
+});
 
 
 
