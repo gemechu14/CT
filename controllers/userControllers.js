@@ -600,9 +600,6 @@ exports.assignSuperTenant = async (req, res, next) => {
   }
 };
 
-
-
-
 // UNASSIGN SUPER TENANT
 exports.unassignSuperTenant = async (req, res, next) => {
   const transaction = await sequelize.transaction();

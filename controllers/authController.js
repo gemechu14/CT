@@ -538,24 +538,22 @@ exports.forgetPassword = async (req, res, next) => {
 
 
     const message = `
-Hello,
-
-We received a request to reset your password. You can reset your password by clicking the link below:
-
-${resetURL}
-
-This link will expire in 10 minutes, so please use it as soon as possible.
-
-If you did not request a password reset, you can safely ignore this email.
-
-Best regards,
-Cedarplatform Team
+  <p>Hello,</p>
+  <p>We received a request to reset your password. You can reset your password by clicking the link below:</p>
+  <p>
+    <a href="${resetURL}" target="_blank">Click here to reset your password</a>
+  </p>
+  <p>This link will expire in 10 minutes, so please use it as soon as possible.</p>
+  <p>If you did not request a password reset, you can safely ignore this email.</p>
+  <br/>
+  <p>Best regards,<br/>Cedarplatform Team</p>
 `;
+
     try {
       await sendEmail({
         email: user.email,
         subject: 'Your password reset token (valid for 10 minutes)',
-        text: message,
+        html: message,
       });
 
       
