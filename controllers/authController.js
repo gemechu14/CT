@@ -503,10 +503,22 @@ exports.forgetPassword = async (req, res, next) => {
 
     // 1. Find the user by email
     const user = await User.findOne({ where: { email } });
+    //CHECK TENANT
 
+   
     if (!user) {
-      return next(createError.createError(404, "No user found with that email"));
+      return next(createError.createError(404, "No user found with this email"));
     }
+
+    if (user?.isActive === false) {
+      return next(createError.createError(400, "Your account is currently inactive. Please contact support for assistance."));
+    }
+    const tenantStatus= await Tenant.findOne({where:{id: Number(user.defaultTenant)}})
+    if(!tenantStatus.isActive){
+     return next(createError.createError(400,"Your tenant is currently suspended."))
+
+    }
+
 
     // 2. Generate a reset token
     const resetToken = crypto.randomBytes(32).toString('hex');

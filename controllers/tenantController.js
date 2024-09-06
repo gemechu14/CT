@@ -59,12 +59,105 @@ exports.getAllTenants = async (req, res, next) => {
   }
 };
 
+// // CREATE ROLE
+// exports.createTenant = async (req, res, next) => {
+//   const transaction = await sequelize.transaction();
+//   try {
+ 
+
+//     const {
+//       tenantName,
+//       tenantStatus,
+//       isSuperTenant,
+//       language,
+//       numberOfTeams,
+//       numberOfUsers,
+//       powerBIWorkspace,
+//     } = req.body;
+//     const existingTenant = await Tenant.findOne({ where: { tenantName } });
+//     if (existingTenant) {
+//       return next(createError.createError(400, "Tenant already defined "));
+//     }
+
+  
+//     const tenant = await Tenant.create({
+//       tenantName,
+//       tenantStatus,
+//       isSuperTenant,
+//       language,
+//       numberOfTeams,
+//       numberOfUsers,
+//       powerBIWorkspace,
+//     },{transaction});
+
+//   //Assign SUPER ADMIN TO CREATED TENANT
+
+//   const superTenant= await User.findOne({where:{ isSuperTenant: true}})
+    
+
+//   const assignTenant= await UserTenant.create({
+//     UserId: superTenant.id,
+//     TenantId: tenant.id
+//   }, {transaction})
+
+// //ASSIGN THEME COLOR
+// const newThemeColor = await ThemeColor.create({
+//   brandPrimaryColor: "#081C2E",
+//   sideNavigationPanelItemHighlight :"#F0F0F0",
+//   sideNavigationFontHover :"#C7C7C7",
+//   topNavigationPanelPrimary :"#ffffff",
+//   reportPaneBackground:"#FFFFFF",
+//   navigationArrowColor:"#D95558", 
+//   sideNavigationHeaderFontColor:"#FFFFFF",
+//   sideNavigationFontPrimary:"#FFFFFF",
+//   buttonFaceColor:"#595959",
+//   topNavigationPanelSecondary:"#081C2E",
+//   contentPaneTitles:"#D95558",
+//   sideNavigationPanelPrimary:"#081C2E",
+//   sideNavigationPanelSecondary:"#D95558",
+//   topNavatigationFont:"#403A3A",
+//   paneNameCurrentPage:"#F3F4F6",
+//   navigationBorderColor:"#D95558",
+//   TenantId: tenant.id
+// },{transaction});
+
+// //ASSIGN LAYOUT
+// const newThemeLayout = await ThemeLayout.create({
+//   layout: 'Modern',
+//   TenantId: tenant.id
+// },{transaction});
+
+// //ASSIGN THEME BRAND
+// const newThemeBranding = await ThemeBranding.create({
+//   logoImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+//   siteFaviconImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+//   customLoader:"https://cedarplatform.io:4400/uploads/customLoader-1720701314174-483869383.gif",
+//   loginLogoutBackground: "#ffffff",
+//   showFooter :"true",
+//   secondaryLogoImage:"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+//   externalLinks :"https://cedarplatform.io",
+//   TenantId: tenant.id
+// },{transaction});
+
+
+
+//   await transaction.commit();
+
+//     res
+//       .status(201)
+//       .json({ message: "Tenant registered successfully", tenant: tenant });
+//   } catch (error) {
+//     console.log(error)
+//     await transaction.rollback();
+//     return next(createError.createError(500, "Internal server Error"));
+//   }
+// };
+
+
 // CREATE ROLE
 exports.createTenant = async (req, res, next) => {
   const transaction = await sequelize.transaction();
   try {
- 
-
     const {
       tenantName,
       tenantStatus,
@@ -74,82 +167,94 @@ exports.createTenant = async (req, res, next) => {
       numberOfUsers,
       powerBIWorkspace,
     } = req.body;
+
     const existingTenant = await Tenant.findOne({ where: { tenantName } });
     if (existingTenant) {
-      return next(createError.createError(400, "Tenant already defined "));
+      return next(createError.createError(400, "Tenant already defined"));
     }
 
-  
-    const tenant = await Tenant.create({
-      tenantName,
-      tenantStatus,
-      isSuperTenant,
-      language,
-      numberOfTeams,
-      numberOfUsers,
-      powerBIWorkspace,
-    },{transaction});
+    // Create the new tenant
+    const tenant = await Tenant.create(
+      {
+        tenantName,
+        tenantStatus,
+        isSuperTenant,
+        language,
+        numberOfTeams,
+        numberOfUsers,
+        powerBIWorkspace,
+      },
+      { transaction }
+    );
 
-  //Assign SUPER ADMIN TO CREATED TENANT
+    // Fetch ALL super tenants
+    const superTenants = await User.findAll({ where: { isSuperTenant: true } });
 
-  const superTenant= await User.findOne({where:{ isSuperTenant: true}})
-    
+    // Prepare the data for bulk insert
+    const userTenantData = superTenants.map(superTenant => ({
+      UserId: superTenant.id,
+      TenantId: tenant.id
+    }));
 
-  const assignTenant= await UserTenant.create({
-    UserId: superTenant.id,
-    TenantId: tenant.id
-  }, {transaction})
+    // Perform bulk insert of super tenants to the tenant
+    await UserTenant.bulkCreate(userTenantData, { transaction });
 
-//ASSIGN THEME COLOR
-const newThemeColor = await ThemeColor.create({
-  brandPrimaryColor: "#081C2E",
-  sideNavigationPanelItemHighlight :"#F0F0F0",
-  sideNavigationFontHover :"#C7C7C7",
-  topNavigationPanelPrimary :"#ffffff",
-  reportPaneBackground:"#FFFFFF",
-  navigationArrowColor:"#D95558", 
-  sideNavigationHeaderFontColor:"#FFFFFF",
-  sideNavigationFontPrimary:"#FFFFFF",
-  buttonFaceColor:"#595959",
-  topNavigationPanelSecondary:"#081C2E",
-  contentPaneTitles:"#D95558",
-  sideNavigationPanelPrimary:"#081C2E",
-  sideNavigationPanelSecondary:"#D95558",
-  topNavatigationFont:"#403A3A",
-  paneNameCurrentPage:"#F3F4F6",
-  navigationBorderColor:"#D95558",
-  TenantId: tenant.id
-},{transaction});
+    // Assign THEME COLOR
+    const newThemeColor = await ThemeColor.create(
+      {
+        brandPrimaryColor: "#081C2E",
+        sideNavigationPanelItemHighlight: "#F0F0F0",
+        sideNavigationFontHover: "#C7C7C7",
+        topNavigationPanelPrimary: "#ffffff",
+        reportPaneBackground: "#FFFFFF",
+        navigationArrowColor: "#D95558",
+        sideNavigationHeaderFontColor: "#FFFFFF",
+        sideNavigationFontPrimary: "#FFFFFF",
+        buttonFaceColor: "#595959",
+        topNavigationPanelSecondary: "#081C2E",
+        contentPaneTitles: "#D95558",
+        sideNavigationPanelPrimary: "#081C2E",
+        sideNavigationPanelSecondary: "#D95558",
+        topNavatigationFont: "#403A3A",
+        paneNameCurrentPage: "#F3F4F6",
+        navigationBorderColor: "#D95558",
+        TenantId: tenant.id,
+      },
+      { transaction }
+    );
 
-//ASSIGN LAYOUT
-const newThemeLayout = await ThemeLayout.create({
-  layout: 'Modern',
-  TenantId: tenant.id
-},{transaction});
+    // Assign LAYOUT
+    const newThemeLayout = await ThemeLayout.create(
+      {
+        layout: "Modern",
+        TenantId: tenant.id,
+      },
+      { transaction }
+    );
 
-//ASSIGN THEME BRAND
-const newThemeBranding = await ThemeBranding.create({
-  logoImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-  siteFaviconImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-  customLoader:"https://cedarplatform.io:4400/uploads/customLoader-1720701314174-483869383.gif",
-  loginLogoutBackground: "#ffffff",
-  showFooter :"true",
-  secondaryLogoImage:"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-  externalLinks :"https://cedarplatform.io",
-  TenantId: tenant.id
-},{transaction});
+    // Assign THEME BRANDING
+    const newThemeBranding = await ThemeBranding.create(
+      {
+        logoImage: "https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+        siteFaviconImage: "https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+        customLoader: "https://cedarplatform.io:4400/uploads/customLoader-1720701314174-483869383.gif",
+        loginLogoutBackground: "#ffffff",
+        showFooter: "true",
+        secondaryLogoImage: "https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+        externalLinks: "https://cedarplatform.io",
+        TenantId: tenant.id,
+      },
+      { transaction }
+    );
 
+    // Commit the transaction
+    await transaction.commit();
 
-
-  await transaction.commit();
-
-    res
-      .status(201)
-      .json({ message: "Tenant registered successfully", tenant: tenant });
+    res.status(201).json({ message: "Tenant registered successfully", tenant: tenant });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     await transaction.rollback();
-    return next(createError.createError(500, "Internal server Error"));
+    return next(createError.createError(500, "Internal server error"));
   }
 };
 
