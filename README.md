@@ -1,9 +1,8 @@
 # CATER-STREET
-# custOnboard-app
 # Cedar Backend: Analytics as a Service
 
 ## Introduction
-Cedar Backend is a Node.js application that serves as an Analytics as a Service platform, designed to provide scalable and efficient analytics capabilities to its users. It integrates with Azure Active Directory for secure authentication and utilizes PostgreSQL as the database managed through Sequelize ORM.
+Cedar Backend is a Node.js application that serves as an Analytics as a Service platform, designed to provide users with scalable and efficient analytics capabilities. It integrates with Azure Active Directory for secure authentication and utilizes PostgreSQL as the database managed through Sequelize ORM.
 
 ## Architecture
 The Cedar backend follows a layered architecture that separates concerns and promotes scalability and maintainability:
@@ -20,8 +19,6 @@ The Cedar backend follows a layered architecture that separates concerns and pro
 - **PostgreSQL**: Open-source relational database management system.
 - **Azure Active Directory**: Provides secure authentication and access control for users.
 - **Swagger**: Used for API documentation, accessible at `/docs`.
-- **PostgreSQL**: Relational database for storing payroll and employee information.
-- **Sequelize**: Promise-based Node.js ORM for PostgreSQL.
 - **JWT (JSON Web Tokens)**: For user authentication and authorization.
 - **Bcrypt.js**: Library for hashing passwords.
 - **Axios**: HTTP client for making API requests.
@@ -30,7 +27,7 @@ The Cedar backend follows a layered architecture that separates concerns and pro
 - **Authentication**: Secure login using Azure Active Directory credentials.
 - **Analytics Services**: Provides a range of analytics functionalities including data aggregation and visualization.
 - **Scalability**: Designed to handle large volumes of data and concurrent user requests.
-- **Documentation**: Comprehensive API documentation available at `/docs`.
+
 
 ## Project Structure
 
