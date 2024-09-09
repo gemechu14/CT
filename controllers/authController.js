@@ -533,7 +533,7 @@ exports.forgetPassword = async (req, res, next) => {
     await user.save();
 
     // 5. Send the reset link via email
-    const resetURL = `http://35.84.123.119/users/auth/createPassword/${resetToken}`;
+    const resetURL = `http://35.84.123.119/users/auth/createpassword/${resetToken}`;
     //const message = `Forgot your password? Submit a request with your new password to: ${resetURL}\nIf you didn't request this, please ignore this email.`;
 
 
