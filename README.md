@@ -24,9 +24,13 @@ The Cedar backend follows a layered architecture that separates concerns and pro
 - **Axios**: HTTP client for making API requests.
 
 ## Features
-- **Authentication**: Secure login using Azure Active Directory credentials.
-- **Analytics Services**: Provides a range of analytics functionalities including data aggregation and visualization.
-- **Scalability**: Designed to handle large volumes of data and concurrent user requests.
+- **User Management**: Manage user profiles, authentication, and access control using Azure Active Directory. This includes creating and updating user profiles, managing passwords, and assigning roles.
+- **Multi-Tenant Support**: Manages multiple tenants (organizations) with isolated data and permissions per tenant.
+- **Email Notifications**: Automatically sends an email notification when a new user is created, helping to improve onboarding and communication.
+- **Dynamic Layouts per Tenant**: Tailored user interfaces based on tenant preferences, allowing customized layouts for each tenant.
+- **Power BI Integration**: Supports embedding Power BI reports and dashboards, including handling report generation via the Power BI API.
+- **Scheduled Power BI Capacity Management**: Automates the turning on and off of Power BI capacities at predefined time intervals to optimize resource usage.
+- **Error Handling and Logging**: Centralized error handling with proper logging for troubleshooting and monitoring.
 
 
 ## Project Structure
