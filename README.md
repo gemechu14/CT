@@ -42,7 +42,29 @@ The Cedar backend follows a layered architecture that separates concerns and pro
 - `middleware/`: Middleware functions for authentication and error handling.
 - `config/`: Configuration files for environment variables.
 - `utils/`: Utility functions.
+## Environment Variables  
+To configure environment-specific settings, create a `.env` file in the root of your project. This file is used to set variables such as API endpoints, client IDs, and feature flags that your application needs to function correctly. Below are some common environment variables used in the Cedar Backend:
 
+- `PORT`: The port on which the server will run.
+- `EMAIL`: The email address for sending notifications.
+- `DB_HOST`: Hostname of the PostgreSQL database.
+- `DB_PORT`: Port for the PostgreSQL database.
+- `DB_NAME`: Name of the PostgreSQL database.
+- `DB_USER`: Username for the PostgreSQL database.
+- `DB_PASSWORD`: Password for the PostgreSQL database.
+- `CLIENT_ID_Microsoft`: Client ID for Microsoft authentication.
+- `CLIENTSECRET_ID_Microsoft`: Client Secret for Microsoft authentication.
+- `EMAIL_PASSWORD`: Password for the email account used for notifications.
+
+### Reporting Hub
+- `TENANT_ID`: The ID of the tenant for your application.
+- `CLIENT_ID`: Client ID for accessing the Reporting Hub.
+- `CLIENT_SECRET`: Client Secret for accessing the Reporting Hub.
+- `SCOPE`: Required scope for API access.
+- `SUBSCRIPTION_ID`: Azure subscription ID.
+- `DEDICATEDCAPACITYNAME`: Name of the dedicated Power BI capacity.
+- `RESOURCEGROUPNAME`: Name of the resource group in Azure.
+- `APPVERSION`: Version of the application.
 
 ## Installation
 1. **Clone Repository:**
