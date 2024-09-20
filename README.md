@@ -25,10 +25,12 @@ The Cedar backend follows a layered architecture that separates concerns and pro
 
 ## Features
 - **User Management**: Manage user profiles, and authentication. This includes creating and updating user profiles, managing passwords, and assigning roles.
-- **Multi-Tenant Support**: Manages multiple tenants (organizations) with isolated data and permissions per tenant.
+- **Tenant Management**: Provides functionality for managing multiple tenants (organizations), including onboarding, tenant-specific configurations, and isolation of data.
+- **Theme Configuration**: Each tenant can configure their theme using a dedicated model that manages various theme colors, navigation styles, and UI components, allowing for a personalized user experience.
+- **Branding Management**: Tenants can manage their branding assets such as logos, favicons, and custom loading screens to reflect their identity within the application.
 - **Email Notifications**: Automatically sends an email notification when a new user is created, helping to improve onboarding and communication.
 - **Dynamic Layouts per Tenant**: Tailored user interfaces based on tenant preferences, allowing customized layouts for each tenant.
-- **Power BI Integration**: Supports embedding Power BI reports and dashboards, including handling report generation via the Power BI API.
+- **Power BI Integration**: Supports embedding Power BI reports.
 - **Scheduled Power BI Capacity Management**: Automates the turning on and off of Power BI capacities at predefined time intervals to optimize resource usage.
 - **Error Handling and Logging**: Centralized error handling with proper logging for troubleshooting and monitoring.
 
