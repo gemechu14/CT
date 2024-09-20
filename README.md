@@ -24,7 +24,7 @@ The Cedar backend follows a layered architecture that separates concerns and pro
 - **Axios**: HTTP client for making API requests.
 
 ## Features
-- **User Management**: Manage user profiles, authentication, and access control using Azure Active Directory. This includes creating and updating user profiles, managing passwords, and assigning roles.
+- **User Management**: Manage user profiles, and authentication. This includes creating and updating user profiles, managing passwords, and assigning roles.
 - **Multi-Tenant Support**: Manages multiple tenants (organizations) with isolated data and permissions per tenant.
 - **Email Notifications**: Automatically sends an email notification when a new user is created, helping to improve onboarding and communication.
 - **Dynamic Layouts per Tenant**: Tailored user interfaces based on tenant preferences, allowing customized layouts for each tenant.
