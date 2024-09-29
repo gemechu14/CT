@@ -129,13 +129,13 @@ exports.getAllTenants = async (req, res, next) => {
 
 // //ASSIGN THEME BRAND
 // const newThemeBranding = await ThemeBranding.create({
-//   logoImage :"http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-//   siteFaviconImage :"http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-//   customLoader:"http://35.84.123.119:4400/uploads/customLoader-1720701314174-483869383.gif",
+//   logoImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+//   siteFaviconImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+//   customLoader:"https://cedarplatform.io:4400/uploads/customLoader-1720701314174-483869383.gif",
 //   loginLogoutBackground: "#ffffff",
 //   showFooter :"true",
-//   secondaryLogoImage:"http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-//   externalLinks :"http://35.84.123.119",
+//   secondaryLogoImage:"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+//   externalLinks :"https://cedarplatform.io",
 //   TenantId: tenant.id
 // },{transaction});
 
@@ -235,13 +235,13 @@ exports.createTenant = async (req, res, next) => {
     // Assign THEME BRANDING
     const newThemeBranding = await ThemeBranding.create(
       {
-        logoImage: "http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-        siteFaviconImage: "http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-        customLoader: "http://35.84.123.119:4400/uploads/customLoader-1720701314174-483869383.gif",
+        logoImage: "https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+        siteFaviconImage: "https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+        customLoader: "https://cedarplatform.io:4400/uploads/customLoader-1720701314174-483869383.gif",
         loginLogoutBackground: "#ffffff",
         showFooter: "true",
-        secondaryLogoImage: "http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-        externalLinks: "http://35.84.123.119",
+        secondaryLogoImage: "https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+        externalLinks: "https://cedarplatform.io",
         TenantId: tenant.id,
       },
       { transaction }

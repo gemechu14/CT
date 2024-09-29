@@ -311,13 +311,13 @@ const newThemeLayout = await ThemeLayout.create({
 
 //ASSIGN THEME BRAND
 const newThemeBranding = await ThemeBranding.create({
-  logoImage :"http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-  siteFaviconImage :"http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-  customLoader:"http://35.84.123.119:4400/uploads/customLoader-1720701314174-483869383.gif",
+  logoImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+  siteFaviconImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+  customLoader:"https://cedarplatform.io:4400/uploads/customLoader-1720701314174-483869383.gif",
   loginLogoutBackground: "#ffffff",
   showFooter :"true",
-  secondaryLogoImage:"http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-  externalLinks :"http://35.84.123.119",
+  secondaryLogoImage:"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+  externalLinks :"https://cedarplatform.io",
   TenantId: tenant.id
 },{transaction});
 
@@ -533,7 +533,7 @@ exports.forgetPassword = async (req, res, next) => {
     await user.save();
 
     // 5. Send the reset link via email
-    const resetURL = `http://35.84.123.119/users/auth/createpassword/${resetToken}`;
+    const resetURL = `https://cedarplatform.io/users/auth/createpassword/${resetToken}`;
     //const message = `Forgot your password? Submit a request with your new password to: ${resetURL}\nIf you didn't request this, please ignore this email.`;
 
 

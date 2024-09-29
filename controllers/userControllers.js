@@ -174,7 +174,7 @@ if(teamId){
          <p>Your account has been successfully created.</p>
          <p><strong>Email:</strong> ${newUser.email}</p>
          <p><strong>Password:</strong> ${password}</p>
-         <p>You can log in to Cedar platform <a href="http://35.84.123.119/">here</a>.</p>
+         <p>You can log in to Cedar platform <a href="https://cedarplatform.io/">here</a>.</p>
          <p>Thank you!</p>`    },
          {transaction});
 
@@ -513,7 +513,7 @@ exports.changeProfile= async(req,res,next)=>{
     // const imageUrl= req?.body?.imageUrl;
     
     const data = req.files?.imageUrl?.[0]?.path;
-    const imagePath = data ? `http://35.84.123.119:4400/${data}` :null;
+    const imagePath = data ? `https://cedarplatform.io:4400/${data}` :null;
 
     const user= await User.findOne({where:{id: req?.user?.id}})
 
