@@ -311,13 +311,13 @@ const newThemeLayout = await ThemeLayout.create({
 
 //ASSIGN THEME BRAND
 const newThemeBranding = await ThemeBranding.create({
-  logoImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-  siteFaviconImage :"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-  customLoader:"https://cedarplatform.io:4400/uploads/customLoader-1720701314174-483869383.gif",
+  logoImage :"http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+  siteFaviconImage :"http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+  customLoader:"http://35.84.123.119:4400/uploads/customLoader-1720701314174-483869383.gif",
   loginLogoutBackground: "#ffffff",
   showFooter :"true",
-  secondaryLogoImage:"https://cedarplatform.io:4400/uploads/imageUrl-1718787785930-313132666.jpg",
-  externalLinks :"https://cedarplatform.io",
+  secondaryLogoImage:"http://35.84.123.119:4400/uploads/imageUrl-1718787785930-313132666.jpg",
+  externalLinks :"http://35.84.123.119",
   TenantId: tenant.id
 },{transaction});
 
