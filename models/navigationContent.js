@@ -1,7 +1,6 @@
-
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../database/db.js");
-const Tenant= require("../models/tenant.js")
+const Tenant = require("../models/tenant.js");
 
 const NavigationContent = sequelize.define("NavigationContent", {
   CreatedBy: {
@@ -35,7 +34,7 @@ const NavigationContent = sequelize.define("NavigationContent", {
   ReportType: {
     type: DataTypes.STRING,
   },
-  
+
   ReportDatasetId: {
     type: DataTypes.STRING,
   },
@@ -50,33 +49,25 @@ const NavigationContent = sequelize.define("NavigationContent", {
   Title: {
     type: DataTypes.STRING,
     // allowNull: false,
-
-
   },
 
   PagePath: {
     type: DataTypes.STRING,
     // allowNull: false,
-
-    
   },
 
-
-  
- 
- Description: {
+  Description: {
     type: DataTypes.STRING,
   },
-  
+
   PowerBiWorkspace: {
     type: DataTypes.STRING,
   },
   //BOOLEAN
   DisplayUseDynamicBinding: {
     type: DataTypes.BOOLEAN,
-    defaultValue:false
+    defaultValue: false,
   },
-
 
   ///
 
@@ -88,41 +79,40 @@ const NavigationContent = sequelize.define("NavigationContent", {
   },
   ShowFilter: {
     type: DataTypes.BOOLEAN,
-    defaultValue:false
+    defaultValue: false,
   },
 
   ShowContentPane: {
     type: DataTypes.BOOLEAN,
-    defaultValue:false
+    defaultValue: false,
   },
   HideTitleAnddescription: {
     type: DataTypes.BOOLEAN,
-    defaultValue:false
+    defaultValue: false,
   },
 
   HideTitleSection: {
     type: DataTypes.BOOLEAN,
-    defaultValue:false
+    defaultValue: false,
   },
   ShowSharingButton: {
     type: DataTypes.BOOLEAN,
-    defaultValue:false
+    defaultValue: false,
   },
   ShowExportButton: {
     type: DataTypes.BOOLEAN,
-    defaultValue:false
+    defaultValue: false,
   },
-  
-//   navSecurity: [
-//     {
-//         "Id": { type: DataTypes.BOOLEAN,},
-//         // "GroupId": 10,
-//         // "CanEdit": false,
-//         // "RolesValidation": ""
-//     }
-// ],
 
-  
+  //   navSecurity: [
+  //     {
+  //         "Id": { type: DataTypes.BOOLEAN,},
+  //         // "GroupId": 10,
+  //         // "CanEdit": false,
+  //         // "RolesValidation": ""
+  //     }
+  // ],
+
   SortOrder: {
     type: DataTypes.STRING,
   },
@@ -131,32 +121,36 @@ const NavigationContent = sequelize.define("NavigationContent", {
     type: DataTypes.STRING,
   },
   EmbedUrl: {
-    type: DataTypes.TEXT // Change STRING to TEXT
+    type: DataTypes.TEXT, // Change STRING to TEXT
   },
-  
+
   type: {
     type: DataTypes.ENUM("category", "contentPage"),
     // allowNull: false,
   },
-
 
   NavSecurity: {
     type: DataTypes.JSON, // Use JSON or JSONB
     // allowNull: false,
     defaultValue: [],
     get() {
-      const rawValue = this.getDataValue('NavSecurity');
-      return typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
-    }
-  }
+      const rawValue = this.getDataValue("NavSecurity");
+      return typeof rawValue === "string" ? JSON.parse(rawValue) : rawValue;
+    },
+  },
 
+  pageReports: {
+    type: DataTypes.JSON, // Use JSON or JSONB
+    // allowNull: false,
+    defaultValue: [],
+    get() {
+      const rawValue = this.getDataValue("pageReports");
+      return typeof rawValue === "string" ? JSON.parse(rawValue) : rawValue;
+    },
+  },
 });
 
 module.exports = NavigationContent;
 
-
-
-
 NavigationContent.belongsTo(Tenant);
 Tenant.hasMany(NavigationContent);
-

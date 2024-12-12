@@ -40,7 +40,6 @@ exports.getAllNavigation = async (req, res, next) => {
 //GET ALL NAVIGATION
 exports.getAllNavigation2 = async (req, res, next) => {
   try {
- 
     const user = await User.findByPk(req.user.id, {
       include: {
         model: Team,
@@ -66,7 +65,7 @@ exports.getAllNavigation2 = async (req, res, next) => {
           model: Team,
           // where: {
           //   id: { [Op.in]: teamIds },
-          },
+        },
 
         //   through: {
         //     attributes: [],
@@ -190,6 +189,7 @@ exports.createNavigation = async (req, res, next) => {
       __RequestVerificationToken,
       EmbedUrl,
       NavSecurity,
+      pageReports,
       type,
     } = req.body;
 
@@ -231,7 +231,8 @@ exports.createNavigation = async (req, res, next) => {
         SortOrder,
         __RequestVerificationToken,
         EmbedUrl,
-        // NavSecurity,
+        NavSecurity,
+        pageReports,
         type,
         TenantId: user.currentTenant,
       },
@@ -371,6 +372,7 @@ exports.updateNavigation = async (req, res, next) => {
       EmbedUrl,
       NavSecurity,
       type,
+      pageReports,
     } = req.body;
 
     const user = await User.findByPk(req.user.id);
@@ -513,6 +515,7 @@ exports.updateNavigation = async (req, res, next) => {
         EmbedUrl,
         type,
         NavSecurity,
+        pageReports,
         TenantId: user.currentTenant,
       },
       { transaction }

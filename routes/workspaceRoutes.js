@@ -20,6 +20,8 @@ router.get("/capabilities",workspacesControllers.getListOfOfCapability);
 router.get("/capabilities/start",workspacesControllers.resume1Capacity);
 router.get("/capabilities/pause",workspacesControllers.suspend1Capacity);
 
+router.get("/get-page-reports", workspacesControllers.getReportPages);
+
 
 module.exports = router;
 
