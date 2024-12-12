@@ -64,14 +64,14 @@ exports.getAllNavigation2 = async (req, res, next) => {
       include: [
         {
           model: Team,
-          where: {
-            id: { [Op.in]: teamIds },
-          },
+          // where: {
+          //   id: { [Op.in]: teamIds },
+          // },
 
-          through: {
-            attributes: [],
-          },
-          required: false,
+          // through: {
+          //   attributes: [],
+          // },
+          // required: false,
         },
       ],
     });

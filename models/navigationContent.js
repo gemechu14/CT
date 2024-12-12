@@ -75,7 +75,7 @@ const NavigationContent = sequelize.define("NavigationContent", {
     type: DataTypes.STRING,
   },
   ReportPages: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
   },
   ShowFilter: {
     type: DataTypes.BOOLEAN,
