@@ -7,17 +7,15 @@ const upload = require("../middleware/multer.js");
 router.get(
   "/",
   middleware.protect,
-
   middleware.restrictTo(["Admin", "SuperAdmin", "Read Only"]),
   userController.getAllUser
 );
-
 
 router.post(
   "/",
   middleware.protect,
   middleware.restrictTo(["SuperAdmin"]),
- 
+
   userController.createUser
 );
 router.put(
@@ -27,9 +25,6 @@ router.put(
   userController.assignRoleToUser
 );
 
-
-
-
 router.put(
   "/assign-supertenant",
   middleware.protect,
@@ -38,8 +33,6 @@ router.put(
   userController.assignSuperTenant
 );
 
-
-
 router.put(
   "/unassign-supertenant",
   middleware.protect,
@@ -47,7 +40,6 @@ router.put(
   // middleware.restrictTo(["Power"]),
   userController.unassignSuperTenant
 );
-
 
 router.put(
   "/change-status/",
@@ -73,10 +65,7 @@ router.put(
 router.put(
   "/change-profile",
   middleware.protect,
-upload.fields([
-  { name: "imageUrl", maxCount: 1 },
-
-]),
+  upload.fields([{ name: "imageUrl", maxCount: 1 }]),
   userController.changeProfile
 );
 router.put(
@@ -101,5 +90,3 @@ router.delete(
 );
 
 module.exports = router;
-
-

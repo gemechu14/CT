@@ -7,7 +7,7 @@ const User = require("../models/Users.js");
 const Tenant = require("../models/tenant.js");
 const Team = require("../models/teams.js");
 const ReportTeam = require("../models/reportTeam.js");
-const { Op } = require('sequelize');
+const { Op } = require("sequelize");
 
 // GET ALL NAVIGATION
 exports.getAllNavigation = async (req, res, next) => {
@@ -40,45 +40,41 @@ exports.getAllNavigation = async (req, res, next) => {
 //GET ALL NAVIGATION
 exports.getAllNavigation2 = async (req, res, next) => {
   try {
-
-
+ 
     const user = await User.findByPk(req.user.id, {
       include: {
         model: Team,
-        through: { attributes: [] }, 
+        through: { attributes: [] },
       },
     });
 
+    const teamIds = user.Teams.map((team) => team.id);
 
-    const teamIds = user.Teams.map(team => team.id);
-
-
-const navigationContent = await NavigationContent.findAll({
-  attributes: { exclude: ["createdAt", "updatedAt"] },
-  where: {
-    TenantId: user.currentTenant,
-    [Op.or]: [
-      { CreatedBy: user.id.toString()},
-      { 
-        '$Teams.id$': { [Op.in]: teamIds }
-      }
-    ]
-  },
-  include: [
-    {
-      model: Team,
+    const navigationContent = await NavigationContent.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
       where: {
-        id: { [Op.in]: teamIds },
+        TenantId: user.currentTenant,
+        [Op.or]: [
+          { CreatedBy: user.id.toString() },
+          {
+            "$Teams.id$": { [Op.in]: teamIds },
+          },
+        ],
       },
+      include: [
+        {
+          model: Team,
+          // where: {
+          //   id: { [Op.in]: teamIds },
+          },
 
-      through: {
-        attributes: [],
-      },
-      required:false
-    },
-  ],
-});
-
+        //   through: {
+        //     attributes: [],
+        //   },
+        //   required: false,
+        // },
+      ],
+    });
 
     return res.status(200).json(navigationContent);
   } catch (error) {
@@ -116,8 +112,6 @@ exports.getNavigationById = async (req, res, next) => {
     return next(createError.createError(500, "Internal server Error"));
   }
 };
-
-
 
 // exports.getNavigationById2 = async (req, res, next) => {
 //   try {
@@ -288,20 +282,16 @@ exports.createNavigation = async (req, res, next) => {
     }
     await transaction.commit();
 
-    res
-      .status(201)
-      .json({
-        message: "Navigation registered successfully",
-        navigation: newNavigation,
-      });
+    res.status(201).json({
+      message: "Navigation registered successfully",
+      navigation: newNavigation,
+    });
   } catch (error) {
     console.log(error);
     await transaction.rollback();
     return next(createError.createError(500, "Internal server Error"));
   }
 };
-
-
 
 //BULK UPDATE
 
@@ -397,12 +387,14 @@ exports.updateNavigation = async (req, res, next) => {
       const existingNavigationContent = await NavigationContent.findOne({
         where: {
           Title,
-          id: { [Op.not]: navigation.id } // Exclude current NavigationContent
-        }
+          id: { [Op.not]: navigation.id }, // Exclude current NavigationContent
+        },
       });
 
       if (existingNavigationContent) {
-        return res.status(400).json({ message: 'NavigationContent Title must be unique' });
+        return res
+          .status(400)
+          .json({ message: "NavigationContent Title must be unique" });
       }
     }
 
@@ -415,58 +407,54 @@ exports.updateNavigation = async (req, res, next) => {
 
     // Extract updated TeamIds from NavSecurity
 
-
-    if(NavSecurity){
-
-
+    if (NavSecurity) {
       const updatedTeamIds = NavSecurity?.map((item) => item.GroupId);
 
       // Find TeamIds to delete (present in currentTeamIds but not in updatedTeamIds)
       const teamsToDelete = currentTeamIds.filter(
         (teamId) => !updatedTeamIds.includes(teamId)
       );
-  
-      // Delete ReportTeam records where TeamId is in teamsToDelete
-      await ReportTeam.destroy({
-        where: {
-          NavigationContentId: navigationId,
-          TeamId: teamsToDelete,
-        },
-        transaction,
-      });
 
+      if (teamsToDelete != null) {
+        // Delete ReportTeam records where TeamId is in teamsToDelete
+        await ReportTeam.destroy({
+          where: {
+            NavigationContentId: navigationId,
+            TeamId: teamsToDelete,
+          },
+          transaction,
+        });
+      }
 
+      // Create new ReportTeam records for new TeamIds in updated NavSecurity
+      const createReportTeamPromises = NavSecurity?.map(async (item) => {
+        const { GroupId, CanEdit, RolesValidation } = item;
 
-        // Create new ReportTeam records for new TeamIds in updated NavSecurity
-    const createReportTeamPromises = NavSecurity?.map(async (item) => {
-      const { GroupId, CanEdit, RolesValidation } = item;
+        // Check if TeamId already exists in currentTeamIds
+        if (!currentTeamIds.includes(GroupId)) {
+          const team = await Team.findByPk(GroupId, { transaction });
 
-      // Check if TeamId already exists in currentTeamIds
-      if (!currentTeamIds.includes(GroupId)) {
-        const team = await Team.findByPk(GroupId, { transaction });
-        if (!team) {
-          throw createError.createError(
-            404,
-            `Team with ID ${GroupId} not found`
+          if (!team) {
+            throw createError.createError(
+              404,
+              `Team with ID ${GroupId} not found`
+            );
+          }
+
+          const data = await ReportTeam.create(
+            {
+              NavigationContentId: navigationId,
+              TeamId: GroupId,
+              CanEdit,
+              RolesValidation,
+            },
+            { transaction }
           );
         }
+      });
 
-        await ReportTeam.create(
-          {
-            NavigationContentId: navigationId,
-            TeamId: GroupId,
-            CanEdit,
-            RolesValidation,
-          },
-          { transaction }
-        );
-      }
-    });
-
-    await Promise.all(createReportTeamPromises);
-
+      await Promise.all(createReportTeamPromises);
     }
-    
 
     // Update existing ReportTeam records if CanEdit or RolesValidation has changed
     const updateReportTeamPromises = currentTeams.map(async (reportTeam) => {
@@ -493,8 +481,6 @@ exports.updateNavigation = async (req, res, next) => {
     });
 
     await Promise.all(updateReportTeamPromises);
-
-  
 
     // Update the NavigationContent with other attributes
     await navigation.update(
@@ -526,6 +512,7 @@ exports.updateNavigation = async (req, res, next) => {
         __RequestVerificationToken,
         EmbedUrl,
         type,
+        NavSecurity,
         TenantId: user.currentTenant,
       },
       { transaction }
@@ -545,7 +532,7 @@ exports.updateNavigation = async (req, res, next) => {
   }
 };
 
-// DELETE NAVIGATION 
+// DELETE NAVIGATION
 
 exports.deleteNavigation = async (req, res, next) => {
   const { id } = req.params;
@@ -554,20 +541,26 @@ exports.deleteNavigation = async (req, res, next) => {
     const navigationContent = await NavigationContent.findByPk(id);
 
     if (!navigationContent) {
-      return next(createError.createError(404, 'NavigationContent not found'))
+      return next(createError.createError(404, "NavigationContent not found"));
     }
 
-    await ReportTeam.destroy({where:{NavigationContentId: id}},{transaction});
+    await ReportTeam.destroy(
+      { where: { NavigationContentId: id } },
+      { transaction }
+    );
 
-    await navigationContent.destroy({transaction})
+    await navigationContent.destroy({ transaction });
 
     await transaction.commit();
 
-    return res.status(200).json({ message: 'NavigationContent and associated ReportTeams deleted successfully' });
+    return res.status(200).json({
+      message:
+        "NavigationContent and associated ReportTeams deleted successfully",
+    });
   } catch (error) {
-    console.error('Error deleting NavigationContent:', error);
+    console.error("Error deleting NavigationContent:", error);
     await transaction.rollback();
 
-    return next(createError.createError(500,"Internal server error"))
+    return next(createError.createError(500, "Internal server error"));
   }
 };
