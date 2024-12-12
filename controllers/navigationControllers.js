@@ -59,23 +59,34 @@ exports.getAllNavigation2 = async (req, res, next) => {
             "$Teams.id$": { [Op.in]: teamIds },
           },
         ],
+        type: "contentPage",
       },
       include: [
         {
           model: Team,
-          // where: {
-          //   id: { [Op.in]: teamIds },
-        },
+          where: {
+            id: { [Op.in]: teamIds },
+          },
 
-        //   through: {
-        //     attributes: [],
-        //   },
-        //   required: false,
-        // },
+          through: {
+            attributes: [],
+          },
+          required: false,
+        },
       ],
     });
 
-    return res.status(200).json(navigationContent);
+    // Get all categories under the tenant
+    const categories = await NavigationContent.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      where: {
+        TenantId: user.currentTenant,
+        type: "category",
+      },
+    });
+    const combinedResponse = [...navigationContent, ...categories];
+    // return res.status(200).json(navigationContent);
+    return res.status(200).json(combinedResponse);
   } catch (error) {
     console.log(error);
     return next(createError.createError(500, "Internal server Error"));
