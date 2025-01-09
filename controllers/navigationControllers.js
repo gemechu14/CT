@@ -38,6 +38,62 @@ exports.getAllNavigation = async (req, res, next) => {
 };
 
 //GET ALL NAVIGATION
+// exports.getAllNavigation2 = async (req, res, next) => {
+//   try {
+//     const user = await User.findByPk(req.user.id, {
+//       include: {
+//         model: Team,
+//         through: { attributes: [] },
+//       },
+//     });
+
+//     const teamIds = user.Teams.map((team) => team.id);
+
+//     const navigationContent = await NavigationContent.findAll({
+//       attributes: { exclude: ["createdAt", "updatedAt"] },
+//       where: {
+//         TenantId: user.currentTenant,
+//         [Op.or]: [
+//           { CreatedBy: user.id.toString() },
+//           {
+//             "$Teams.id$": { [Op.in]: teamIds },
+//           },
+//         ],
+//         type: "contentPage",
+//       },
+//       include: [
+//         {
+//           model: Team,
+//           // where: {
+//           //   id: { [Op.in]: teamIds },
+//           // },
+
+//           // through: {
+//           //   attributes: [],
+//           // },
+//           // required: false,
+//         },
+//       ],
+//     });
+
+//     // Get all categories under the tenant
+//     const categories = await NavigationContent.findAll({
+//       attributes: { exclude: ["createdAt", "updatedAt"] },
+//       where: {
+//         TenantId: user.currentTenant,
+//         type: "category",
+//       },
+//     });
+//     const combinedResponse = [...navigationContent, ...categories];
+//     // return res.status(200).json(navigationContent);
+//     return res.status(200).json(combinedResponse);
+//   } catch (error) {
+//     console.log(error);
+//     return next(createError.createError(500, "Internal server Error"));
+//   }
+// };
+
+//GET ALL NAVIGATION
 exports.getAllNavigation2 = async (req, res, next) => {
   try {
     const user = await User.findByPk(req.user.id, {
@@ -49,32 +105,44 @@ exports.getAllNavigation2 = async (req, res, next) => {
 
     const teamIds = user.Teams.map((team) => team.id);
 
-    const navigationContent = await NavigationContent.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      where: {
-        TenantId: user.currentTenant,
-        [Op.or]: [
-          { CreatedBy: user.id.toString() },
+    let navigationContent;
+    if (user.isSuperTenant) {
+      console.log(" super tenant");
+      // If the user is a super tenant, show all navigation content
+      navigationContent = await NavigationContent.findAll({
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        where: {
+          TenantId: user.currentTenant, // Replace "8" with dynamic TenantId if needed
+          type: "contentPage",
+        },
+        include: [
           {
-            "$Teams.id$": { [Op.in]: teamIds },
+            model: Team,
           },
         ],
-        type: "contentPage",
-      },
-      include: [
-        {
-          model: Team,
-          // where: {
-          //   id: { [Op.in]: teamIds },
-          // },
-
-          // through: {
-          //   attributes: [],
-          // },
-          // required: false,
+      });
+    } else {
+      console.log("not super tenant");
+      // If the user is not a super tenant, apply restrictions
+      navigationContent = await NavigationContent.findAll({
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        where: {
+          TenantId: user.currentTenant,
+          [Op.or]: [
+            { CreatedBy: user.id.toString() },
+            {
+              "$Teams.id$": { [Op.in]: teamIds },
+            },
+          ],
+          type: "contentPage",
         },
-      ],
-    });
+        include: [
+          {
+            model: Team,
+          },
+        ],
+      });
+    }
 
     // Get all categories under the tenant
     const categories = await NavigationContent.findAll({
@@ -84,9 +152,12 @@ exports.getAllNavigation2 = async (req, res, next) => {
         type: "category",
       },
     });
+
     const combinedResponse = [...navigationContent, ...categories];
-    // return res.status(200).json(navigationContent);
-    return res.status(200).json(combinedResponse);
+    return res.status(200).json(
+     
+      combinedResponse,
+    );
   } catch (error) {
     console.log(error);
     return next(createError.createError(500, "Internal server Error"));
