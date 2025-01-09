@@ -9,11 +9,10 @@ const Address = require("../models/address.js");
 const { where } = require("sequelize");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const sendEmail= require("../utils/sendEmail.js");
+const sendEmail = require("../utils/sendEmail.js");
 const Team = require("../models/teams.js");
 const UserTeam = require("../models/userTeam.js");
-const { Op } = require('sequelize');
-
+const { Op } = require("sequelize");
 
 // GET ALL USER
 exports.getAllUser = async (req, res, next) => {
@@ -87,9 +86,6 @@ exports.createUser = async (req, res, next) => {
       // postalCode,
     } = req.body;
 
-   
-
-
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return next(createError.createError(400, "User already exists"));
@@ -111,8 +107,6 @@ exports.createUser = async (req, res, next) => {
     }
     const user = await User.findByPk(req.user.id);
 
- 
-
     const newUser = await User.create(
       {
         firstName,
@@ -127,27 +121,25 @@ exports.createUser = async (req, res, next) => {
       { transaction }
     );
 
+    /////////CREATE TEAM////////////////////////
 
-/////////CREATE TEAM////////////////////////
-
-if(teamId){
-  const teams = await Team.findOne({where:{id:Number(teamId)}});
-  if(!teams){
-    return next(createError.createError(404,"The team not found"))
-  }
-  else{
-
-    const userTeam = await UserTeam.create({
-      UserId: newUser.id,
-      TeamId: teamId,
-    },{transaction});
-}
-}
-///////////////////////////////////////////
-
+    if (teamId) {
+      const teams = await Team.findOne({ where: { id: Number(teamId) } });
+      if (!teams) {
+        return next(createError.createError(404, "The team not found"));
+      } else {
+        const userTeam = await UserTeam.create(
+          {
+            UserId: newUser.id,
+            TeamId: teamId,
+          },
+          { transaction }
+        );
+      }
+    }
+    ///////////////////////////////////////////
 
     //check team
-   
 
     // await UserRole.create(
     //   {
@@ -166,20 +158,21 @@ if(teamId){
     );
 
     const text = `Dear User,\n\nWelcome to Cedarstreet! Your account has been successfully created.\n\nEmail: ${newUser.email}\nPassword: ${newUser.password}\n\nThank you!`;
-    await sendEmail({
-      email: newUser.email,
-      subject: "Welcome to Cedar Platform",
-      text,
-      html:`<p>Dear ${newUser.firstName},</p>
+    await sendEmail(
+      {
+        email: newUser.email,
+        subject: "Welcome to Cedar Platform",
+        text,
+        html: `<p>Dear ${newUser.firstName},</p>
          <p>Your account has been successfully created.</p>
          <p><strong>Email:</strong> ${newUser.email}</p>
          <p><strong>Password:</strong> ${password}</p>
          <p>You can log in to Cedar platform <a href="https://cedarplatform.io/">here</a>.</p>
-         <p>Thank you!</p>`    },
-         {transaction});
+         <p>Thank you!</p>`,
+      },
+      { transaction }
+    );
 
-  
-   
     await transaction.commit();
     res.status(201).json(newUser);
   } catch (error) {
@@ -251,8 +244,7 @@ exports.assignRoleToUser = async (req, res, next) => {
 exports.updateUser = async (req, res, next) => {
   try {
     //insert required field
-    const { firstName, lastName, email, phoneNumber, roleId } =
-      req.body;
+    const { firstName, lastName, email, phoneNumber, roleId } = req.body;
     const updates = {};
     const { id } = req.params;
 
@@ -299,13 +291,11 @@ exports.updateUser = async (req, res, next) => {
   }
 };
 
-
 //UPDATE USER  PROFILE
 exports.updateUserProfile = async (req, res, next) => {
   try {
     //insert required field
-    const { firstName, lastName, email, phoneNumber, roleId } =
-      req.body;
+    const { firstName, lastName, email, phoneNumber, roleId } = req.body;
     const updates = {};
     const { id } = req.params;
 
@@ -448,8 +438,10 @@ exports.changePassword = async (req, res, next) => {
       where: { id: req.user.id },
     });
 
-    if(!previousPassword  || !newPassword){
-      return next(createError.createError(400, "Please enter the required fields."));
+    if (!previousPassword || !newPassword) {
+      return next(
+        createError.createError(400, "Please enter the required fields.")
+      );
     }
     if (!user) {
       return next(createError.createError(404, "User not found"));
@@ -459,7 +451,7 @@ exports.changePassword = async (req, res, next) => {
       return next(createError.createError(401, "Incorrect password"));
     }
 
-    await user.update({password: newPassword})
+    await user.update({ password: newPassword });
 
     res.status(200).json({
       message: "updated successfully",
@@ -471,29 +463,27 @@ exports.changePassword = async (req, res, next) => {
   }
 };
 
-
-
 //RESET PASSWORD
 exports.resetPassword = async (req, res, next) => {
   try {
     //insert required field
-    const {  newPassword } = req.body;
-    const id = req?.params?.id
-    if( !id  || !newPassword){
-      return next(createError.createError(400, "Please enter the required fields."));
+    const { newPassword } = req.body;
+    const id = req?.params?.id;
+    if (!id || !newPassword) {
+      return next(
+        createError.createError(400, "Please enter the required fields.")
+      );
     }
 
     const user = await User.findOne({
       where: { id: Number(id) },
     });
 
-   
     if (!user) {
       return next(createError.createError(404, "User not found"));
     }
 
-
-    await user.update({password: newPassword})
+    await user.update({ password: newPassword });
 
     res.status(200).json({
       message: "updated successfully",
@@ -505,42 +495,36 @@ exports.resetPassword = async (req, res, next) => {
   }
 };
 
-
 //CHANGE PROFILE PICTURE
-exports.changeProfile= async(req,res,next)=>{
+exports.changeProfile = async (req, res, next) => {
   try {
-
     // const imageUrl= req?.body?.imageUrl;
-    
+
     const data = req.files?.imageUrl?.[0]?.path;
-    const imagePath = data ? `https://cedarplatform.io:4400/${data}` :null;
+    const imagePath = data ? `https://cedarplatform.io:4400/${data}` : null;
 
-    const user= await User.findOne({where:{id: req?.user?.id}})
+    const user = await User.findOne({ where: { id: req?.user?.id } });
 
-    if(imagePath === null){
-      return next(createError.createError(400,'Please add image'))
-    }
-    else if( imagePath != null){
-    
-      await user.update({ imageUrl: imagePath },);
+    if (imagePath === null) {
+      return next(createError.createError(400, "Please add image"));
+    } else if (imagePath != null) {
+      await user.update({ imageUrl: imagePath });
 
       return res.status(200).json({
-        message:"Profile picture added successfully"
-      })
+        message: "Profile picture added successfully",
+      });
     }
- 
-    
   } catch (error) {
-console.log(error)
-return next(createError.createError(500,"Internal server error"))    
+    console.log(error);
+    return next(createError.createError(500, "Internal server error"));
   }
-}
+};
 
 //ASSIGN SUPER TENANT
 exports.assignSuperTenant = async (req, res, next) => {
   const transaction = await sequelize.transaction();
   try {
-    const { userId} = req.body;
+    const { userId } = req.body;
 
     const user = await User.findByPk(Number(userId));
 
@@ -548,52 +532,43 @@ exports.assignSuperTenant = async (req, res, next) => {
       return next(createError.createError(404, "User not found "));
     }
 
-
-    if(user.isSuperTenant){
-      return next(createError.createError(400,"User already supertenant"))
+    if (user.isSuperTenant) {
+      return next(createError.createError(400, "User already supertenant"));
     }
 
     const userTenantRecords = await UserTenant.findAll({
-      where: { UserId:  Number(user.id) },
-      attributes: ['TenantId'],
+      where: { UserId: Number(user.id) },
+      attributes: ["TenantId"],
       // transaction
-    })
+    });
 
-    const userTenantIds = userTenantRecords.map(record => record.TenantId);
-
+    const userTenantIds = userTenantRecords.map((record) => record.TenantId);
 
     // Fetch tenants that are not associated with the user
     const newTenants = await Tenant.findAll({
       where: {
         id: {
-          [Op.notIn]: userTenantIds
-        }
+          [Op.notIn]: userTenantIds,
+        },
       },
       // transaction
     });
 
-
-
-
-///ASSSIGN USER TO TENANT
-    const newUserTenants = newTenants.map(tenant => ({
+    ///ASSSIGN USER TO TENANT
+    const newUserTenants = newTenants.map((tenant) => ({
       UserId: user.id,
-      TenantId: tenant.id 
+      TenantId: tenant.id,
     }));
-    
 
     if (newUserTenants.length > 0) {
       await UserTenant.bulkCreate(newUserTenants, { transaction });
     }
 
+    await user.update({ isSuperTenant: true }, transaction);
 
-    await user.update({ isSuperTenant: true },transaction);
-
-    
     await transaction.commit();
     res.status(200).json({ message: "User assigned  successfully" });
   } catch (error) {
-
     // await transaction.rollback();
     console.log(error);
     return next(createError.createError(500, "Internal server Error"));
@@ -616,26 +591,38 @@ exports.unassignSuperTenant = async (req, res, next) => {
       await transaction.rollback();
       return next(createError.createError(400, "User is not a super tenant"));
     }
+    // Check if the user is trying to unassign themselves
+    if (Number(userId) === req.user.id) {
+      await transaction.rollback();
+      return next(
+        createError.createError(
+          403,
+          "You cannot unassign yourself as a super tenant"
+        )
+      );
+    }
 
     // Find all UserTenant records for the user except the default tenant
     const userTenantRecords = await UserTenant.findAll({
       where: {
         UserId: Number(user.id),
-        TenantId: { [Op.ne]: user.defaultTenant }
+        TenantId: { [Op.ne]: user.defaultTenant },
       },
-      attributes: ['TenantId'],
-      transaction
+      attributes: ["TenantId"],
+      transaction,
     });
 
     // Remove the user from all tenants except the default tenant
     if (userTenantRecords.length > 0) {
-      const tenantIdsToRemove = userTenantRecords.map(record => record.TenantId);
+      const tenantIdsToRemove = userTenantRecords.map(
+        (record) => record.TenantId
+      );
       await UserTenant.destroy({
         where: {
           UserId: Number(user.id),
-          TenantId: tenantIdsToRemove
+          TenantId: tenantIdsToRemove,
         },
-        transaction
+        transaction,
       });
     }
 
