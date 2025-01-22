@@ -615,9 +615,10 @@ exports.updateNavigation = async (req, res, next) => {
       ],
     });
     // Respond with success message and updated navigation
-    res
-      .status(200)
-      .json({ message: "Navigation updated successfully", updatedNavigation });
+    res.status(200).json({
+      message: "Navigation updated successfully",
+      navigation: updatedNavigation,
+    });
   } catch (error) {
     console.error("Error updating navigation:", error);
     await transaction.rollback();
