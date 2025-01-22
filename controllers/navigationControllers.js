@@ -154,10 +154,7 @@ exports.getAllNavigation2 = async (req, res, next) => {
     });
 
     const combinedResponse = [...navigationContent, ...categories];
-    return res.status(200).json(
-     
-      combinedResponse,
-    );
+    return res.status(200).json(combinedResponse);
   } catch (error) {
     console.log(error);
     return next(createError.createError(500, "Internal server Error"));
@@ -541,11 +538,11 @@ exports.updateNavigation = async (req, res, next) => {
     }
 
     // Update existing ReportTeam records if CanEdit or RolesValidation has changed
-    const updateReportTeamPromises = currentTeams.map(async (reportTeam) => {
+    const updateReportTeamPromises = currentTeams?.map(async (reportTeam) => {
       const { TeamId } = reportTeam;
 
       // Find the corresponding NavSecurity item for the current TeamId
-      const updatedTeam = NavSecurity.find((item) => item.GroupId === TeamId);
+      const updatedTeam = NavSecurity?.find((item) => item?.GroupId === TeamId);
 
       if (updatedTeam) {
         // Update the reportTeam if CanEdit or RolesValidation has changed
@@ -605,11 +602,22 @@ exports.updateNavigation = async (req, res, next) => {
 
     // Commit the transaction
     await transaction.commit();
-
+    // Fetch the updated navigation with teams
+    const updatedNavigation = await NavigationContent.findOne({
+      where: { id: navigationId },
+      include: [
+        {
+          model: Team,
+          through: {
+            attributes: [], // Exclude junction table attributes
+          },
+        },
+      ],
+    });
     // Respond with success message and updated navigation
     res
       .status(200)
-      .json({ message: "Navigation updated successfully", navigation });
+      .json({ message: "Navigation updated successfully", updatedNavigation });
   } catch (error) {
     console.error("Error updating navigation:", error);
     await transaction.rollback();
