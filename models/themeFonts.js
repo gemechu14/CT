@@ -13,7 +13,6 @@ const ThemeFont = sequelize.define("ThemeFont", {
         type: DataTypes.STRING,
       }
 
-
 });
 
 

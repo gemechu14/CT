@@ -37,9 +37,15 @@ router.post(
 router.put(
   "/assign-to-user",
   middleware.protect,
-
   middleware.restrictTo(["SuperAdmin"]),
   teamControllers.assignTeamToUser
+);
+
+router.put(
+  "/unassign-to-user",
+  middleware.protect,
+  middleware.restrictTo(["SuperAdmin"]),
+  teamControllers.unassignTeamFromUser
 );
 router.put(
   "/assign-report",

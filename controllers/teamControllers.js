@@ -37,11 +37,9 @@ exports.getAllTeams = async (req, res, next) => {
 };
 
 //GET ALL USER UNDER TEAMS
-  exports.getAllUserUnderTeam = async (req, res, next) => {
-    try {
-      const { teamId } = req.params;
-
-
+exports.getAllUserUnderTeam = async (req, res, next) => {
+  try {
+    const { teamId } = req.params;
 
     if (!teamId) {
       return next(createError.createError(404, "Please enter TeamId"));
@@ -51,12 +49,8 @@ exports.getAllTeams = async (req, res, next) => {
       include: [
         {
           model: User,
-          attributes: { exclude: ['password'] },
-          include:[
-
-            {model:Role},
-            {model:Address}
-          ],
+          attributes: { exclude: ["password"] },
+          include: [{ model: Role }, { model: Address }],
 
           through: {
             model: UserTeam,
@@ -72,16 +66,16 @@ exports.getAllTeams = async (req, res, next) => {
       },
     });
 
-        // Extract users from teams
-        const users = teams.reduce((acc, team) => {
-          const teamUsers = team.Users.map(user => {
-            // const { password, ...userWithoutPassword } = user.get({ plain: true });
-            return user;
-          });
-          return [...acc, ...teamUsers];
-        }, []);
-    
-        return res.status(200).json(users);
+    // Extract users from teams
+    const users = teams.reduce((acc, team) => {
+      const teamUsers = team.Users.map((user) => {
+        // const { password, ...userWithoutPassword } = user.get({ plain: true });
+        return user;
+      });
+      return [...acc, ...teamUsers];
+    }, []);
+
+    return res.status(200).json(users);
     return res.status(200).json(users);
   } catch (error) {
     console.log(error);
@@ -155,7 +149,6 @@ exports.createTeams = async (req, res, next) => {
 //   }
 // };
 
-
 exports.assignTeamToUser = async (req, res, next) => {
   try {
     const { teamId, userIds } = req.body; // Assume userIds is an array of user IDs
@@ -168,8 +161,8 @@ exports.assignTeamToUser = async (req, res, next) => {
 
     const users = await User.findAll({
       where: {
-        id: userIds
-      }
+        id: userIds,
+      },
     });
 
     if (users.length !== userIds.length) {
@@ -218,6 +211,59 @@ exports.assignTeamToUser = async (req, res, next) => {
   }
 };
 
+//UNASSIGN FROM TEAM
+
+exports.unassignTeamFromUser = async (req, res, next) => {
+  try {
+    const { teamId, userIds } = req.body; // userIds is an array of user IDs
+
+    // Check if the team exists
+    const team = await Team.findByPk(Number(teamId));
+    if (!team) {
+      return next(createError.createError(404, "Team not found"));
+    }
+
+    // Check if users exist
+    const users = await User.findAll({
+      where: {
+        id: userIds,
+      },
+    });
+
+    if (users.length !== userIds.length) {
+      return next(createError.createError(404, "Some users not found"));
+    }
+
+    // Check if users are actually assigned to the team
+    const assignedUsers = await UserTeam.findAll({
+      where: {
+        TeamId: teamId,
+        UserId: userIds,
+      },
+    });
+
+    if (assignedUsers.length === 0) {
+      return res.status(400).json({
+        message: "None of the specified users are assigned to this team",
+      });
+    }
+
+    // Remove users from the team
+    await UserTeam.destroy({
+      where: {
+        TeamId: teamId,
+        UserId: userIds,
+      },
+    });
+
+    res.status(200).json({
+      message: "Users unassigned successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return next(createError.createError(500, "Internal server error"));
+  }
+};
 
 //ASSIGN NAVIGATION  TO TEAM
 exports.assignNavigationToTeam = async (req, res, next) => {
@@ -318,20 +364,22 @@ exports.getAllUnassignedUser = async (req, res, next) => {
       where: {
         TeamId: teamId,
       },
-      attributes: ['UserId'],
+      attributes: ["UserId"],
     });
 
-    const userIdsInTeam = userTeams.map(userTeam => userTeam.UserId);
+    const userIdsInTeam = userTeams.map((userTeam) => userTeam.UserId);
 
     // Step 2: Get all users under the current tenant
     const allUsersUnderTenant = await UserTenant.findAll({
       where: {
         TenantId: req.user.currentTenant, // Filter by the current tenant
       },
-      attributes: ['UserId'],
+      attributes: ["UserId"],
     });
 
-    const userIdsUnderTenant = allUsersUnderTenant.map(userTenant => userTenant.UserId);
+    const userIdsUnderTenant = allUsersUnderTenant.map(
+      (userTenant) => userTenant.UserId
+    );
 
     // Step 3: Get all users under the current tenant who are not in the selected team
     const unassignedUsers = await User.findAll({
@@ -353,14 +401,11 @@ exports.getAllUnassignedUser = async (req, res, next) => {
       },
     });
 
-    res.status(200).json(
-      unassignedUsers
-    );
+    res.status(200).json(unassignedUsers);
   } catch (error) {
     return next(createError.createError(500, "Internal server error"));
   }
 };
-
 
 // GET ALL UNASSIGNED USERS
 // exports.getAllUnassignedUser = async (req, res, next) => {
@@ -417,7 +462,6 @@ exports.getAllUnassignedUser = async (req, res, next) => {
 //     return next(createError.createError(500, "Internal server error"));
 //   }
 // };
-
 
 // // GET ALL UNASSIGNED USERS
 // exports.getAllUnassignedUser = async (req, res, next) => {
