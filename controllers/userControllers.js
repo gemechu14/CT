@@ -591,46 +591,57 @@ exports.unassignSuperTenant = async (req, res, next) => {
       await transaction.rollback();
       return next(createError.createError(400, "User is not a super tenant"));
     }
-    // Check if the user is trying to unassign themselves
-    if (Number(userId) === req.user.id) {
+
+    if (
+      user.email.toLowerCase() === "adonias@cedarstreet.io" ||
+      user.email.toLowerCase() === "robert@cedarstreet.io"
+    ) {
       await transaction.rollback();
       return next(
-        createError.createError(
-          403,
-          "You cannot unassign yourself as a super tenant"
-        )
+        createError.createError(400, "You cannot unassign this user")
       );
-    }
+    } else {
+      if (Number(userId) === req.user.id) {
+        await transaction.rollback();
+        return next(
+          createError.createError(
+            403,
+            "You cannot unassign yourself as a super tenant"
+          )
+        );
+      }
 
-    // Find all UserTenant records for the user except the default tenant
-    const userTenantRecords = await UserTenant.findAll({
-      where: {
-        UserId: Number(user.id),
-        TenantId: { [Op.ne]: user.defaultTenant },
-      },
-      attributes: ["TenantId"],
-      transaction,
-    });
-
-    // Remove the user from all tenants except the default tenant
-    if (userTenantRecords.length > 0) {
-      const tenantIdsToRemove = userTenantRecords.map(
-        (record) => record.TenantId
-      );
-      await UserTenant.destroy({
+      // Find all UserTenant records for the user except the default tenant
+      const userTenantRecords = await UserTenant.findAll({
         where: {
           UserId: Number(user.id),
-          TenantId: tenantIdsToRemove,
+          TenantId: { [Op.ne]: user.defaultTenant },
         },
+        attributes: ["TenantId"],
         transaction,
       });
+
+      // Remove the user from all tenants except the default tenant
+      if (userTenantRecords.length > 0) {
+        const tenantIdsToRemove = userTenantRecords.map(
+          (record) => record.TenantId
+        );
+        await UserTenant.destroy({
+          where: {
+            UserId: Number(user.id),
+            TenantId: tenantIdsToRemove,
+          },
+          transaction,
+        });
+      }
+
+      // Update the user's isSuperTenant status
+      await user.update({ isSuperTenant: false }, { transaction });
+
+      await transaction.commit();
+      res.status(200).json({ message: "User unassigned successfully" });
     }
-
-    // Update the user's isSuperTenant status
-    await user.update({ isSuperTenant: false }, { transaction });
-
-    await transaction.commit();
-    res.status(200).json({ message: "User unassigned successfully" });
+    // Check if the user is trying to unassign themselves
   } catch (error) {
     await transaction.rollback();
     console.log(error);
