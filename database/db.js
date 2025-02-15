@@ -1,6 +1,4 @@
-
-
-// //Remote Database 
+// //Remote Database
 // require("dotenv").config();
 // const { Sequelize } = require("sequelize");
 // const sequelize = new Sequelize({
@@ -10,15 +8,13 @@
 //   username: "jnbisgop",
 //   password: "8VpbSsXEE1AwVYvKhhZ7tOueUcx_i7SF",
 //   dialect: "postgres",
-  
-
 
 // });
 // // Test the database connection
 // async function testConnection() {
 
 //   try {
-       
+
 //     await sequelize.authenticate();
 //     console.log("Database connection has been established successfully.");
 //   } catch (error) {
@@ -35,18 +31,13 @@
 // //   })
 // //   .catch((error) => {
 // //     console.error('Error synchronizing database:', error);
-// //   }); 
-
-
+// //   });
 
 // testConnection();
 // module.exports = sequelize;
 
-
-
-
 // /// SECOND DATABASE
-// Remote Database 
+// Remote Database
 // require("dotenv").config();
 // const { Sequelize } = require("sequelize");
 // const sequelize = new Sequelize({
@@ -56,15 +47,13 @@
 //   username: "tksolwrm",
 //   password: "kL16oLCSAzmeRUR4WAdL8Nru6Dfzxb4c",
 //   dialect: "postgres",
-  
-
 
 // });
 // // Test the database connection
 // async function testConnection() {
 
 //   try {
-       
+
 //     await sequelize.authenticate();
 //     console.log("Database connection has been established successfully.");
 //   } catch (error) {
@@ -81,20 +70,12 @@
 // //   })
 // //   .catch((error) => {
 // //     console.error('Error synchronizing database:', error);
-// //   }); 
-
+// //   });
 
 // testConnection();
 // module.exports = sequelize;
 
-
-
-
-
-
-
-
-// // //PRODUCTION Database 
+// // //PRODUCTION Database
 require("dotenv").config();
 const { Sequelize } = require("sequelize");
 const sequelize = new Sequelize({
@@ -111,19 +92,14 @@ const sequelize = new Sequelize({
   //   acquire: 6000, // Increase timeout duration
   //   idle: 10000
   // }
-
-
 });
 // Test the database connection
 async function testConnection() {
-
   try {
-
-    
     await sequelize.authenticate();
     console.log("Database connection has been established successfully.");
   } catch (error) {
-    console.log(error)
+    console.log(error);
     // console.log(process.env.DB_HOST)
     console.error("Error connecting");
   }
@@ -135,18 +111,12 @@ async function testConnection() {
 //   })
 //   .catch((error) => {
 //     console.error('Error synchronizing database:', error.message);
-//   }); 
+//   });
 
 testConnection();
 module.exports = sequelize;
 
-
-
 //
-
-
-
-
 
 // RENDER
 
@@ -178,8 +148,7 @@ module.exports = sequelize;
 
 //   try {
 
-    
-//     await sequelize.authenticate(); 
+//     await sequelize.authenticate();
 //     console.log("Database connection has been established successfully.");
 //   } catch (error) {
 //     console.log(error)
@@ -194,17 +163,15 @@ module.exports = sequelize;
 // //   })
 // //   .catch((error) => {
 // //     console.error('Error synchronizing database:', error);
-// //   }); 
+// //   });
 
 // testConnection();
 // module.exports = sequelize;
 
-
-
 ///THIRD
 
 // /// THIRD DATABASE
-// Remote Database 
+// Remote Database
 // require("dotenv").config();
 // const { Sequelize } = require("sequelize");
 // const sequelize = new Sequelize({
@@ -214,15 +181,13 @@ module.exports = sequelize;
 //   username: "jaracoti",
 //   password: "tk4lxfpjvOv48AsV5hKRB3snExVO9H6W",
 //   dialect: "postgres",
-  
-
 
 // });
 // // Test the database connection
 // async function testConnection() {
 
 //   try {
-       
+
 //     await sequelize.authenticate();
 //     console.log("Database connection has been established successfully.");
 //   } catch (error) {
@@ -239,8 +204,7 @@ module.exports = sequelize;
 // //   })
 // //   .catch((error) => {
 // //     console.error('Error synchronizing database:', error);
-// //   }); 
-
+// //   });
 
 // testConnection();
 // module.exports = sequelize;

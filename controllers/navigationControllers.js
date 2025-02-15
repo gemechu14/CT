@@ -272,9 +272,11 @@ exports.createNavigation = async (req, res, next) => {
       type,
     } = req.body;
 
-    const user = await User.findByPk(req.user.id);
-
-    const existingTitle = await NavigationContent.findOne({ where: { Title } });
+    const user = await User.findByPk(req?.user?.id);
+    // return res.json(user?.currentTenant);
+    const existingTitle = await NavigationContent.findOne({
+      where: { Title, TenantId: Number(user?.currentTenant) },
+    });
     if (existingTitle) {
       return next(
         createError.createError(400, "Navigation Title already defined")
