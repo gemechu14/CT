@@ -87,12 +87,12 @@ exports.getAllUserUnderTeam = async (req, res, next) => {
 exports.createTeams = async (req, res, next) => {
   try {
     const { teamName, description, status } = req.body;
-
-    const existingTeam = await Team.findOne({ where: { teamName } });
+    const user = await User.findByPk(req.user.id);
+    const existingTeam = await Team.findOne({ where: { teamName,TenantId: Number(user?.currentTenant) } });
     if (existingTeam) {
       return next(createError.createError(400, "Team already defined "));
     }
-    const user = await User.findByPk(req.user.id);
+
     const newTeam = await Team.create({
       teamName,
       description,
